@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+
+body {
+  min-width: 320px;
+}
+
+:root{
+  --ui-primary: var(--color-blue-400);
+}
+
+#app {
+  max-width: 1280px;
+}
