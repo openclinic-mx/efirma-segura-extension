@@ -16,7 +16,9 @@ export const useSignature = () => {
 
     const key = ref<File | null>(null);
 
-    const password = ref<string>('');
+    const password = ref('');
+
+    const readKey = ref<string | null>(null);
 
     const parsedCertificate = ref<Certificate | null>(null);
     const parsedKey = ref<PrivateKey | null>(null);
@@ -57,16 +59,23 @@ export const useSignature = () => {
         parsedCertificate.value = new Certificate(file);
     });
 
-    watch([password, key], async ([passwordValue, keyValue]) => {
-        if (!passwordValue || !keyValue) {
+    watch(key, async (value) => {
+        if (!value) {
+            readKey.value = null;
+            return;
+        }
+
+        readKey.value = await fileToString(value);
+    })
+
+    watch([password, readKey], async ([passwordValue, readKeyValue]) => {
+        if (!passwordValue || !readKeyValue) {
             parsedKey.value = null;
             return;
         }
 
-        const file = await fileToString(keyValue);
-
         try {
-            parsedKey.value = new PrivateKey(file, passwordValue);
+            parsedKey.value = new PrivateKey(readKeyValue, passwordValue);
         } catch (e) {
             parsedKey.value = null;
         }

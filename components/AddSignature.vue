@@ -10,7 +10,10 @@ const {
   key,
   cer,
   password,
-  parsedCertificate
+  parsedCertificate,
+    isCorrectPair,
+    isValid,
+    isCorrectPassword
 } = useSignature();
 
 watch(parsedCertificate, (value) => {
@@ -58,6 +61,10 @@ const show = ref(false)
 
         </UInput>
       </UFormField>
+
+      <p>isCorrectPair: {{ isCorrectPair }}</p>
+      <p>isCorrectPassword: {{ isCorrectPassword }}</p>
+      <p>isValid: {{ isValid }}</p>
 
       <UButton type="submit" block>Guardar e.firma</UButton>
     </form>
