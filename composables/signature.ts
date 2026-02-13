@@ -1,23 +1,13 @@
-import {computed, ref, watch} from "vue";
+import {computed, Ref, ref, watch} from "vue";
 import {Certificate, PrivateKey} from "@nodecfdi/credentials/browser";
 import {isFuture} from "date-fns";
+import {readFileAsBinaryString} from "../utils/files";
 
-const fileToString = (file: File) => {
-    return new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onerror = () => reject(reader.error);
-        reader.onload = () => resolve(reader.result as string);
-        reader.readAsBinaryString(file);
-    });
-};
-
-export const useSignature = () => {
-    const cer = ref<File | null>(null);
-
-    const key = ref<File | null>(null);
-
-    const password = ref('');
-
+export const useSignature = (
+    cer: Ref<File | null>,
+    key: Ref<File | null>,
+    password: Ref<string>,
+) => {
     const readKey = ref<string | null>(null);
 
     const parsedCertificate = ref<Certificate | null>(null);
@@ -32,7 +22,7 @@ export const useSignature = () => {
     });
 
     const isCorrectPassword = computed(() => {
-        if (!password.value) {
+        if (!password.value || !key.value) {
             return null;
         }
 
@@ -54,7 +44,7 @@ export const useSignature = () => {
             return;
         }
 
-        const file = await fileToString(value);
+        const file = await readFileAsBinaryString(value);
 
         parsedCertificate.value = new Certificate(file);
     });
@@ -65,7 +55,7 @@ export const useSignature = () => {
             return;
         }
 
-        readKey.value = await fileToString(value);
+        readKey.value = await readFileAsBinaryString(value);
     })
 
     watch([password, readKey], async ([passwordValue, readKeyValue]) => {

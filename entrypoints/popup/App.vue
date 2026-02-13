@@ -1,13 +1,8 @@
 <script lang="ts" setup>
-import LockedVault from '@/components/LockedVault.vue';
-import AddSignature from '@/components/AddSignature.vue';
-import OpenVault from "../../components/OpenVault.vue";
 import {ref} from "vue";
 
 
 const unlocked = ref(false);
-
-const page = ref('/');
 </script>
 
 <template>
@@ -17,24 +12,16 @@ const page = ref('/');
 
       <template #header>
         <UDashboardNavbar title="e.firma Segura" icon="i-lucide-landmark" :toggle="false" :ui="{ title: 'text-base' }">
-
-          <template #right v-if="page === '/signatures/create'">
-            <UButton icon="i-lucide-arrow-left" @click="page = '/'" size="sm" variant="ghost">Regresar</UButton>
+          <template #right>
+            <div id="navBarRight">
+              <UButton icon="i-lucide-lock" v-if="$router.ful" @click="unlocked = false" size="sm" variant="ghost">Cerrar</UButton>
+            </div>
           </template>
-
-          <template #right v-else-if="unlocked">
-            <UButton icon="i-lucide-lock" @click="unlocked = false" size="sm" variant="ghost">Cerrar</UButton>
-          </template>
-
         </UDashboardNavbar>
       </template>
 
       <template #body>
-        <LockedVault v-if="!unlocked" @unlock="unlocked = true"/>
-        <template v-else>
-          <OpenVault v-if="page === '/'" @navigate="page = $event"/>
-          <AddSignature v-if="page === '/signatures/create'"/>
-        </template>
+        <RouterView />
       </template>
     </UDashboardPanel>
   </UApp>

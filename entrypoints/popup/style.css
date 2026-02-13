@@ -7,7 +7,7 @@ body {
 }
 
 :root{
-  --ui-primary: var(--color-blue-400);
+  --ui-primary: #19f30d;
 }
 
 #app {

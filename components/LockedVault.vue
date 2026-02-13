@@ -12,7 +12,7 @@ const state = reactive({
 <template>
   <UPageCard title="Ingresa tu contraseña maestra para desbloquear." variant="naked">
 
-    <form @submit.prevent="$emit('unlock')" class="contents">
+    <form @submit.prevent="$router.replace({ name: 'vault' })" class="contents">
       <UFormField label="Contraseña maestra" required size="xl" class="w-full">
         <UInput type="password" required class="block" placeholder="Mínimo 10 caracteres">
         </UInput>

@@ -6,9 +6,7 @@ export default defineConfig({
   modules: ['@wxt-dev/module-vue'],
   vite: () => ({
     plugins: [
-        ui({
-          router: false
-        })
+        ui()
     ]
   })
 });
