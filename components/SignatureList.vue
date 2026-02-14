@@ -98,6 +98,8 @@ defineShortcuts({
 function onSelect() {
 
 }
+
+const autoSubmit = ref(true)
 </script>
 
 <template>
@@ -108,17 +110,19 @@ function onSelect() {
     </template>
   </UInput>
 
+  <USwitch label="Autocompletar y enviar formulario" v-model="autoSubmit"/>
+
   <UPageList>
     <UPageCard
         v-for="(user, index) in users"
         :key="index"
         variant="ghost"
-        class="cursor-pointer group text-left"
+        class="cursor-pointer group text-left -mx-4"
         as="button"
         @click=""
         :target="user.target"
         :ui="{
-          body: 'w-full flex items-center justify-between'
+          body: 'w-full flex items-center justify-between ',
         }"
     >
       <template #body>
