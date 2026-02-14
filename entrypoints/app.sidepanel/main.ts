@@ -2,7 +2,7 @@ import {createApp} from 'vue';
 import './style.css';
 import App from './App.vue';
 import ui from '@nuxt/ui/vue-plugin'
-import {createMemoryHistory, createRouter} from 'vue-router'
+import {createRouter, createWebHashHistory} from 'vue-router'
 
 import LockedVault from '@/components/LockedVault.vue';
 import AddSignature from '@/components/AddSignature.vue';
@@ -26,10 +26,15 @@ const router = createRouter({
             component: AddSignature,
         }
     ],
-    history: createMemoryHistory()
+    history: createWebHashHistory()
 })
 
 createApp(App)
     .use(router)
-    .use(ui)
+    .use(ui, {
+        router: (event, route) => {
+            event.preventDefault()
+            router.replace(route.href)
+        }
+    })
     .mount('#app');

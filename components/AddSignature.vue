@@ -17,6 +17,7 @@ const {
   parsedCertificate,
   isCorrectPair,
   isValid,
+  isSignature,
   isCorrectPassword
 } = useSignature(
     cer,
@@ -26,13 +27,21 @@ const {
 
 const schema = z.object({
   name: z.string(),
-  cer: z.file().refine((val) => isValid.value === null ? true : isValid.value, {
+  cer: z.file({
+    error: 'El archivo .CER es requerido'
+  }).refine((val) => isValid.value === null ? true : isValid.value, {
     error: `El certificado expiró`
+  }).refine((val) => isValid.value === null ? true : isSignature.value, {
+    error: `El certificado corresponde a un Certificado de Sello Digital`
   }),
-  key: z.file().refine(() => isCorrectPair.value === null ? true : isCorrectPair.value, {
+  key: z.file({
+    error: 'El archivo .KEY es requerido'
+  }).refine(() => isCorrectPair.value === null ? true : isCorrectPair.value, {
     error: `La llave privada no corresponde al certificado`,
   }),
-  password: z.string().refine(() => isCorrectPassword.value === null ? true : isCorrectPassword.value, {
+  password: z.string({
+    error: 'La contraseña es requerida'
+  }).refine(() => isCorrectPassword.value === null ? true : isCorrectPassword.value, {
     error: `La contraseña no es correcta`,
   }),
 })

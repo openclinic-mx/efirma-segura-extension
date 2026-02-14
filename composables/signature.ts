@@ -21,6 +21,16 @@ export const useSignature = (
         return isFuture(parsedCertificate.value.validTo());
     });
 
+    const isSignature = computed(() => {
+        if (!parsedCertificate.value) {
+            return null;
+        }
+
+        return true;
+
+        // return parsedCertificate.value.satType.isFiel()
+    });
+
     const isCorrectPassword = computed(() => {
         if (!password.value || !key.value) {
             return null;
@@ -78,7 +88,9 @@ export const useSignature = (
         isValid,
         isCorrectPassword,
         isCorrectPair,
+        isSignature,
         parsedCertificate,
         parsedKey,
+
     }
 }
