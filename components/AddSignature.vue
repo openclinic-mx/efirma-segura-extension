@@ -4,6 +4,7 @@ import {useSignature} from "@/composables/signature";
 import {useNavigation} from "@/composables/navigation";
 import * as z from 'zod'
 import type {FormSubmitEvent} from '@nuxt/ui'
+import {readFileAsBase64, readFileAsBinaryString} from "@/utils/files";
 
 const state = reactive({
   name: '',
@@ -59,12 +60,16 @@ watch(parsedCertificate, (value) => {
 const show = ref(false)
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
+
+  const cer = await readFileAsBase64(event.data.cer)
+  const key = await readFileAsBase64(event.data.key)
+
   await browser.runtime.sendMessage({
     type: 'VAULT_ADD',
     payload: {
       name: state.name,
-      cer: event.data.cer.arrayBuffer(),
-      key: event.data.key.arrayBuffer(),
+      cer,
+      key,
       password: state.password,
     }
   })

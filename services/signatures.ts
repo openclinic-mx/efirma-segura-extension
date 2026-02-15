@@ -1,7 +1,7 @@
 import {DatabaseService} from "./database";
 import {KdbxEntry, ProtectedValue} from 'kdbxweb';
 import {Certificate, PrivateKey} from "@nodecfdi/credentials/browser";
-import {arrayBufferToBinaryString} from "@/utils/files";
+import {bytesToBinaryString, readBufferAsBinaryString} from "@/utils/files";
 
 type SignatureMeta = {
     id: string
@@ -47,11 +47,11 @@ export class SignatureService {
         return entryToSignature(entry);
     }
 
-    addSignature(title: string, cer: ArrayBuffer, key: ArrayBuffer, password: string) {
+    addSignature(title: string, cer: Uint8Array, key: Uint8Array, password: string) {
 
-        const certificate = new Certificate(arrayBufferToBinaryString(cer));
+        const certificate = new Certificate(bytesToBinaryString(cer));
 
-        const privateKey = new PrivateKey(arrayBufferToBinaryString(key), password);
+        const privateKey = new PrivateKey(bytesToBinaryString(key), password);
 
         if (!privateKey.belongsTo(certificate)) {
             throw new Error('Private key does not belongs to certificate');

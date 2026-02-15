@@ -3,6 +3,7 @@
 import {StorageService} from "@/services/storage";
 import {DatabaseService} from "@/services/database";
 import {SignatureService} from "@/services/signatures";
+import {readBase64AsBytes} from "@/utils/files";
 
 export default defineBackground(() => {
 
@@ -106,8 +107,8 @@ export default defineBackground(() => {
 
                 await signatureService.addSignature(
                     name,
-                    cer,
-                    key,
+                    readBase64AsBytes(cer),
+                    readBase64AsBytes(key),
                     password
                 )
 

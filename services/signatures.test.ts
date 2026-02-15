@@ -17,7 +17,7 @@ beforeEach(async () => {
     fakeBrowser.reset();
     databaseService = new DatabaseService(storageService);
     signatureService = new SignatureService(databaseService);
-    await signatureService.initialize('test')
+    await databaseService.initialize('test')
 
     cer = await readFile('./tests/fixtures/signature/signature.cer')
     key = await readFile('./tests/fixtures/signature/signature.key')
@@ -30,8 +30,8 @@ test('can add a signature', async () => {
 
     await signatureService.addSignature(
         'title',
-        cer.buffer,
-        key.buffer,
+        cer,
+        key,
         '12345678a'
     )
 
@@ -43,8 +43,8 @@ test('can add a signature', async () => {
 test('can use a signature', async () => {
     const id = await signatureService.addSignature(
         'title',
-        cer.buffer,
-        key.buffer,
+        cer,
+        key,
         '12345678a'
     )
 

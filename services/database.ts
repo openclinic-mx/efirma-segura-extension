@@ -1,6 +1,6 @@
 import {Consts, Credentials, Kdbx, KdbxEntry, ProtectedValue} from 'kdbxweb';
 import {StorageService} from "./storage";
-import {readBufferAsBase64} from "@/utils/files";
+import {readBase64AsBytes, readBufferAsBase64} from "@/utils/files";
 
 export class DatabaseService {
 
@@ -50,9 +50,9 @@ export class DatabaseService {
             throw new Error("Database not found: Ensure database is initialized");
         }
 
-        const buffer = readBase64AsBuffer(base64 as string);
+        const bytes = readBase64AsBytes(base64 as string);
 
-        return await Kdbx.load(buffer, credentials);
+        return await Kdbx.load(bytes.buffer as ArrayBuffer, credentials);
     }
 
     async unlock(masterPassword: string) {
