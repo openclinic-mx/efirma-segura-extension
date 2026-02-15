@@ -14,8 +14,8 @@ export class DatabaseService {
         this.storage = storage;
     }
 
-    isInitialized(): boolean {
-        return !!this.storage.read(this.storageKey);
+    async isInitialized(): Promise<boolean> {
+        return !!(await this.storage.read(this.storageKey));
     }
 
     isUnlocked(): boolean {

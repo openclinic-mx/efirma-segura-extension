@@ -10,7 +10,7 @@ export default defineConfig({
     vite: () => ({
         plugins: [
             ui({
-                router: true
+                router: false
             })
         ]
     }),

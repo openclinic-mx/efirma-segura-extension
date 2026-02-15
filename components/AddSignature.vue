@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {reactive, ref, toRefs, watch} from "vue";
 import {useSignature} from "@/composables/signature";
+import {useNavigation} from "@/composables/navigation";
 import * as z from 'zod'
 import type {FormSubmitEvent} from '@nuxt/ui'
 
@@ -58,12 +59,32 @@ watch(parsedCertificate, (value) => {
 const show = ref(false)
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  console.log(event.data)
+  await browser.runtime.sendMessage({
+    type: 'VAULT_ADD',
+    payload: {
+      name: state.name,
+      cer: event.data.cer.arrayBuffer(),
+      key: event.data.key.arrayBuffer(),
+      password: state.password,
+    }
+  })
+
+  navigate('home')
 }
+
+const {navigate} = useNavigation()
 </script>
 
 <template>
   <UPageCard title="Nueva e.firma" variant="naked" :ui="{ container: 'w-full' }">
+
+    <template #title>
+      <div class="items-center flex gap-2">
+        <UButton icon="i-lucide-arrow-left" variant="ghost" @click="navigate('home')"></UButton>
+        <span>Nueva e.firma</span>
+      </div>
+    </template>
+
     <UForm @submit.prevent="onSubmit" :schema="schema" :state="state" class="contents">
       <UFormField label="Archivo .CER" required class="w-full" name="cer">
         <UFileUpload required accept=".cer" v-model="state.cer" position="inside" layout="list">
@@ -100,11 +121,5 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       </UFormField>
       <UButton type="submit" block>Guardar e.firma</UButton>
     </UForm>
-
-    <Teleport to="#navBarRight">
-      <UButton icon="i-lucide-arrow-left" @click="$router.replace({ name: 'vault' })" size="sm" variant="ghost">
-        Regresar
-      </UButton>
-    </Teleport>
   </UPageCard>
 </template>

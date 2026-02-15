@@ -23,7 +23,6 @@
     "kdbxweb": "^2.1.1",
     "tailwindcss": "^4.1.18",
     "vue": "^3.5.27",
-    "vue-router": "^4.6.4",
     "zod": "^4.3.6"
   },
   "devDependencies": {

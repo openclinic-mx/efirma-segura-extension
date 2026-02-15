@@ -24,12 +24,10 @@ export default defineContentScript({
                 trigger.classList.add('btn', 'btn-success')
                 trigger.textContent = "Autocompletar";
                 trigger.addEventListener('click', () => {
-                    browser.runtime.sendMessage({source: 'ui', type: 'autocomplete'})
+                    browser.runtime.sendMessage({type: 'OPEN_TAB'})
                 })
 
                 if (passwordForm) {
-                    // browser.runtime.sendMessage({source: 'ui', type: 'enableTab'})
-
                     const anchor = passwordForm.querySelector('#buttonFiel')
                     if (!anchor) {
                         return;
@@ -37,7 +35,6 @@ export default defineContentScript({
                     anchor.parentNode!.prepend(trigger)
                     return;
                 } else if (signatureFormCer && signatureFormKey && signatureFormPassword) {
-                    // browser.runtime.sendMessage({source: 'ui', type: 'enableTab'})
                     const anchor = document.querySelector('#contrasena')
                     if (!anchor) {
                         return;
@@ -45,7 +42,7 @@ export default defineContentScript({
                     anchor.parentNode!.prepend(trigger)
                     return;
                 } else {
-                    // browser.runtime.sendMessage({source: 'ui', type: 'disableTab'})
+
                 }
             },
         });

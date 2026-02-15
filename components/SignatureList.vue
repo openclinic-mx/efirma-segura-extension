@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {ref, useTemplateRef} from 'vue'
+import {useNavigation} from "@/composables/navigation";
 
 const users = ref([
   {
@@ -12,115 +13,12 @@ const users = ref([
       alt: 'benjamincanac'
     }
   },
-  {
-    name: 'Romain Hamel',
-    description: 'romhml',
-    to: 'https://github.com/romhml',
-    target: '_blank',
-    avatar: {
-      src: 'https://github.com/romhml.png',
-      alt: 'romhml'
-    }
-  },
-  {
-    name: 'Sébastien Chopin',
-    description: 'atinux',
-    to: 'https://github.com/atinux',
-    target: '_blank',
-    avatar: {
-      src: 'https://github.com/atinux.png',
-      alt: 'atinux'
-    }
-  },
-  {
-    name: 'Hugo Richard',
-    description: 'HugoRCD',
-    to: 'https://github.com/HugoRCD',
-    target: '_blank',
-    avatar: {
-      src: 'https://github.com/HugoRCD.png',
-      alt: 'HugoRCD'
-    }
-  },
-  {
-    name: 'Sandro Circi',
-    description: 'sandros94',
-    to: 'https://github.com/sandros94',
-    target: '_blank',
-    avatar: {
-      src: 'https://github.com/sandros94.png',
-      alt: 'sandros94'
-    }
-  },
-  {
-    name: 'Daniel Roe',
-    description: 'danielroe',
-    to: 'https://github.com/danielroe',
-    target: '_blank',
-    avatar: {
-      src: 'https://github.com/danielroe.png',
-      alt: 'danielroe'
-    }
-  },
-  {
-    name: 'Jakub Michálek',
-    description: 'J-Michalek',
-    to: 'https://github.com/J-Michalek',
-    target: '_blank',
-    avatar: {
-      src: 'https://github.com/J-Michalek.png',
-      alt: 'J-Michalek'
-    }
-  },
-  {
-    name: 'Eugen Istoc',
-    description: 'genu',
-    to: 'https://github.com/genu',
-    target: '_blank',
-    avatar: {
-      src: 'https://github.com/genu.png',
-      alt: 'genu'
-    }
-  },
-  {
-    name: 'Daniel Roe',
-    description: 'danielroe',
-    to: 'https://github.com/danielroe',
-    target: '_blank',
-    avatar: {
-      src: 'https://github.com/danielroe.png',
-      alt: 'danielroe'
-    }
-  },
-  {
-    name: 'Jakub Michálek',
-    description: 'J-Michalek',
-    to: 'https://github.com/J-Michalek',
-    target: '_blank',
-    avatar: {
-      src: 'https://github.com/J-Michalek.png',
-      alt: 'J-Michalek'
-    }
-  },
-  {
-    name: 'Eugen Istoc',
-    description: 'genu',
-    to: 'https://github.com/genu',
-    target: '_blank',
-    avatar: {
-      src: 'https://github.com/genu.png',
-      alt: 'genu'
-    }
-  }
 ])
 
 const input = useTemplateRef('input')
 
 defineShortcuts({
   '/': () => {
-
-    console.log('input!')
-
     input.value?.inputRef?.focus()
   }
 })
@@ -130,6 +28,16 @@ function onSelect() {
 }
 
 const autoSubmit = ref(true)
+
+const {navigate} = useNavigation()
+
+onMounted(async () => {
+  const response = await browser.runtime.sendMessage({
+    type: 'VAULT_LIST',
+  })
+
+  console.log(response)
+})
 </script>
 
 <template>
@@ -141,10 +49,9 @@ const autoSubmit = ref(true)
   </UInput>
 
 
-
   <USwitch label="Autocompletar y enviar formulario" v-model="autoSubmit"/>
 
-  <UButton type="submit" block @click="$router.replace({ name: 'vault-signatures-create' })"
+  <UButton type="submit" block @click="navigate('create')"
            icon="i-lucide-plus"
            variant="ghost"
   >
@@ -168,10 +75,11 @@ const autoSubmit = ref(true)
         <UUser :name="user.name"
                description="AUGO970113P27"
                :avatar="{ icon: 'i-lucide-key' }"
-               size="xl" class="relative" />
+               size="xl" class="relative"/>
 
 
-        <UIcon name="i-lucide-arrow-right" class="size-5 group-hover:opacity-100 group-focus-visible:opacity-100 opacity-0 transition text-primary"></UIcon>
+        <UIcon name="i-lucide-arrow-right"
+               class="size-5 group-hover:opacity-100 group-focus-visible:opacity-100 opacity-0 transition text-primary"></UIcon>
       </template>
     </UPageCard>
   </UPageList>

@@ -14,7 +14,11 @@ beforeEach(async () => {
     await databaseService.initialize('test')
 });
 
+
+
 test('can initialize', async () => {
+    await databaseService.deleteDatabase()
+    expect(await databaseService.isInitialized()).toBe(true)
     expect(await storageService.read(databaseService.storageKey)).not.toBeNull()
 })
 

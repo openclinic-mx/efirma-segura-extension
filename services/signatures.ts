@@ -33,18 +33,6 @@ export class SignatureService {
         this.database = database;
     }
 
-    async initialize(masterPassword: string) {
-        return this.database.initialize(masterPassword);
-    }
-
-    async unlock(masterPassword: string) {
-        return this.database.unlock(masterPassword);
-    }
-
-    async lock() {
-        return this.database.lock();
-    }
-
     async getSignaturesMeta(): Promise<SignatureMeta[]> {
         const entries = await this.database.getEntries()
         return entries.map(entryToSignatureMeta)
