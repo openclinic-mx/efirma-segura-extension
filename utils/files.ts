@@ -1,4 +1,4 @@
-const arrayBufferToBinaryString = (buffer: ArrayBuffer): string => {
+export const arrayBufferToBinaryString = (buffer: ArrayBuffer): string => {
     const bytes = new Uint8Array(buffer);
     return String.fromCharCode(...bytes);
 };

@@ -19,7 +19,7 @@ export default defineBackground(() => {
             } else {
                 browser.sidePanel.setOptions({
                     tabId: sender.tab.id,
-                    path: 'app.html',
+                    path: `app.html`,
                     enabled: true
                 })
 

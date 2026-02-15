@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {reactive, ref, toRefs, watch} from "vue";
-import {useSignature} from "../composables/signature";
+import {useSignature} from "@/composables/signature";
 import * as z from 'zod'
 import type {FormSubmitEvent} from '@nuxt/ui'
 

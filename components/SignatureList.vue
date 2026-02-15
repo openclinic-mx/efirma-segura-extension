@@ -81,6 +81,36 @@ const users = ref([
       src: 'https://github.com/genu.png',
       alt: 'genu'
     }
+  },
+  {
+    name: 'Daniel Roe',
+    description: 'danielroe',
+    to: 'https://github.com/danielroe',
+    target: '_blank',
+    avatar: {
+      src: 'https://github.com/danielroe.png',
+      alt: 'danielroe'
+    }
+  },
+  {
+    name: 'Jakub Michálek',
+    description: 'J-Michalek',
+    to: 'https://github.com/J-Michalek',
+    target: '_blank',
+    avatar: {
+      src: 'https://github.com/J-Michalek.png',
+      alt: 'J-Michalek'
+    }
+  },
+  {
+    name: 'Eugen Istoc',
+    description: 'genu',
+    to: 'https://github.com/genu',
+    target: '_blank',
+    avatar: {
+      src: 'https://github.com/genu.png',
+      alt: 'genu'
+    }
   }
 ])
 
@@ -110,7 +140,16 @@ const autoSubmit = ref(true)
     </template>
   </UInput>
 
+
+
   <USwitch label="Autocompletar y enviar formulario" v-model="autoSubmit"/>
+
+  <UButton type="submit" block @click="$router.replace({ name: 'vault-signatures-create' })"
+           icon="i-lucide-plus"
+           variant="ghost"
+  >
+    Agregar e.firma
+  </UButton>
 
   <UPageList>
     <UPageCard

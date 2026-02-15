@@ -21,15 +21,6 @@ const actions = [
 
   <template v-if="true">
     <SignatureList/>
-
-    <div class="mt-auto"></div>
-
-
-
-    <UButton type="submit" block @click="$router.replace({ name: 'vault-signatures-create' })"
-             icon="i-lucide-plus">
-      Agregar e.firma
-    </UButton>
   </template>
 
 
