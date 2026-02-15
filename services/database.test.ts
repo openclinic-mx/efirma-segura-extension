@@ -34,14 +34,11 @@ test('can lock and unlock', async () => {
 
 
 test('can get entries', async () => {
-
     expect(
         await databaseService.getEntries()
     ).toHaveLength(0)
 
     await databaseService.addEntry(async (entry) => entry)
-
-    console.log(await databaseService.getEntries())
 
     expect(
         await databaseService.getEntries()
@@ -104,4 +101,18 @@ test('cannot remove entries while locked', async () => {
     expect(
         await databaseService.getEntries()
     ).toHaveLength(1)
+})
+
+
+test('cannot unlock with wrong password', async () => {
+
+    expect(databaseService.isUnlocked()).toBe(true);
+
+    databaseService.lock()
+
+    expect(databaseService.isUnlocked()).toBe(false);
+
+    await expect(databaseService.unlock('test1')).rejects.toThrowError();
+
+    expect(databaseService.isUnlocked()).toBe(false);
 })

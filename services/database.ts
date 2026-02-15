@@ -1,25 +1,6 @@
-import {Consts, Credentials, CryptoEngine, Kdbx, KdbxEntry, ProtectedValue} from 'kdbxweb';
-import argon2 from 'argon2-browser/dist/argon2-bundled.min';
+import {Consts, Credentials, Kdbx, KdbxEntry, ProtectedValue} from 'kdbxweb';
 import {StorageService} from "./storage";
 import {readBufferAsBase64} from "@/utils/files";
-
-CryptoEngine.setArgon2Impl(
-    (password, salt, memory, iterations, length, parallelism, type, version) => {
-        console.log('Using argon2 implementation', version);
-        return argon2
-            .hash({
-                pass: new Uint8Array(password),
-                salt: new Uint8Array(salt),
-                time: iterations,
-                mem: memory,
-                hashLen: length,
-                parallelism,
-                type,
-                version,
-            })
-            .then((v) => v.hash);
-    }
-);
 
 export class DatabaseService {
 
@@ -27,7 +8,7 @@ export class DatabaseService {
 
     private storage: StorageService;
 
-    private masterPassword: string = "";
+    private credentials: Credentials | null = null;
 
     constructor(storage: StorageService) {
         this.storage = storage;
@@ -38,13 +19,14 @@ export class DatabaseService {
     }
 
     isUnlocked(): boolean {
-        return !!this.masterPassword;
+        return this.credentials !== null;
     }
 
-    assertUnlocked(): void {
-        if (!this.isUnlocked()) {
+    private getDb(): Promise<Kdbx> {
+        if (!this.credentials) {
             throw new Error("Credentials not found: Ensure database is open before interacting with it");
         }
+        return this.open(this.credentials);
     }
 
     async initialize(masterPassword: string) {
@@ -53,7 +35,7 @@ export class DatabaseService {
         db.setVersion(4);
         db.setKdf(Consts.KdfId.Aes);
         await this.save(db);
-        this.masterPassword = masterPassword;
+        this.credentials = credentials;
     }
 
     private async save(db: Kdbx) {
@@ -61,7 +43,7 @@ export class DatabaseService {
         await this.storage.write(this.storageKey, readBufferAsBase64(buffer));
     }
 
-    private async open(masterPassword: string) {
+    private async open(credentials: Credentials) {
         const base64 = await this.storage.read(this.storageKey);
 
         if (!base64) {
@@ -70,26 +52,25 @@ export class DatabaseService {
 
         const buffer = readBase64AsBuffer(base64 as string);
 
-        const credentials = new Credentials(ProtectedValue.fromString(masterPassword));
-
         return await Kdbx.load(buffer, credentials);
     }
 
     async unlock(masterPassword: string) {
-        await this.open(masterPassword);
-        this.masterPassword = masterPassword;
+        const credentials = new Credentials(
+            ProtectedValue.fromString(masterPassword)
+        )
+
+        await this.open(credentials)
+
+        this.credentials = credentials
     }
 
     lock() {
-        this.masterPassword = "";
+        this.credentials = null;
     }
 
     async getEntries(): Promise<KdbxEntry[]> {
-        this.assertUnlocked();
-
-        // every time we call this open should not include a master password but credentials,
-        // and we should have a way to use reuse a db
-        const db = await this.open(this.masterPassword);
+        const db = await this.getDb();
 
         const group = db.getDefaultGroup();
 
@@ -97,19 +78,15 @@ export class DatabaseService {
     }
 
     async getEntry(uuid: string): Promise<KdbxEntry | null> {
-        this.assertUnlocked();
-
-        const db = await this.open(this.masterPassword);
+        const db = await this.getDb();
 
         const group = db.getDefaultGroup();
 
         const entry = group.entries.find((entry) => entry.uuid.toString() === uuid) ?? null
 
         if (entry) {
-            entry.pushHistory();
             entry.times.update();
-            entry.times.usageCount = entry.times.usageCount ?? 0;
-            entry.times.usageCount += 1;
+            entry.times.usageCount = (entry.times.usageCount ?? 0) + 1;
             await this.save(db);
         }
 
@@ -117,9 +94,7 @@ export class DatabaseService {
     }
 
     async addEntry(withData: (entry: KdbxEntry) => Promise<KdbxEntry>): Promise<string> {
-        this.assertUnlocked();
-
-        const db = await this.open(this.masterPassword);
+        const db = await this.getDb();
 
         const group = db.getDefaultGroup();
 
@@ -133,9 +108,7 @@ export class DatabaseService {
     }
 
     async removeEntry(uuid: string) {
-        this.assertUnlocked();
-
-        const db = await this.open(this.masterPassword);
+        const db = await this.getDb();
 
         const group = db.getDefaultGroup();
 
@@ -155,9 +128,12 @@ export class DatabaseService {
 
 
     async updatePassword(newPassword: string) {
-        const db = await this.open(this.masterPassword);
+        const db = await this.getDb();
         await db.credentials.setPassword(ProtectedValue.fromString(newPassword));
         await this.save(db);
+        this.credentials = new Credentials(
+            ProtectedValue.fromString(newPassword)
+        )
     }
 
     deleteDatabase() {
