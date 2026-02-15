@@ -52,7 +52,7 @@ export class DatabaseService {
 
         const bytes = readBase64AsBytes(base64 as string);
 
-        return await Kdbx.load(bytes.buffer as ArrayBuffer, credentials);
+        return await Kdbx.load(bytes.buffer, credentials);
     }
 
     async unlock(masterPassword: string) {

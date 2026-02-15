@@ -6,6 +6,7 @@ export default defineConfig({
     modules: ['@wxt-dev/module-vue'],
     manifest: {
         permissions: ['storage'],
+        name: 'e.firma Segura',
     },
     vite: () => ({
         plugins: [

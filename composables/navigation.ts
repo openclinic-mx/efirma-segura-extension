@@ -1,3 +1,5 @@
+import {ref} from 'vue';
+
 const view = ref('home')
 
 export const useNavigation = () => {

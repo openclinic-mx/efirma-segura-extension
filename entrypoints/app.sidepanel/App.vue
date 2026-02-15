@@ -4,6 +4,7 @@ import LockedVault from "@/components/LockedVault.vue";
 import OpenVault from "@/components/OpenVault.vue";
 import AddSignature from "@/components/AddSignature.vue";
 import {useNavigation} from "@/composables/navigation";
+import {ref, onMounted} from 'vue';
 
 const isLoading = ref(true);
 const isInitialized = ref(false);

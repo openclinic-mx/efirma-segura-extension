@@ -1,9 +1,9 @@
 import {DatabaseService} from "./database";
 import {KdbxEntry, ProtectedValue} from 'kdbxweb';
 import {Certificate, PrivateKey} from "@nodecfdi/credentials/browser";
-import {bytesToBinaryString, readBufferAsBinaryString} from "@/utils/files";
+import {bytesToBinaryString} from "@/utils/files";
 
-type SignatureMeta = {
+export type SignatureMeta = {
     id: string
 
     rfc: string
@@ -18,7 +18,7 @@ type SignatureMeta = {
     usageCount: number
 }
 
-type Signature = {
+export type Signature = {
     password: string
     cer: Uint8Array
     key: Uint8Array
@@ -47,7 +47,7 @@ export class SignatureService {
         return entryToSignature(entry);
     }
 
-    addSignature(title: string, cer: Uint8Array, key: Uint8Array, password: string) {
+    addSignature(title: string, cer: Uint8Array<ArrayBuffer>, key: Uint8Array<ArrayBuffer>, password: string) {
 
         const certificate = new Certificate(bytesToBinaryString(cer));
 
@@ -57,7 +57,14 @@ export class SignatureService {
             throw new Error('Private key does not belongs to certificate');
         }
 
-        return this.database.addEntry(signatureToEntryInstruction(title, cer, key, password))
+        return this.database.addEntry(
+            signatureToEntryInstruction(
+                title,
+                cer.buffer,
+                key.buffer,
+                password
+            )
+        )
     }
 
     removeSignature(uuid: string) {

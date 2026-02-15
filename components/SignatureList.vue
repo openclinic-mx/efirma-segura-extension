@@ -1,19 +1,7 @@
 <script setup lang="ts">
 import {ref, useTemplateRef} from 'vue'
 import {useNavigation} from "@/composables/navigation";
-
-const users = ref([
-  {
-    name: 'Benjamin Canac',
-    description: 'benjamincanac',
-    to: 'https://github.com/benjamincanac',
-    target: '_blank',
-    avatar: {
-      src: 'https://github.com/benjamincanac.png',
-      alt: 'benjamincanac'
-    }
-  },
-])
+import {SignatureMeta} from "@/services/signatures";
 
 const input = useTemplateRef('input')
 
@@ -23,9 +11,8 @@ defineShortcuts({
   }
 })
 
-function onSelect() {
 
-}
+const signatures = ref<SignatureMeta[]>([])
 
 const autoSubmit = ref(true)
 
@@ -36,8 +23,26 @@ onMounted(async () => {
     type: 'VAULT_LIST',
   })
 
-  console.log(response)
+  signatures.value = response.signatures
 })
+
+async function getActiveTabId() {
+  const [tab] = await browser.tabs.query({active: true, currentWindow: true});
+  return tab?.id;
+}
+
+async function onSelect(signature: SignatureMeta) {
+  const response = await browser.runtime.sendMessage({
+    type: 'AUTOCOMPLETE_REQUEST',
+    payload: {
+      id: signature.id,
+      tabId: await getActiveTabId(),
+      submit: autoSubmit.value
+    }
+  })
+
+  console.log(response)
+}
 </script>
 
 <template>
@@ -60,20 +65,19 @@ onMounted(async () => {
 
   <UPageList>
     <UPageCard
-        v-for="(user, index) in users"
+        v-for="(signature, index) in signatures"
         :key="index"
         variant="ghost"
         class="cursor-pointer group text-left -mx-4"
         as="button"
-        @click=""
-        :target="user.target"
+        @click="onSelect(signature)"
         :ui="{
           body: 'w-full flex items-center justify-between ',
         }"
     >
       <template #body>
-        <UUser :name="user.name"
-               description="AUGO970113P27"
+        <UUser :name="signature.legalName"
+               :description="signature.rfc"
                :avatar="{ icon: 'i-lucide-key' }"
                size="xl" class="relative"/>
 

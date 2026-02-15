@@ -3,7 +3,7 @@
 import {StorageService} from "@/services/storage";
 import {DatabaseService} from "@/services/database";
 import {SignatureService} from "@/services/signatures";
-import {readBase64AsBytes} from "@/utils/files";
+import {readBase64AsBytes, readBytesAsBase64} from "@/utils/files";
 
 export default defineBackground(() => {
 
@@ -25,13 +25,53 @@ export default defineBackground(() => {
     })
 
     const getVaultList = async () => ({
-        signatures: signatureService.getSignaturesMeta()
+        signatures: await signatureService.getSignaturesMeta()
     })
 
     browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (message.type === 'VAULT_LIST') {
             (async () => {
                 sendResponse(await getVaultList())
+            })();
+        }
+
+        if (message.type === 'AUTOCOMPLETE_REQUEST') {
+            (async () => {
+                const id = message.payload.id;
+                const tabId = message.payload.tabId;
+                const submit = message.payload.submit;
+
+                console.log({payload: message.payload})
+
+                const signature = await signatureService.getSignature(id);
+
+                if (!signature) {
+                    sendResponse({
+                        error: 'Signature not found'
+                    });
+                    return;
+                }
+
+                if (!tabId) {
+                    sendResponse({
+                        error: 'Need a tab id to autocomplete'
+                    });
+                    return;
+                }
+
+                browser.tabs.sendMessage(tabId, {
+                    type: 'AUTOCOMPLETE_ACTION',
+                    payload: {
+                        password: signature.password,
+                        cer: readBytesAsBase64(signature.cer),
+                        key: readBytesAsBase64(signature.key),
+                        submit: submit
+                    }
+                })
+
+                sendResponse({
+                    ok: true
+                });
             })();
         }
 
@@ -123,11 +163,12 @@ export default defineBackground(() => {
             })();
         }
 
-        if (message.type === 'OPEN_TAB') {
+        if (message.type === 'TOGGLE_TAB') {
             (async () => {
                 if (!sender.tab) {
                     return;
                 }
+
                 if (openTabs.has(sender.tab.id)) {
                     browser.sidePanel.close({
                         tabId: sender.tab.id,
@@ -145,6 +186,37 @@ export default defineBackground(() => {
                         windowId: sender.tab.windowId
                     })
                 }
+            })();
+        }
+
+        if (message.type === 'OPEN_TAB') {
+            (async () => {
+                if (!sender.tab) {
+                    return;
+                }
+
+                browser.sidePanel.setOptions({
+                    tabId: sender.tab.id,
+                    path: `app.html`,
+                    enabled: true
+                })
+
+                await browser.sidePanel.open({
+                    tabId: sender.tab.id,
+                    windowId: sender.tab.windowId
+                })
+            })();
+        }
+
+        if (message.type === 'CLOSE_TAB') {
+            (async () => {
+                if (!sender.tab) {
+                    return;
+                }
+                browser.sidePanel.close({
+                    tabId: sender.tab.id,
+                    windowId: sender.tab.windowId
+                })
             })();
         }
 
