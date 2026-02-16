@@ -2,15 +2,13 @@
 import type {SignatureMeta} from "@/services/signatures";
 import type {DropdownMenuItem} from '@nuxt/ui'
 import {useSignatures} from "@/composables/signatures";
-import {useAutocomplete} from "@/composables/autocomplete";
+import {computed} from 'vue'
 
 const props = defineProps<{
   signature: SignatureMeta
 }>()
 
 const {removeSignature} = useSignatures()
-
-const {select} = useAutocomplete()
 
 const items = computed<DropdownMenuItem[][]>(() => {
   return [

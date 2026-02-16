@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref, useTemplateRef} from 'vue'
+import {computed, ref, useTemplateRef} from 'vue'
 import {useNavigation} from "@/composables/navigation";
 import Fuse from 'fuse.js'
 import {useAutocomplete} from "@/composables/autocomplete";

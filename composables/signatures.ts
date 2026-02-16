@@ -1,5 +1,6 @@
 import {SignatureMeta} from "@/services/signatures";
 import {readFileAsBase64} from "@/utils/files";
+import { ref, watch, onMounted } from "vue";
 
 export const useSignatures = () => {
 

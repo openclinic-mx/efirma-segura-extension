@@ -18,3 +18,14 @@ export const setTextInput = (input: HTMLInputElement, value: string) => {
     input.dispatchEvent(new InputEvent("input", {bubbles: true, composed: true}));
     input.dispatchEvent(new Event("change", {bubbles: true}));
 }
+
+export const findCandidate = (selectors: string[]) => {
+    for (const selector of selectors) {
+        const input = document.querySelector(selector)
+        if (input) {
+            return input;
+        }
+    }
+
+    return null;
+}

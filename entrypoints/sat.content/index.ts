@@ -1,9 +1,8 @@
-import {setFileInput, setTextInput} from "@/utils/autocomplete";
+import {findCandidate, setFileInput, setTextInput} from "@/utils/autocomplete";
 
 export default defineContentScript({
     matches: [
-        "https://login.siat.sat.gob.mx/*",
-        "https://loginda.siat.sat.gob.mx/*",
+        "https://*.sat.gob.mx/*",
     ],
 
     allFrames: true,
@@ -17,9 +16,9 @@ export default defineContentScript({
             onMount: (container) => {
                 const passwordForm = document.querySelector('#IDPLogin');
 
-                const signatureFormCer = document.querySelector('#fileCertificate');
-                const signatureFormKey = document.querySelector('#filePrivateKey');
-                const signatureFormPassword = document.querySelector('#privateKeyPassword');
+                const signatureFormCer = findCandidate(['#fileCertificate']);
+                const signatureFormKey = findCandidate(['#filePrivateKey']);
+                const signatureFormPassword = findCandidate(['#privateKeyPassword']);
 
                 const trigger = document.createElement("button");
                 trigger.type = 'button';
@@ -63,6 +62,12 @@ export default defineContentScript({
                     }
                 })
 
+                console.log({
+                    signatureFormCer,
+                    signatureFormKey,
+                    signatureFormPassword
+                })
+
 
                 if (passwordForm) {
                     const anchor = passwordForm.querySelector('#buttonFiel')
@@ -82,7 +87,7 @@ export default defineContentScript({
 
                     return;
                 } else if (signatureFormCer && signatureFormKey && signatureFormPassword) {
-                    const anchor = document.querySelector('#contrasena')
+                    const anchor = document.querySelector('#contrasena') ?? document.querySelector('#submit')
                     if (!anchor) {
                         return;
                     }
@@ -93,7 +98,7 @@ export default defineContentScript({
                     })
                     return;
                 } else {
-
+                    //
                 }
             },
         });
