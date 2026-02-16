@@ -4,7 +4,7 @@ import {useSignature} from "@/composables/signature";
 import {useNavigation} from "@/composables/navigation";
 import * as z from 'zod'
 import type {FormSubmitEvent} from '@nuxt/ui'
-import {readFileAsBase64, readFileAsBinaryString} from "@/utils/files";
+import {readFileAsBase64} from "@/utils/files";
 
 const state = reactive({
   name: '',
@@ -33,7 +33,7 @@ const schema = z.object({
     error: 'El archivo .CER es requerido'
   }).refine((val) => isValid.value === null ? true : isValid.value, {
     error: `El certificado expiró`
-  }).refine((val) => isValid.value === null ? true : isSignature.value, {
+  }).refine((val) => isSignature.value === null ? true : isSignature.value, {
     error: `El certificado corresponde a un Certificado de Sello Digital`
   }),
   key: z.file({

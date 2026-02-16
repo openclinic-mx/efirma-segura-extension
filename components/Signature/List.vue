@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import {ref, useTemplateRef} from 'vue'
 import {useNavigation} from "@/composables/navigation";
-import {SignatureMeta} from "@/services/signatures";
 import Fuse from 'fuse.js'
+import {useDatabase} from "@/composables/database";
+import {useAutocomplete} from "@/composables/autocomplete";
 
 const input = useTemplateRef('input')
 
@@ -12,37 +13,15 @@ defineShortcuts({
   }
 })
 
-const signatures = ref<SignatureMeta[]>([])
-
 const autoSubmit = ref(true)
 
 const {navigate} = useNavigation()
 
-onMounted(async () => {
-  const response = await browser.runtime.sendMessage({
-    type: 'VAULT_LIST',
-  })
-
-  signatures.value = response.signatures
-})
-
-async function getActiveTabId() {
-  const [tab] = await browser.tabs.query({active: true, currentWindow: true});
-  return tab?.id;
-}
-
-async function onSelect(signature: SignatureMeta) {
-  const response = await browser.runtime.sendMessage({
-    type: 'AUTOCOMPLETE_REQUEST',
-    payload: {
-      id: signature.id,
-      tabId: await getActiveTabId(),
-      submit: autoSubmit.value
-    }
-  })
-}
-
 const query = ref('')
+
+const {signatures} = useDatabase();
+
+const {select} = useAutocomplete()
 
 const fuse = computed(() => {
   return new Fuse(signatures.value, {
@@ -66,7 +45,6 @@ const filteredResults = computed(() => {
     </template>
   </UInput>
 
-
   <USwitch label="Autocompletar y enviar formulario" v-model="autoSubmit"/>
 
   <UPageList>
@@ -76,7 +54,7 @@ const filteredResults = computed(() => {
         variant="ghost"
         class="cursor-pointer group text-left -mx-4"
         as="button"
-        @click="onSelect(signature)"
+        @click="select(signature.id, autoSubmit)"
         :ui="{
           body: 'w-full flex items-center justify-between ',
         }"
@@ -94,7 +72,7 @@ const filteredResults = computed(() => {
     </UPageCard>
   </UPageList>
 
-  <UButton type="submit" block @click="navigate('create')"
+  <UButton type="submit" block @click="navigate('add')"
            icon="i-lucide-plus"
            variant="ghost"
   >

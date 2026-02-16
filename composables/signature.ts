@@ -26,9 +26,8 @@ export const useSignature = (
             return null;
         }
 
-        return true;
-
-        // return parsedCertificate.value.satType.isFiel()
+        // @ts-ignore
+        return parsedCertificate.value.satType.isFiel()
     });
 
     const isCorrectPassword = computed(() => {
@@ -56,7 +55,11 @@ export const useSignature = (
 
         const file = await readFileAsBinaryString(value);
 
-        parsedCertificate.value = new Certificate(file);
+        try {
+            parsedCertificate.value = new Certificate(file);
+        } catch (e) {
+            return null;
+        }
     });
 
     watch(key, async (value) => {
@@ -91,6 +94,5 @@ export const useSignature = (
         isSignature,
         parsedCertificate,
         parsedKey,
-
     }
 }
