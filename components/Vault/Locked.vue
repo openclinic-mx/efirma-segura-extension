@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import {reactive, watch} from 'vue';
+import { useDatabase } from '#imports'
 
 const state = reactive({
   password: ''
@@ -7,29 +8,17 @@ const state = reactive({
 
 const error = ref<string | boolean>(false)
 
+const { unlock } = useDatabase();
+
 const openVault = async () => {
   error.value = '';
 
-  const status = await browser.runtime.sendMessage({
-    type: 'VAULT_STATUS',
-    payload: {}
-  })
-
-  console.log({status})
-
-  const response = await browser.runtime.sendMessage({
-    type: 'VAULT_UNLOCK',
-    payload: {
-      masterPassword: state.password
-    }
-  })
+  const response = await unlock(state.password)
 
   if (response.error) {
     error.value = response.error
     state.password = ''
   }
-
-  console.log({response});
 }
 
 watch(() => state.password, (value) => {
@@ -56,7 +45,7 @@ const resetVault = async () => {
         </UInput>
       </UFormField>
 
-      <UButton type="submit" block>Desbloquear</UButton>
+      <UButton type="submit" block icon="i-lucide-lock-open">Desbloquear</UButton>
     </UForm>
   </UPageCard>
 

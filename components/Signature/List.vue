@@ -2,10 +2,15 @@
 import {ref, useTemplateRef} from 'vue'
 import {useNavigation} from "@/composables/navigation";
 import Fuse from 'fuse.js'
-import {useDatabase} from "@/composables/database";
 import {useAutocomplete} from "@/composables/autocomplete";
+import SignatureItem from "@/components/Signature/Item.vue"
+import type {SignatureMeta} from "@/services/signatures";
 
 const input = useTemplateRef('input')
+
+const props = defineProps<{
+  signatures: SignatureMeta[]
+}>()
 
 defineShortcuts({
   '/': () => {
@@ -19,13 +24,23 @@ const {navigate} = useNavigation()
 
 const query = ref('')
 
-const {signatures} = useDatabase();
-
 const {select} = useAutocomplete()
 
+const loading = ref(false)
+
+const handleSelect = async (signature: SignatureMeta) => {
+  loading.value = true
+  try {
+    await select(signature.id, autoSubmit.value);
+  } finally {
+    // loading.value = false;
+  }
+}
+
 const fuse = computed(() => {
-  return new Fuse(signatures.value, {
+  return new Fuse(props.signatures, {
     keys: [
+      'title',
       'rfc',
       'legalName',
     ]
@@ -33,8 +48,10 @@ const fuse = computed(() => {
 })
 
 const filteredResults = computed(() => {
-  return query.value ? fuse.value.search(query.value).map(item => item.item) : signatures.value;
+  return query.value ? fuse.value.search(query.value).map(item => item.item) : props.signatures;
 })
+
+
 </script>
 
 <template>
@@ -47,29 +64,12 @@ const filteredResults = computed(() => {
 
   <USwitch label="Autocompletar y enviar formulario" v-model="autoSubmit"/>
 
-  <UPageList>
-    <UPageCard
-        v-for="(signature, index) in filteredResults"
-        :key="index"
-        variant="ghost"
-        class="cursor-pointer group text-left -mx-4"
-        as="button"
-        @click="select(signature.id, autoSubmit)"
-        :ui="{
-          body: 'w-full flex items-center justify-between ',
-        }"
-    >
-      <template #body>
-        <UUser :name="signature.legalName"
-               :description="signature.rfc"
-               :avatar="{ icon: 'i-lucide-key' }"
-               size="xl" class="relative"/>
+  <UPageList class="space-y-2">
+    <template v-for="(signature, index) in filteredResults"
+              :key="index">
+      <SignatureItem :signature="signature" @autocomplete="handleSelect(signature)"/>
+    </template>
 
-
-        <UIcon name="i-lucide-arrow-right"
-               class="size-5 group-hover:opacity-100 group-focus-visible:opacity-100 opacity-0 transition text-primary"></UIcon>
-      </template>
-    </UPageCard>
   </UPageList>
 
   <UButton type="submit" block @click="navigate('add')"

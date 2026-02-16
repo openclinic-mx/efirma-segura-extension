@@ -38,7 +38,7 @@ const { initialize } = useDatabase();
         </UInput>
       </UFormField>
 
-      <UButton type="submit" block>Crear bóveda</UButton>
+      <UButton type="submit" icon="i-lucide-landmark" block>Crear bóveda</UButton>
     </UForm>
 
   </UPageCard>

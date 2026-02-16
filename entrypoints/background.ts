@@ -32,6 +32,33 @@ export default defineBackground(() => {
         signatures: await signatureService.getSignaturesMeta()
     })
 
+    let lockTimer: NodeJS.Timeout | null = null;
+
+    const initTimer = () => {
+        lockTimer = setTimeout(async () => {
+            databaseService.lock()
+            sendResponse(await getVaultStatus())
+            browser.runtime.sendMessage({
+                type: 'VAULT_STATUS_UPDATE',
+                payload: await getVaultStatus()
+            })
+        }, 1000 * 60 * 5)
+    }
+
+    const resetTimer = () => {
+        if (lockTimer) {
+            clearTimeout(lockTimer)
+            initTimer()
+        }
+    }
+
+    const clearTimer = () => {
+        if (lockTimer) {
+            clearTimeout(lockTimer)
+            lockTimer = null;
+        }
+    }
+
     browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (message.type === 'VAULT_LIST') {
             (async () => {
@@ -76,6 +103,8 @@ export default defineBackground(() => {
                 sendResponse({
                     ok: true
                 });
+
+                resetTimer()
             })();
         }
 
@@ -93,6 +122,7 @@ export default defineBackground(() => {
                     type: 'VAULT_STATUS_UPDATE',
                     payload: await getVaultStatus()
                 })
+                clearTimer()
             })();
         }
 
@@ -106,6 +136,8 @@ export default defineBackground(() => {
                         type: 'VAULT_STATUS_UPDATE',
                         payload: await getVaultStatus()
                     })
+
+                    initTimer()
                 } catch (e) {
                     sendResponse({
                         ...(await getVaultStatus()),
@@ -140,6 +172,24 @@ export default defineBackground(() => {
             })();
         }
 
+        if (message.type === 'VAULT_REMOVE') {
+            (async () => {
+                const id = message.payload.id;
+                await signatureService.removeSignature(id)
+                const newList = await getVaultList();
+
+                sendResponse(newList)
+
+                browser.runtime.sendMessage({
+                    type: 'VAULT_LIST_UPDATE',
+                    payload: newList
+                })
+
+                resetTimer()
+            })();
+        }
+
+
         if (message.type === 'VAULT_ADD') {
             (async () => {
                 const {
@@ -164,6 +214,8 @@ export default defineBackground(() => {
                     type: 'VAULT_LIST_UPDATE',
                     payload: newList
                 })
+
+                resetTimer()
             })();
         }
 

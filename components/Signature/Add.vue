@@ -4,7 +4,7 @@ import {useSignature} from "@/composables/signature";
 import {useNavigation} from "@/composables/navigation";
 import * as z from 'zod'
 import type {FormSubmitEvent} from '@nuxt/ui'
-import {readFileAsBase64} from "@/utils/files";
+import {useSignatures} from "@/composables/signatures";
 
 const state = reactive({
   name: '',
@@ -59,20 +59,16 @@ watch(parsedCertificate, (value) => {
 
 const show = ref(false)
 
+const {addSignature} = useSignatures()
+
 async function onSubmit(event: FormSubmitEvent<Schema>) {
 
-  const cer = await readFileAsBase64(event.data.cer)
-  const key = await readFileAsBase64(event.data.key)
-
-  await browser.runtime.sendMessage({
-    type: 'VAULT_ADD',
-    payload: {
-      name: state.name,
-      cer,
-      key,
-      password: state.password,
-    }
-  })
+  await addSignature(
+      event.data.name,
+      event.data.cer,
+      event.data.key,
+      event.data.password,
+  )
 
   navigate('home')
 }
@@ -90,7 +86,8 @@ const {navigate} = useNavigation()
       </div>
     </template>
 
-    <UForm @submit.prevent="onSubmit" :schema="schema" :state="state" class="contents">
+    <UForm @submit.prevent="onSubmit" loading-auto :schema="schema" :state="state" class="contents"
+           #default="{loading}">
       <UFormField label="Archivo .CER" required class="w-full" name="cer">
         <UFileUpload required accept=".cer" v-model="state.cer" position="inside" layout="list">
         </UFileUpload>
@@ -124,7 +121,7 @@ const {navigate} = useNavigation()
         <UInput required class="block" v-model="state.name" placeholder="Ej: Mi empresa SA de CV">
         </UInput>
       </UFormField>
-      <UButton type="submit" block>Guardar e.firma</UButton>
+      <UButton type="submit" icon="i-lucide-save" block :loading="loading">Guardar e.firma</UButton>
     </UForm>
   </UPageCard>
 </template>

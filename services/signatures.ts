@@ -6,6 +6,8 @@ import {bytesToBinaryString} from "@/utils/files";
 export type SignatureMeta = {
     id: string
 
+    title: string
+
     rfc: string
     serialNumber: string
     legalName: string
@@ -105,6 +107,7 @@ function entryToSignatureMeta(entry: KdbxEntry): SignatureMeta {
 
     return {
         id: entry.uuid.toString(),
+        title: entry.fields.get('Title')?.toString() ?? '-',
         serialNumber: certificate.serialNumber().decimal(),
         rfc: certificate.rfc(),
         legalName: certificate.legalName(),

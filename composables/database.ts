@@ -1,22 +1,10 @@
-import {SignatureMeta} from "@/services/signatures";
+
 
 export const useDatabase = () => {
+    const { navigate } = useNavigation()
+
     const isInitialized = ref(false);
     const isUnlocked = ref(false);
-
-    const isLoading = ref(false);
-
-    const signatures = ref<SignatureMeta[]>([]);
-
-    const refreshList = async () => {
-        if (isInitialized.value) {
-            const response = await browser.runtime.sendMessage({
-                type: 'VAULT_LIST',
-            })
-
-            signatures.value = response.signatures
-        }
-    }
 
     const refreshStatus = async () => {
         const response = await browser.runtime.sendMessage({
@@ -27,22 +15,18 @@ export const useDatabase = () => {
         isInitialized.value = response.isInitialized;
     }
 
+    watch(isUnlocked, (unlocked) => {
+        if (!unlocked) {
+            navigate('home')
+        }
+    })
+
     onMounted(async () => {
-
         await refreshStatus();
-
-        await refreshList();
 
         browser.runtime.onMessage.addListener(async (message) => {
             if (message.type === 'VAULT_STATUS_UPDATE') {
                 await refreshStatus();
-            }
-            if (message.type === 'VAULT_UNLOCKED') {
-                await refreshStatus();
-                await refreshList();
-            }
-            if (message.type === 'VAULT_LIST_UPDATE') {
-                await refreshList();
             }
         })
     })
@@ -64,23 +48,19 @@ export const useDatabase = () => {
     }
 
     const initialize = (masterPassword: string) => {
-        const response = browser.runtime.sendMessage({
+        return browser.runtime.sendMessage({
             type: 'VAULT_INITIALIZE',
             payload: {
                 masterPassword
             }
         })
-
-        console.log(response)
     }
 
     return {
-        signatures,
         isUnlocked,
         isInitialized,
         unlock,
         lock,
         initialize,
-        isLoading,
     }
 }

@@ -2,11 +2,11 @@
 import SignatureAdd from "@/components/Signature/Add.vue"
 import SignatureEmpty from "@/components/Signature/Empty.vue"
 import SignatureList from "@/components/Signature/List.vue"
-import {useDatabase} from "@/composables/database";
+import {useSignatures} from "@/composables/signatures";
 
 const {view} = useNavigation()
 
-const { signatures } = useDatabase()
+const { signatures } = useSignatures()
 </script>
 
 <template>
