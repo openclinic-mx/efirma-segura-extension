@@ -20,7 +20,3 @@ const actions = [
           :actions="actions"
   />
 </template>
-
-<style scoped>
-
-</style>

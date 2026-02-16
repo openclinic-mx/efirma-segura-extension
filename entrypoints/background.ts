@@ -13,12 +13,6 @@ export default defineBackground(() => {
 
     let openTabs = new Set();
 
-    console.log('Hello background!', {id: browser.runtime.id});
-
-    browser.sidePanel.setOptions({
-        path: `app.html`,
-    })
-
     browser.sidePanel
         .setPanelBehavior({openPanelOnActionClick: true})
         .catch((error) => console.error(error))
@@ -71,8 +65,6 @@ export default defineBackground(() => {
                 const id = message.payload.id;
                 const tabId = message.payload.tabId;
                 const submit = message.payload.submit;
-
-                console.log({payload: message.payload})
 
                 const signature = await signatureService.getSignature(id);
 

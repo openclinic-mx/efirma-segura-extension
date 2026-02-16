@@ -7,8 +7,6 @@ export default defineContentScript({
 
     allFrames: true,
 
-    cssInjectionMode: "ui",
-
     async main(ctx) {
         const ui = createIntegratedUi(ctx, {
             position: "inline",
@@ -60,12 +58,6 @@ export default defineContentScript({
                     } else {
                         return;
                     }
-                })
-
-                console.log({
-                    signatureFormCer,
-                    signatureFormKey,
-                    signatureFormPassword
                 })
 
 

@@ -79,7 +79,3 @@ const filteredResults = computed(() => {
     Agregar e.firma
   </UButton>
 </template>
-
-<style scoped>
-
-</style>

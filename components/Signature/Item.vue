@@ -58,7 +58,3 @@ const emits = defineEmits(['autocomplete'])
 
   </div>
 </template>
-
-<style scoped>
-
-</style>

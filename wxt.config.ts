@@ -12,7 +12,8 @@ export default defineConfig({
     vite: () => ({
         plugins: [
             ui({
-                router: false
+                router: false,
+                colorMode: false
             })
         ]
     }),
