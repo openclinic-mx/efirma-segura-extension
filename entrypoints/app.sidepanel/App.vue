@@ -51,9 +51,9 @@ const {view} = useNavigation()
 
 <template>
   <UApp>
-    <UDashboardPanel title="e.firma Segura" :ui="{ root: '' }">
+    <UDashboardPanel :ui="{ root: '' }">
       <template #header>
-        <UDashboardNavbar title="e.firma Segura" icon="i-lucide-landmark" :toggle="false" :ui="{ title: 'text-base' }">
+        <UDashboardNavbar title="Bóveda" icon="i-lucide-landmark" :toggle="false" :ui="{ title: 'text-base' }">
           <template #right v-if="isUnlocked">
             <UButton icon="i-lucide-lock" size="sm" variant="ghost" @click="lock">Cerrar</UButton>
           </template>
