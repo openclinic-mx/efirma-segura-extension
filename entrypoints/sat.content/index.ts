@@ -74,15 +74,15 @@ export default defineContentScript({
                         return;
                     }
 
-                    // anchor.parentNode!.prepend(trigger)
-                    //
-                    // trigger.addEventListener('click', () => {
-                    //     browser.runtime.sendMessage({type: 'OPEN_TAB'})
-                    //
-                    //     if (automation) {
-                    //         automation.click();
-                    //     }
-                    // })
+                    anchor.parentNode!.prepend(trigger)
+
+                    trigger.addEventListener('click', () => {
+                        browser.runtime.sendMessage({type: 'OPEN_TAB'})
+
+                        if (automation) {
+                            automation.click();
+                        }
+                    })
 
                     return;
                 } else if (signatureFormCer && signatureFormKey && signatureFormPassword) {
