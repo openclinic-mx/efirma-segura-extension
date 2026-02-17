@@ -31,7 +31,6 @@ export default defineBackground(() => {
     const initTimer = () => {
         lockTimer = setTimeout(async () => {
             databaseService.lock()
-            sendResponse(await getVaultStatus())
             browser.runtime.sendMessage({
                 type: 'VAULT_STATUS_UPDATE',
                 payload: await getVaultStatus()
