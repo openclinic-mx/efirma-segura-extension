@@ -13,13 +13,19 @@ export default defineBackground(() => {
 
     let openTabs = new Set();
 
-    browser.sidePanel.setOptions({
-        path: `app.html`,
-    })
+    browser.action.setPopup({ popup: "" });
 
-    browser.sidePanel
-        .setPanelBehavior({openPanelOnActionClick: true})
-        .catch((error) => console.error(error))
+    browser.action.onClicked.addListener(async (tab) => {
+        if (!tab?.id) return;
+
+        browser.sidePanel.setOptions({
+            tabId: tab.id,
+            path: "app.html",
+            enabled: true,
+        });
+
+        await browser.sidePanel.open({ tabId: tab.id });
+    });
 
     const getVaultStatus = async () => ({
         isInitialized: await databaseService.isInitialized(),
@@ -30,30 +36,33 @@ export default defineBackground(() => {
         signatures: await signatureService.getSignaturesMeta()
     })
 
-    let lockTimer: NodeJS.Timeout | null = null;
-
-    const initTimer = () => {
-        lockTimer = setTimeout(async () => {
+    browser.alarms.onAlarm.addListener(async (alarm) => {
+        console.log('received alarm', alarm)
+        if (alarm.name === 'lock') {
             databaseService.lock()
             browser.runtime.sendMessage({
                 type: 'VAULT_STATUS_UPDATE',
                 payload: await getVaultStatus()
             })
-        }, 1000 * 60 * 5)
+        }
+    });
+
+    const initTimer = () => {
+        console.log('initialized alarm')
+        browser.alarms.create('lock', {
+            delayInMinutes: 5,
+        });
     }
 
     const resetTimer = () => {
-        if (lockTimer) {
-            clearTimeout(lockTimer)
-            initTimer()
-        }
+        console.log('restart alarm')
+        browser.alarms.clear('lock')
+        initTimer()
     }
 
     const clearTimer = () => {
-        if (lockTimer) {
-            clearTimeout(lockTimer)
-            lockTimer = null;
-        }
+        console.log('no longer need alarm')
+        browser.alarms.clear('lock')
     }
 
     browser.runtime.onMessage.addListener((message, sender, sendResponse) => {

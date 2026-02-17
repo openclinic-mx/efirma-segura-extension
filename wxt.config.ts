@@ -5,7 +5,7 @@ import ui from '@nuxt/ui/vite'
 export default defineConfig({
     modules: ['@wxt-dev/module-vue'],
     manifest: {
-        permissions: ['storage'],
+        permissions: ['storage', 'alarms'],
         name: 'e.firma Segura',
         description: "Gestor seguro de e.firmas del SAT con autocompletado"
     },

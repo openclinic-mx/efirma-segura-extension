@@ -62,5 +62,6 @@ export const useDatabase = () => {
         unlock,
         lock,
         initialize,
+        refreshStatus,
     }
 }
