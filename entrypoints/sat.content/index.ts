@@ -23,23 +23,22 @@ export default defineContentScript({
                 trigger.classList.add('btn', 'btn-success')
                 trigger.textContent = "Autocompletar";
 
-                browser.runtime.onMessage.addListener(async (message) => {
+                browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
                     const {cer, key, password, submit} = message.payload
 
-                    if (signatureFormCer && signatureFormKey && signatureFormPassword) {
+                    if ((signatureFormCer instanceof HTMLInputElement)
+                        && (signatureFormKey instanceof HTMLInputElement)
+                        && (signatureFormPassword instanceof HTMLInputElement)) {
 
-                        if (signatureFormCer instanceof HTMLInputElement) {
-                            setFileInput(signatureFormCer, readBase64AsFile(cer, 'signature.cer', 'application/x-x509-ca-cert'))
-                        }
+                        setFileInput(signatureFormCer, readBase64AsFile(cer, 'signature.cer', 'application/x-x509-ca-cert'))
 
+                        setFileInput(signatureFormKey, readBase64AsFile(key, 'signature.key', 'application/octet-stream'))
 
-                        if (signatureFormKey instanceof HTMLInputElement) {
-                            setFileInput(signatureFormKey, readBase64AsFile(key, 'signature.key', 'application/octet-stream'))
-                        }
+                        setTextInput(signatureFormPassword, password)
 
-                        if (signatureFormPassword instanceof HTMLInputElement) {
-                            setTextInput(signatureFormPassword, password)
-                        }
+                        sendResponse({
+                            success: true
+                        })
 
                         if (submit) {
                             await new Promise((resolve) => setTimeout(resolve, 500))
@@ -53,36 +52,44 @@ export default defineContentScript({
                                 });
                             }
                         }
-
-
                     } else {
-                        return;
+                        sendResponse({
+                            success: false
+                        })
                     }
+
+                    return true;
                 })
 
+                const anchor = document.querySelector('#contrasena') ?? document.querySelector('#submit')
 
                 if (passwordForm) {
-                    const anchor = passwordForm.querySelector('#buttonFiel')
+                    const automation = passwordForm.querySelector('#buttonFiel')
+
+                    if (!automation) {
+                        return;
+                    }
+
                     if (!anchor) {
                         return;
                     }
+
                     // anchor.parentNode!.prepend(trigger)
                     //
                     // trigger.addEventListener('click', () => {
                     //     browser.runtime.sendMessage({type: 'OPEN_TAB'})
                     //
-                    //     if (anchor) {
-                    //         console.log('Clicking fiel');
-                    //         anchor.click();
+                    //     if (automation) {
+                    //         automation.click();
                     //     }
                     // })
 
                     return;
                 } else if (signatureFormCer && signatureFormKey && signatureFormPassword) {
-                    const anchor = document.querySelector('#contrasena') ?? document.querySelector('#submit')
                     if (!anchor) {
                         return;
                     }
+
                     anchor.parentNode!.prepend(trigger)
 
                     trigger.addEventListener('click', () => {

@@ -28,10 +28,25 @@ const {select} = useAutocomplete()
 
 const loading = ref(false)
 
+const toast = useToast()
+
 const handleSelect = async (signature: SignatureMeta) => {
   loading.value = true
+
   try {
-    await select(signature.id, autoSubmit.value);
+    const response = await select(signature.id, autoSubmit.value)
+
+    if (response.success) {
+      toast.add({
+        title: 'Autocompletado',
+        color: 'success'
+      })
+    } else {
+      toast.add({
+        title: 'No se encontró el formulario',
+        color: 'error'
+      })
+    }
   } finally {
     // loading.value = false;
   }
@@ -65,9 +80,15 @@ const filteredResults = computed(() => {
   <USwitch label="Autocompletar y enviar formulario" v-model="autoSubmit"/>
 
   <UPageList class="space-y-2">
-    <template v-for="(signature, index) in filteredResults"
-              :key="index">
-      <SignatureItem :signature="signature" @autocomplete="handleSelect(signature)"/>
+
+    <template v-if="filteredResults.length === 0">
+      <div class="text-center py-4.5">Sin resultados</div>
+    </template>
+    <template v-else>
+      <template v-for="(signature, index) in filteredResults"
+                :key="index">
+        <SignatureItem :signature="signature" @autocomplete="handleSelect(signature)"/>
+      </template>
     </template>
 
   </UPageList>

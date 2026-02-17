@@ -13,6 +13,10 @@ export default defineBackground(() => {
 
     let openTabs = new Set();
 
+    browser.sidePanel.setOptions({
+        path: `app.html`,
+    })
+
     browser.sidePanel
         .setPanelBehavior({openPanelOnActionClick: true})
         .catch((error) => console.error(error))
@@ -81,19 +85,26 @@ export default defineBackground(() => {
                     return;
                 }
 
-                browser.tabs.sendMessage(tabId, {
-                    type: 'AUTOCOMPLETE_ACTION',
-                    payload: {
-                        password: signature.password,
-                        cer: readBytesAsBase64(signature.cer),
-                        key: readBytesAsBase64(signature.key),
-                        submit: submit
-                    }
-                })
+                try {
+                    const response = await browser.tabs.sendMessage(tabId, {
+                        type: 'AUTOCOMPLETE_ACTION',
+                        payload: {
+                            password: signature.password,
+                            cer: readBytesAsBase64(signature.cer),
+                            key: readBytesAsBase64(signature.key),
+                            submit: submit
+                        }
+                    })
 
-                sendResponse({
-                    ok: true
-                });
+                    sendResponse({
+                        success: response.success
+                    });
+                } catch (e) {
+                    console.error(e)
+                    sendResponse({
+                        success: false
+                    });
+                }
 
                 resetTimer()
             })();
