@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import {reactive, watch, ref} from 'vue';
-import { useDatabase } from '#imports'
+import {reactive, ref, watch} from 'vue';
+import {useDatabase} from '#imports'
 
 const state = reactive({
   password: ''
@@ -8,7 +8,9 @@ const state = reactive({
 
 const error = ref<string | boolean>(false)
 
-const { unlock } = useDatabase();
+const {unlock} = useDatabase();
+
+const input = useTemplateRef('input')
 
 const openVault = async () => {
   error.value = '';
@@ -18,6 +20,9 @@ const openVault = async () => {
   if (response.error) {
     error.value = response.error
     state.password = ''
+    nextTick(() => {
+      input.value?.inputRef?.focus()
+    })
   }
 }
 
@@ -40,7 +45,8 @@ const resetVault = async () => {
   <UPageCard title="Ingresa tu contraseña maestra para desbloquear." variant="naked">
     <UForm @submit.prevent="openVault" class="contents" loading-auto>
       <UFormField label="Contraseña maestra" required size="xl" class="w-full" :error="error">
-        <UInput type="password" required class="block" minlength="12" v-model="state.password" autofocus
+        <UInput type="password" required class="block" minlength="12" v-model="state.password"
+                ref="input"
                 placeholder="Mínimo 12 caracteres">
         </UInput>
       </UFormField>

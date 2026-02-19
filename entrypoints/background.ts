@@ -2,18 +2,37 @@
 
 import {StorageService} from "@/services/storage";
 import {DatabaseService} from "@/services/database";
-import {SignatureService} from "@/services/signatures";
-import {readBase64AsBytes, readBytesAsBase64} from "@/utils/files";
+import {SignatureService} from "@/services/signature";
+import {SidePanelService} from "@/services/sidePanel";
+import {AutocompleteService} from "@/services/autocomplete";
+import {AutoLockService} from "@/services/autoLock";
+import {VaultService} from "@/services/vault";
 
 export default defineBackground(() => {
 
     const storageService = new StorageService();
     const databaseService = new DatabaseService(storageService);
     const signatureService = new SignatureService(databaseService);
+    const sidePanelService = new SidePanelService();
+    const autoLockService = new AutoLockService(2);
+    const autocompleteService = new AutocompleteService(signatureService, autoLockService);
+    const vaultService = new VaultService(databaseService, signatureService, autoLockService);
 
-    let openTabs = new Set();
+    autoLockService.onLock(() => vaultService.lock())
+    autoLockService.onStart(() => {
+        browser.runtime.sendMessage({
+            type: 'TIMER_START',
+            payload: autoLockService.getStatus()
+        })
+    })
+    autoLockService.onClear(() => {
+        browser.runtime.sendMessage({
+            type: 'TIMER_CLEAR',
+            payload: autoLockService.getStatus()
+        })
+    })
 
-    browser.action.setPopup({ popup: "" });
+    browser.action.setPopup({popup: ""});
 
     browser.action.onClicked.addListener(async (tab) => {
         if (!tab?.id) return;
@@ -24,277 +43,42 @@ export default defineBackground(() => {
             enabled: true,
         });
 
-        await browser.sidePanel.open({ tabId: tab.id });
+        await browser.sidePanel.open({tabId: tab.id});
     });
 
-    const getVaultStatus = async () => ({
-        isInitialized: await databaseService.isInitialized(),
-        isUnlocked: databaseService.isUnlocked(),
-    })
-
-    const getVaultList = async () => ({
-        signatures: await signatureService.getSignaturesMeta()
-    })
-
-    browser.alarms.onAlarm.addListener(async (alarm) => {
-        console.log('received alarm', alarm)
-        if (alarm.name === 'lock') {
-            databaseService.lock()
-            browser.runtime.sendMessage({
-                type: 'VAULT_STATUS_UPDATE',
-                payload: await getVaultStatus()
-            })
+    const mapMessageToService = async (message: any, sender: Browser.runtime.MessageSender) => {
+        switch (message.type) {
+            case 'AUTOCOMPLETE_REQUEST':
+                return autocompleteService.request(message);
+            case 'VAULT_LIST':
+                return vaultService.list()
+            case 'VAULT_STATUS':
+                return vaultService.status()
+            case 'VAULT_LOCK':
+                return vaultService.lock()
+            case 'VAULT_UNLOCK':
+                return vaultService.unlock(message)
+            case 'VAULT_INITIALIZE':
+                return vaultService.initialize(message)
+            case 'VAULT_RESET':
+                return vaultService.destroy()
+            case 'VAULT_REMOVE':
+                return vaultService.removeSignature(message)
+            case 'VAULT_ADD':
+                return vaultService.addSignature(message)
+            case 'TOGGLE_TAB':
+                return sidePanelService.toggle(sender);
+            case 'OPEN_TAB':
+                return sidePanelService.open(sender);
+            case 'CLOSE_TAB':
+                return sidePanelService.close(sender);
+            case 'TIMER_STATUS':
+                return autoLockService.getStatus()
         }
-    });
-
-    const initTimer = () => {
-        console.log('initialized alarm')
-        browser.alarms.create('lock', {
-            delayInMinutes: 5,
-        });
-    }
-
-    const resetTimer = () => {
-        console.log('restart alarm')
-        browser.alarms.clear('lock')
-        initTimer()
-    }
-
-    const clearTimer = () => {
-        console.log('no longer need alarm')
-        browser.alarms.clear('lock')
     }
 
     browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-        if (message.type === 'VAULT_LIST') {
-            (async () => {
-                sendResponse(await getVaultList())
-            })();
-        }
-
-        if (message.type === 'AUTOCOMPLETE_REQUEST') {
-            (async () => {
-                const id = message.payload.id;
-                const tabId = message.payload.tabId;
-                const submit = message.payload.submit;
-
-                const signature = await signatureService.getSignature(id);
-
-                if (!signature) {
-                    sendResponse({
-                        error: 'Signature not found'
-                    });
-                    return;
-                }
-
-                if (!tabId) {
-                    sendResponse({
-                        error: 'Need a tab id to autocomplete'
-                    });
-                    return;
-                }
-
-                try {
-                    const response = await browser.tabs.sendMessage(tabId, {
-                        type: 'AUTOCOMPLETE_ACTION',
-                        payload: {
-                            password: signature.password,
-                            cer: readBytesAsBase64(signature.cer),
-                            key: readBytesAsBase64(signature.key),
-                            submit: submit
-                        }
-                    })
-
-                    sendResponse({
-                        success: response.success
-                    });
-                } catch (e) {
-                    console.error(e)
-                    sendResponse({
-                        success: false
-                    });
-                }
-
-                resetTimer()
-            })();
-        }
-
-        if (message.type === 'VAULT_STATUS') {
-            (async () => {
-                sendResponse(await getVaultStatus())
-            })();
-        }
-
-        if (message.type === 'VAULT_LOCK') {
-            (async () => {
-                databaseService.lock()
-                sendResponse(await getVaultStatus())
-                browser.runtime.sendMessage({
-                    type: 'VAULT_STATUS_UPDATE',
-                    payload: await getVaultStatus()
-                })
-                clearTimer()
-            })();
-        }
-
-        if (message.type === 'VAULT_UNLOCK') {
-            (async () => {
-                const masterPassword = message.payload.masterPassword;
-                try {
-                    await databaseService.unlock(masterPassword)
-                    sendResponse(await getVaultStatus())
-                    browser.runtime.sendMessage({
-                        type: 'VAULT_STATUS_UPDATE',
-                        payload: await getVaultStatus()
-                    })
-
-                    initTimer()
-                } catch (e) {
-                    sendResponse({
-                        ...(await getVaultStatus()),
-                        error: e.message
-                    })
-                }
-            })();
-        }
-
-        if (message.type === 'VAULT_INITIALIZE') {
-            (async () => {
-                const masterPassword = message.payload.masterPassword;
-                await databaseService.initialize(masterPassword)
-                const newStatus = await getVaultStatus();
-                sendResponse(newStatus)
-                browser.runtime.sendMessage({
-                    type: 'VAULT_STATUS_UPDATE',
-                    payload: newStatus
-                })
-            })();
-        }
-
-        if (message.type === 'VAULT_RESET') {
-            (async () => {
-                await databaseService.deleteDatabase()
-                const newStatus = await getVaultStatus();
-                sendResponse(newStatus)
-                browser.runtime.sendMessage({
-                    type: 'VAULT_STATUS_UPDATE',
-                    payload: newStatus
-                })
-            })();
-        }
-
-        if (message.type === 'VAULT_REMOVE') {
-            (async () => {
-                const id = message.payload.id;
-                await signatureService.removeSignature(id)
-                const newList = await getVaultList();
-
-                sendResponse(newList)
-
-                browser.runtime.sendMessage({
-                    type: 'VAULT_LIST_UPDATE',
-                    payload: newList
-                })
-
-                resetTimer()
-            })();
-        }
-
-
-        if (message.type === 'VAULT_ADD') {
-            (async () => {
-                const {
-                    name,
-                    cer,
-                    key,
-                    password
-                } = message.payload;
-
-                await signatureService.addSignature(
-                    name,
-                    readBase64AsBytes(cer),
-                    readBase64AsBytes(key),
-                    password
-                )
-
-                const newList = await getVaultList();
-
-                sendResponse(newList)
-
-                browser.runtime.sendMessage({
-                    type: 'VAULT_LIST_UPDATE',
-                    payload: newList
-                })
-
-                resetTimer()
-            })();
-        }
-
-        if (message.type === 'TOGGLE_TAB') {
-            (async () => {
-                if (!sender.tab) {
-                    return;
-                }
-
-                if (openTabs.has(sender.tab.id)) {
-                    browser.sidePanel.close({
-                        tabId: sender.tab.id,
-                        windowId: sender.tab.windowId
-                    })
-                } else {
-                    browser.sidePanel.setOptions({
-                        tabId: sender.tab.id,
-                        path: `app.html`,
-                        enabled: true
-                    })
-
-                    await browser.sidePanel.open({
-                        tabId: sender.tab.id,
-                        windowId: sender.tab.windowId
-                    })
-                }
-            })();
-        }
-
-        if (message.type === 'OPEN_TAB') {
-            (async () => {
-                if (!sender.tab) {
-                    return;
-                }
-
-                browser.sidePanel.setOptions({
-                    tabId: sender.tab.id,
-                    path: `app.html`,
-                    enabled: true
-                })
-
-                await browser.sidePanel.open({
-                    tabId: sender.tab.id,
-                    windowId: sender.tab.windowId
-                })
-            })();
-        }
-
-        if (message.type === 'CLOSE_TAB') {
-            (async () => {
-                if (!sender.tab) {
-                    return;
-                }
-                browser.sidePanel.close({
-                    tabId: sender.tab.id,
-                    windowId: sender.tab.windowId
-                })
-            })();
-        }
-
+        mapMessageToService(message, sender).then(sendResponse).catch(error => sendResponse({error: error}))
         return true;
     });
-
-    browser.sidePanel.onOpened.addListener((info) => {
-        openTabs.add(info.tabId)
-    })
-
-    browser.sidePanel.onClosed.addListener((info) => {
-        openTabs.delete(info.tabId)
-    })
 });

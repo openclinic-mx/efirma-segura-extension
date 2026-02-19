@@ -2,12 +2,14 @@
 import VaultCreate from '@/components/Vault/Create.vue'
 import VaultLocked from '@/components/Vault/Locked.vue'
 import VaultUnlocked from '@/components/Vault/Unlocked.vue'
+import VaultAutoLock from '@/components/Vault/AutoLock.vue'
 
 const {lock, isInitialized, isUnlocked} = useDatabase()
 </script>
 
 <template>
   <UApp>
+    <VaultAutoLock class="absolute bottom-0 w-full left-0"/>
     <UDashboardPanel :ui="{ root: '' }">
       <template #header>
         <UDashboardNavbar title="Bóveda" icon="i-lucide-landmark" :toggle="false" :ui="{ title: 'text-base' }">

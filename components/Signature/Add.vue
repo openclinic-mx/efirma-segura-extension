@@ -31,16 +31,18 @@ const schema = z.object({
   name: z.string(),
   cer: z.file({
     error: 'El archivo .CER es requerido'
-  }).refine((val) => isValid.value === null ? true : isValid.value, {
-    error: `El certificado expiró`
-  }).refine((val) => isSignature.value === null ? true : isSignature.value, {
-    error: `El certificado corresponde a un Certificado de Sello Digital`
-  }),
+  }).refine((file) => file.size > 0, {message: "El archivo .CER está vacio"})
+      .refine((val) => isValid.value === null ? true : isValid.value, {
+        error: `El certificado expiró`
+      }).refine((val) => isSignature.value === null ? true : isSignature.value, {
+        error: `El certificado corresponde a un Certificado de Sello Digital`
+      }),
   key: z.file({
     error: 'El archivo .KEY es requerido'
-  }).refine(() => isCorrectPair.value === null ? true : isCorrectPair.value, {
-    error: `La llave privada no corresponde al certificado`,
-  }),
+  }).refine((file) => file.size > 0, {message: "El archivo .KEY está vacio"})
+      .refine(() => isCorrectPair.value === null ? true : isCorrectPair.value, {
+        error: `La llave privada no corresponde al certificado`,
+      }),
   password: z.string({
     error: 'La contraseña es requerida'
   }).refine(() => isCorrectPassword.value === null ? true : isCorrectPassword.value, {

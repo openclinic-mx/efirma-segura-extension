@@ -4,7 +4,7 @@ import {useNavigation} from "@/composables/navigation";
 import Fuse from 'fuse.js'
 import {useAutocomplete} from "@/composables/autocomplete";
 import SignatureItem from "@/components/Signature/Item.vue"
-import type {SignatureMeta} from "@/services/signatures";
+import type {SignatureMeta} from "@/services/signature";
 
 const input = useTemplateRef('input')
 
@@ -36,16 +36,19 @@ const handleSelect = async (signature: SignatureMeta) => {
   try {
     const response = await select(signature.id, autoSubmit.value)
 
-    if (response.success) {
+    console.log(response)
+
+    if (response.error) {
       toast.add({
-        title: 'Autocompletado',
-        color: 'success'
+        title: response.error,
+        color: 'error'
       })
     } else {
       toast.add({
-        title: 'No se encontró el formulario',
-        color: 'error'
+        title: 'Autocompletado',
+        color: 'primary'
       })
+
     }
   } finally {
     // loading.value = false;

@@ -6,7 +6,7 @@ const actions = [
   {
     icon: 'i-lucide-plus',
     label: 'Agregar e.firma',
-    color: 'success',
+    color: 'primary',
     onClick: () => {
       navigate('add')
     }
