@@ -14,7 +14,7 @@ export default defineBackground(() => {
     const databaseService = new DatabaseService(storageService);
     const signatureService = new SignatureService(databaseService);
     const sidePanelService = new SidePanelService();
-    const autoLockService = new AutoLockService(2);
+    const autoLockService = new AutoLockService(5);
     const autocompleteService = new AutocompleteService(signatureService, autoLockService);
     const vaultService = new VaultService(databaseService, signatureService, autoLockService);
 

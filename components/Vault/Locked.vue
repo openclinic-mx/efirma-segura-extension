@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import {reactive, ref, watch} from 'vue';
 import {useDatabase} from '#imports'
+import AccountLogout from "@/components/Account/Logout.vue";
+import VaultReset from "@/components/Vault/Reset.vue";
+import AccountWelcome from "@/components/Account/Welcome.vue";
 
 const state = reactive({
   password: ''
@@ -31,17 +34,13 @@ watch(() => state.password, (value) => {
     error.value = false;
   }
 })
-
-const resetVault = async () => {
-  if (confirm('¿Reiniciar la bóveda? Se eliminarán TODAS las e.firmas guardadas. Esta acción no se puede deshacer.')) {
-    return browser.runtime.sendMessage({
-      type: 'VAULT_RESET',
-    })
-  }
-}
 </script>
 
 <template>
+  <Teleport to="#header">
+    <AccountWelcome/>
+  </Teleport>
+
   <UPageCard title="Ingresa tu contraseña maestra para desbloquear." variant="naked">
     <UForm @submit.prevent="openVault" class="contents" loading-auto>
       <UFormField label="Contraseña maestra" required size="xl" class="w-full" :error="error">
@@ -55,7 +54,8 @@ const resetVault = async () => {
     </UForm>
   </UPageCard>
 
-  <UButton type="button" @click="resetVault" loading-auto class="mt-auto" block variant="ghost" color="error">Reiniciar
-    bóveda
-  </UButton>
+  <Teleport to="#footer">
+    <VaultReset/>
+    <AccountLogout/>
+  </Teleport>
 </template>

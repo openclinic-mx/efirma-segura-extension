@@ -4,11 +4,12 @@ import ui from '@nuxt/ui/vite'
 // See https://wxt.dev/api/config.html
 export default defineConfig({
     modules: ['@wxt-dev/module-vue'],
-    manifest: {
+    manifest: () => ({
         permissions: ['storage', 'alarms'],
         name: 'e.firma Segura',
-        description: "Gestor seguro de e.firmas del SAT con autocompletado"
-    },
+        description: "Gestor seguro de e.firmas del SAT con autocompletado",
+        key: import.meta.env.WXT_MANIFEST_KEY
+    }),
     vite: () => ({
         plugins: [
             ui({
@@ -27,6 +28,7 @@ export default defineConfig({
             // Comprobantes
             "https://wwwmat.sat.gob.mx/consultas/operacion/42968/consulta-y-recuperacion-de-comprobantes-(nuevo)",
         ],
+        chromiumArgs: ['--user-data-dir=./.wxt/chrome-data'],
     },
     // https://github.com/wxt-dev/wxt/issues/1272
     hooks: {
