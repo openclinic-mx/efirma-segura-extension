@@ -26,6 +26,10 @@ export default defineContentScript({
                 browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
                     const {cer, key, password, submit} = message.payload
 
+                    if (message.type !== 'AUTOCOMPLETE_ACTION') {
+                        return;
+                    }
+
                     if ((signatureFormCer instanceof HTMLInputElement)
                         && (signatureFormKey instanceof HTMLInputElement)
                         && (signatureFormPassword instanceof HTMLInputElement)) {
@@ -37,7 +41,7 @@ export default defineContentScript({
                         setTextInput(signatureFormPassword, password)
 
                         sendResponse({
-                            success: true
+                            error: null
                         })
 
                         if (submit) {
@@ -54,7 +58,7 @@ export default defineContentScript({
                         }
                     } else {
                         sendResponse({
-                            success: false
+                            error: 'Form not found',
                         })
                     }
 

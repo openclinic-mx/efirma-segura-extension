@@ -30,7 +30,7 @@ const {view} = useNavigation()
           </template>
           <VaultCreate v-else/>
         </template>
-        <div class="mt-auto not-empty:space-y-4" id="footer">
+        <div class="mt-auto gap-4 flex flex-col" id="footer">
         </div>
       </template>
     </UDashboardPanel>

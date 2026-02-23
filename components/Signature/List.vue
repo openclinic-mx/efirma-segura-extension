@@ -4,7 +4,9 @@ import {useNavigation} from "@/composables/navigation";
 import Fuse from 'fuse.js'
 import {useAutocomplete} from "@/composables/autocomplete";
 import SignatureItem from "@/components/Signature/Item.vue"
+import AccountLimit from "@/components/Account/Limit.vue"
 import type {SignatureMeta} from "@/services/signature";
+import {useAccount} from "@/composables/account";
 
 const input = useTemplateRef('input')
 
@@ -36,8 +38,6 @@ const handleSelect = async (signature: SignatureMeta) => {
   try {
     const response = await select(signature.id, autoSubmit.value)
 
-    console.log(response)
-
     if (response.error) {
       toast.add({
         title: response.error,
@@ -51,12 +51,13 @@ const handleSelect = async (signature: SignatureMeta) => {
 
     }
   } finally {
-    // loading.value = false;
+    loading.value = false;
   }
 }
 
 const fuse = computed(() => {
   return new Fuse(props.signatures, {
+    threshold: 0.5,
     keys: [
       'title',
       'rfc',
@@ -69,7 +70,7 @@ const filteredResults = computed(() => {
   return query.value ? fuse.value.search(query.value).map(item => item.item) : props.signatures;
 })
 
-
+const {limitReached} = useAccount()
 </script>
 
 <template>
@@ -87,6 +88,7 @@ const filteredResults = computed(() => {
     <template v-if="filteredResults.length === 0">
       <div class="text-center py-4.5">Sin resultados</div>
     </template>
+
     <template v-else>
       <template v-for="(signature, index) in filteredResults"
                 :key="index">
@@ -96,10 +98,24 @@ const filteredResults = computed(() => {
 
   </UPageList>
 
-  <UButton type="submit" block @click="navigate('add')"
-           icon="i-lucide-plus"
-           variant="ghost"
-  >
-    Agregar e.firma
-  </UButton>
+  <template v-if="limitReached">
+    <AccountLimit>
+      <UButton type="submit" block
+               icon="i-lucide-gem"
+               variant="ghost"
+      >
+        Agregar e.firma
+      </UButton>
+    </AccountLimit>
+  </template>
+
+  <template v-else>
+    <UButton type="submit" block @click="navigate('add')"
+             icon="i-lucide-plus"
+             variant="ghost"
+    >
+      Agregar e.firma
+    </UButton>
+  </template>
+
 </template>

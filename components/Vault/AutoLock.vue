@@ -33,6 +33,10 @@ onMounted(async () => {
   })
 })
 
+const resetTimer = () => {
+  //
+}
+
 const progress = computed(() => {
 
   if (!lockDuration.value || !lockStart.value) {
@@ -53,5 +57,7 @@ const progress = computed(() => {
 </script>
 
 <template>
-  <UProgress :model-value="progress" v-if="progress"/>
+  <UButton block variant="ghost" color="neutral" leading-icon="i-lucide-lock" trailing-icon="i-lucide-lock-open">
+    <UProgress :model-value="progress" v-if="progress" size="xs"/>
+  </UButton>
 </template>

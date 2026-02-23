@@ -3,6 +3,10 @@ import './style.css';
 import App from './App.vue';
 import ui from '@nuxt/ui/vue-plugin'
 import { createHead } from '@unhead/vue/client'
+import { es } from 'date-fns/locale'
+import {setDefaultOptions} from "date-fns";
+
+setDefaultOptions({ locale: es })
 
 const head = createHead()
 

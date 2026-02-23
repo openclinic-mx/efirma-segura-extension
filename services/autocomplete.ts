@@ -45,7 +45,7 @@ export class AutocompleteService {
             })
 
             return {
-                error: response.success ? null : 'Could not autocomplete',
+                error: response.error,
             }
         } catch (e) {
             console.error(e)

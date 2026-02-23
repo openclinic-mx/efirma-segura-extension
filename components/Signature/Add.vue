@@ -63,16 +63,31 @@ const show = ref(false)
 
 const {addSignature} = useSignatures()
 
+const toast = useToast()
+
 async function onSubmit(event: FormSubmitEvent<Schema>) {
 
-  await addSignature(
-      event.data.name,
-      event.data.cer,
-      event.data.key,
-      event.data.password,
-  )
+  try {
+    await addSignature(
+        event.data.name,
+        event.data.cer,
+        event.data.key,
+        event.data.password,
+    )
 
-  navigate('home')
+    navigate('home')
+
+    toast.add({
+      title: 'e.firma agregada'
+    })
+  } catch (e) {
+    toast.add({
+      color: 'error',
+      title: 'Algo salio mal'
+    })
+  }
+
+
 }
 
 const {navigate} = useNavigation()

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import type {SignatureMeta} from "@/services/signatures";
+import type {SignatureMeta} from "@/services/signature";
 import type {DropdownMenuItem} from '@nuxt/ui'
 import {useSignatures} from "@/composables/signatures";
+import SignatureDetails from "@/components/Signature/Details.vue"
 import {computed} from 'vue'
 
 const props = defineProps<{
@@ -10,16 +11,25 @@ const props = defineProps<{
 
 const {removeSignature} = useSignatures()
 
+const open = ref(false)
+
 const items = computed<DropdownMenuItem[][]>(() => {
   return [
     [
       {
         label: props.signature.rfc,
-        avatar: {
-          icon: 'i-lucide-key'
-        },
+        icon: 'i-lucide-key',
         type: 'label'
       },
+
+      {
+        label: 'Detalles',
+        icon: 'i-lucide-info',
+        onClick: () => {
+          open.value = true
+        }
+      },
+
     ],
     [
       {
@@ -56,5 +66,12 @@ const emits = defineEmits(['autocomplete'])
       <UButton color="neutral" variant="ghost" icon="i-lucide-ellipsis-vertical"></UButton>
     </UDropdownMenu>
 
+    <UModal v-model:open="open"
+            :title="signature.title"
+    >
+      <template #body>
+        <SignatureDetails :signature="signature"/>
+      </template>
+    </UModal>
   </div>
 </template>
