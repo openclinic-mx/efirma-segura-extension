@@ -1,13 +1,15 @@
 import {onMounted} from "vue";
 import {formatDistanceToNow} from "date-fns";
-import { useAccount } from "@/composables/account";
+import {useAccount} from "@/composables/account";
 
 export const useSync = () => {
     const isEnabled = ref(false);
 
     const lastSyncAt = ref<string | null>(null);
 
-    const { user } = useAccount();
+    const localHash = ref<string | null>(null);
+
+    const {user} = useAccount();
 
     const refreshStatus = async () => {
         const response = await browser.runtime.sendMessage({
@@ -16,6 +18,7 @@ export const useSync = () => {
 
         isEnabled.value = response.isEnabled;
         lastSyncAt.value = response.lastSyncAt;
+        localHash.value = response.hash;
     }
 
     onMounted(async () => {
@@ -46,8 +49,14 @@ export const useSync = () => {
         })
     }
 
+    const remoteHash = async () => {
+        return await browser.runtime.sendMessage({
+            type: 'SYNC_REMOTE_HASH'
+        })
+    }
+
     const lastSyncAtHumanReadable = computed(() => {
-        const when = lastSyncAt.value ? formatDistanceToNow(lastSyncAt.value, {addSuffix: true}) :''
+        const when = lastSyncAt.value ? formatDistanceToNow(lastSyncAt.value, {addSuffix: true}) : ''
 
         return `Ultima sincronización ${when}`
     })
@@ -60,9 +69,11 @@ export const useSync = () => {
         isEnabled,
         lastSyncAt,
         lastSyncAtHumanReadable,
+        localHash,
         hasRemoteVault,
         syncUp,
         syncDown,
-        syncStop
+        syncStop,
+        remoteHash
     }
 }

@@ -38,7 +38,7 @@ export class AccountService {
             return;
         }
 
-        const response = await fetch(this.baseUrl() + '/api/v1/user', {
+        const response = await fetch(this.baseUrl() + '/api/v1/auth/user', {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -52,9 +52,10 @@ export class AccountService {
             }
         }
 
-        const payload: User = await response.json()
+        const payload: { data: User } = await response.json()
 
-        await this.storage.write('user', payload)
+        await this.storage.write('user', payload.data
+        )
         return this.#broadcastStatus()
     }
 

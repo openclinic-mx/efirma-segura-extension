@@ -17,10 +17,10 @@ const resetVault = async () => {
            @click="resetVault"
            loading-auto
            block
-           :icon="isEnabled ? 'i-lucide-cloud-alert' : 'i-lucide-trash'"
+           icon="i-lucide-trash"
            variant="ghost"
            color="error"
   >Reiniciar
-    bóveda
+    bóveda {{ isEnabled ? 'sincronizada' : 'local' }}
   </UButton>
 </template>

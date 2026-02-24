@@ -40,7 +40,7 @@ const loginAndSyncDown = async () => {
 
   <template v-else>
     <UButton type="button" icon="i-lucide-user" block variant="ghost" loading-auto @click="loginAndSyncDown">
-      Ya tengo una bóveda sincronizada
+      Recuperar bóveda sincronizada
     </UButton>
   </template>
 </template>

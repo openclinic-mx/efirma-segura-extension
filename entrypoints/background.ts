@@ -37,10 +37,12 @@ export default defineBackground(() => {
         const status = await syncService.status()
         if (status.isEnabled) {
             await syncService.destroy()
-            await accountService.fetch()
         }
     })
 
+    syncService.onSync(() => {
+        accountService.fetch()
+    })
 
     autoLockService.onStart(() => {
         browser.runtime.sendMessage({
@@ -114,6 +116,8 @@ export default defineBackground(() => {
                 return syncService.syncStop()
             case 'SYNC_UP':
                 return syncService.syncUp()
+            case 'SYNC_REMOTE_HASH':
+                return syncService.remoteHash()
             case 'SYNC_DOWN':
                 return syncService.syncDown()
         }

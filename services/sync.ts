@@ -9,6 +9,9 @@ export class SyncService {
 
     statusKey = 'sync_status';
     lastSyncKey = 'sync_last_sync';
+    hashKey = 'sync_hash';
+
+    private events = new EventTarget();
 
     constructor(
         account: AccountService,
@@ -20,10 +23,15 @@ export class SyncService {
         this.vault = vault;
     }
 
+    onSync(handler: () => void) {
+        this.events.addEventListener("sync", handler);
+    }
+
     async status() {
         return {
             isEnabled: await this.storage.read<boolean>(this.statusKey),
-            lastSyncAt: await this.storage.read<boolean>(this.lastSyncKey)
+            lastSyncAt: await this.storage.read<boolean>(this.lastSyncKey),
+            hash: await this.storage.read<string>(this.hashKey),
         }
     }
 
@@ -42,6 +50,13 @@ export class SyncService {
         )
     }
 
+    #recordHash(hash: string) {
+        return this.storage.write(
+            this.hashKey,
+            hash
+        )
+    }
+
     async syncStop() {
         await this.#disable();
         return this.#broadcastStatus()
@@ -50,17 +65,19 @@ export class SyncService {
     async syncDown() {
         await this.#enable();
 
-        const base64 = await this.download();
+        const data = await this.download();
 
-        if (!base64) {
+        if (!data) {
             return {
                 error: 'No remote database found'
             };
         }
 
-        await this.vault.import(base64);
+        await this.vault.import(data.base64);
 
         await this.#recordSync();
+
+        await this.#recordHash(data.hash)
 
         return this.#broadcastStatus()
     }
@@ -80,7 +97,31 @@ export class SyncService {
 
         await this.#recordSync();
 
+        this.events.dispatchEvent(new Event("sync"));
+
         return this.#broadcastStatus()
+    }
+
+    async remoteHash() {
+        const token = await this.account.token();
+
+        if (!token) {
+            return null;
+        }
+
+        const response = await fetch(this.account.baseUrl() + '/api/v1/vaults', {
+            method: 'HEAD',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'text/plain'
+            }
+        })
+
+        if (!response.ok) {
+            return null;
+        }
+
+        return response.headers.get('X-Vault-Hash')
     }
 
     async upload(database: string) {
@@ -108,7 +149,7 @@ export class SyncService {
         return response
     }
 
-    async download(): Promise<string | null> {
+    async download(): Promise<{ base64: string, hash: string } | null> {
         const token = await this.account.token();
 
         if (!token) {
@@ -126,7 +167,10 @@ export class SyncService {
             return null;
         }
 
-        return response.text()
+        return {
+            base64: await response.text(),
+            hash: response.headers.get('X-Vault-Hash') ?? ''
+        }
     }
 
     async destroy(): Promise<string | null> {
@@ -148,13 +192,19 @@ export class SyncService {
             return null;
         }
 
+        this.events.dispatchEvent(new Event("sync"));
+
         return response.json()
     }
 
-    #broadcastStatus() {
+    async #broadcastStatus() {
+        const status = await this.status();
+
         browser.runtime.sendMessage({
             type: 'SYNC_STATUS_UPDATE',
-            payload: this.status()
+            payload: status
         })
+
+        return status;
     }
 }
