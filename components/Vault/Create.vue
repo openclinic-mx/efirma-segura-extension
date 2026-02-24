@@ -19,7 +19,7 @@ const state = reactive<Schema>({
   repeatPassword: ''
 })
 
-const { initialize } = useDatabase();
+const {initialize} = useDatabase();
 </script>
 
 <template>
@@ -39,8 +39,6 @@ const { initialize } = useDatabase();
       </UFormField>
 
       <UButton type="submit" icon="i-lucide-landmark" block>Crear bóveda</UButton>
-
-      <UButton type="button" icon="i-lucide-user" block variant="ghost">Ya tengo una cuenta</UButton>
     </UForm>
 
   </UPageCard>

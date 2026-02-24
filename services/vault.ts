@@ -15,8 +15,6 @@ export class VaultService {
         this.databaseService = databaseService
         this.signatureService = signatureService
         this.autoLockService = autoLockService;
-
-
     }
 
     async addSignature(message: any) {
@@ -149,6 +147,15 @@ export class VaultService {
         await this.databaseService.initialize(masterPassword)
         this.autoLockService.startTimer()
         return this.#broadcastStatus()
+    }
+
+    async import(base64: string) {
+        await this.databaseService.import(base64)
+        return this.#broadcastStatus()
+    }
+
+    async export() {
+        return this.databaseService.export()
     }
 
     async #broadcastStatus() {

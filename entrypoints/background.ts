@@ -7,6 +7,8 @@ import {SidePanelService} from "@/services/sidePanel";
 import {AutocompleteService} from "@/services/autocomplete";
 import {AutoLockService} from "@/services/autoLock";
 import {VaultService} from "@/services/vault";
+import {AccountService} from "@/services/account";
+import {SyncService} from "@/services/sync";
 
 export default defineBackground(() => {
 
@@ -17,14 +19,36 @@ export default defineBackground(() => {
     const autoLockService = new AutoLockService(5);
     const autocompleteService = new AutocompleteService(signatureService, autoLockService);
     const vaultService = new VaultService(databaseService, signatureService, autoLockService);
+    const accountService = new AccountService(storageService);
+    const syncService = new SyncService(accountService, storageService, vaultService);
+
+    accountService.onLogout(() => syncService.syncStop())
 
     autoLockService.onLock(() => vaultService.lock())
+
+    databaseService.onSave(async () => {
+        const status = await syncService.status()
+        if (status.isEnabled) {
+            await syncService.syncUp()
+        }
+    })
+
+    databaseService.onClear(async () => {
+        const status = await syncService.status()
+        if (status.isEnabled) {
+            await syncService.destroy()
+            await accountService.fetch()
+        }
+    })
+
+
     autoLockService.onStart(() => {
         browser.runtime.sendMessage({
             type: 'TIMER_START',
             payload: autoLockService.getStatus()
         })
     })
+
     autoLockService.onClear(() => {
         browser.runtime.sendMessage({
             type: 'TIMER_CLEAR',
@@ -74,6 +98,24 @@ export default defineBackground(() => {
                 return sidePanelService.close(sender);
             case 'TIMER_STATUS':
                 return autoLockService.getStatus()
+            case 'ACCOUNT_STATUS':
+                return accountService.user()
+            case 'ACCOUNT_AUTH':
+                return accountService.auth(message)
+            case 'ACCOUNT_CHECKOUT':
+                return accountService.checkout()
+            case 'ACCOUNT_LOGOUT':
+                return accountService.clear()
+            case 'SYNC_STATUS':
+                return syncService.status()
+            case 'SYNC_DESTROY':
+                return syncService.destroy()
+            case 'SYNC_STOP':
+                return syncService.syncStop()
+            case 'SYNC_UP':
+                return syncService.syncUp()
+            case 'SYNC_DOWN':
+                return syncService.syncDown()
         }
     }
 

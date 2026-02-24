@@ -17,7 +17,7 @@ export const useDatabase = () => {
 
     watch(isUnlocked, (unlocked) => {
         if (!unlocked) {
-            navigate('home')
+            //
         }
     })
 

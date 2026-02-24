@@ -90,8 +90,8 @@ const {limitReached} = useAccount()
     </template>
 
     <template v-else>
-      <template v-for="(signature, index) in filteredResults"
-                :key="index">
+      <template v-for="(signature) in filteredResults"
+                :key="signature.id">
         <SignatureItem :signature="signature" @autocomplete="handleSelect(signature)"/>
       </template>
     </template>

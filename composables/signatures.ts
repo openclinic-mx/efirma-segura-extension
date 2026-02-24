@@ -1,4 +1,4 @@
-import {SignatureMeta} from "@/services/signatures";
+import {SignatureMeta} from "@/services/signature";
 import {readFileAsBase64} from "@/utils/files";
 import { ref, watch, onMounted } from "vue";
 
@@ -27,7 +27,7 @@ export const useSignatures = () => {
 
         browser.runtime.onMessage.addListener(async (message) => {
             if (message.type === 'VAULT_LIST_UPDATE') {
-                await refreshSignatures();
+                signatures.value = message.payload.signatures;
             }
         })
     })

@@ -43,10 +43,10 @@ const features = [
   <div>
     <UPageSection
         id="features"
-        title="Administra todas tus e.firmas en un solo lugar"
+        icon="i-lucide-gem"
         :links="links"
         :features="features"
-        :ui="{ container: 'py-4'}"
+        :ui="{ container: 'py-0', }"
     />
   </div>
 

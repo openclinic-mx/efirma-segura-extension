@@ -11,7 +11,7 @@ const messages = [
 
 <template>
   <UButton block variant="ghost" icon="i-lucide-sparkles" @click="navigate('promo')">
-    {{ messages[0] }}
+    {{ messages[1] }}
   </UButton>
 </template>
 

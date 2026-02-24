@@ -1,7 +1,7 @@
 import {computed, Ref, ref, watch} from "vue";
 import {Certificate, PrivateKey} from "@nodecfdi/credentials/browser";
 import {isFuture} from "date-fns";
-import {readFileAsBinaryString} from "../utils/files";
+import {readFileAsBinaryString} from "@/utils/files";
 
 export const useSignature = (
     cer: Ref<File | null>,

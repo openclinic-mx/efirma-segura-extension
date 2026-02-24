@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import {reactive, ref, watch} from 'vue';
+import {reactive, ref, watch, useTemplateRef} from 'vue';
 import {useDatabase} from '#imports'
 import AccountLogout from "@/components/Account/Logout.vue";
 import VaultReset from "@/components/Vault/Reset.vue";
-import AccountWelcome from "@/components/Account/Welcome.vue";
 
 const state = reactive({
   password: ''
@@ -37,10 +36,6 @@ watch(() => state.password, (value) => {
 </script>
 
 <template>
-  <Teleport to="#header">
-    <AccountWelcome/>
-  </Teleport>
-
   <UPageCard title="Ingresa tu contraseña maestra para desbloquear." variant="naked">
     <UForm @submit.prevent="openVault" class="contents" loading-auto>
       <UFormField label="Contraseña maestra" required size="xl" class="w-full" :error="error">
@@ -56,6 +51,5 @@ watch(() => state.password, (value) => {
 
   <Teleport to="#footer">
     <VaultReset/>
-    <AccountLogout/>
   </Teleport>
 </template>

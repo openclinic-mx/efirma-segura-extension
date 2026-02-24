@@ -1,12 +1,12 @@
 import {storage} from '#imports';
 
 export class StorageService {
-    write(key: string, value: string) {
+    write(key: string, value: any) {
         return storage.setItem(`local:${key}`, value);
     }
 
-    read(key: string) {
-        return storage.getItem(`local:${key}`);
+    read<T>(key: string) {
+        return storage.getItem<T>(`local:${key}`);
     }
 
     clear(key: string) {

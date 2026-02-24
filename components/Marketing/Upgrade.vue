@@ -1,30 +1,25 @@
 <script setup lang="ts">
 import {useNavigation} from "@/composables/navigation";
+import AccountAuth from "@/components/Account/Auth.vue"
+import AccountPayment from "@/components/Account/Payment.vue"
+import AccountSync from "@/components/Account/Sync.vue"
 
-const { navigate } = useNavigation()
+const {navigate} = useNavigation()
 </script>
 
 <template>
   <article class="prose dark:prose-invert">
     <h2>Paso 1. Crea una cuenta</h2>
 
-    <UButton block>Continuar con Google</UButton>
+    <AccountAuth/>
 
-    <h2>Paso 2. Suscríbete a Profesional</h2>
+    <h2>Paso 2. Subscríbete</h2>
 
-    <UAlert icon="i-lucide-clock" variant="outline" title="Precio de introducción">
-      <template #description>
-        Solo quedan 37 espacios disponibles. <br> Después sube a $499.00 / año
-      </template>
-    </UAlert>
+    <AccountPayment/>
 
-    <p>
-      <UButton variant="outline" block>Subscribirme por solo $199.00 / año</UButton>
-    </p>
+    <h2>Paso 3. Activa sincronización</h2>
 
-    <h2>Paso 3. Solicita tu factura</h2>
-
-    <UButton variant="outline" block>Solicitar factura</UButton>
+    <AccountSync/>
 
     <Teleport to="#footer">
       <UButton variant="ghost" block color="neutral" icon="i-lucide-arrow-left" @click="navigate('home')">

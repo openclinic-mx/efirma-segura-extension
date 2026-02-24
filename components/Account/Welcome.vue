@@ -1,16 +1,13 @@
 <script setup lang="ts">
-
+const {isLoggedIn, user} = useAccount()
 </script>
 
 <template>
   <UAlert
+      v-if="isLoggedIn"
       color="primary"
-      variant="outline"
-      title="Buenas tardes Roberto Vazquez"
+      variant="naked"
+      :title="`Buenas tardes ${user?.name}`"
       icon="i-lucide-sparkles"
   />
 </template>
-
-<style scoped>
-
-</style>

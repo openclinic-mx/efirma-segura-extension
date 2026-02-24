@@ -10,8 +10,18 @@ export class DatabaseService {
 
     private credentials: Credentials | null = null;
 
+    private events = new EventTarget();
+
     constructor(storage: StorageService) {
         this.storage = storage;
+    }
+
+    onSave(handler: () => void) {
+        this.events.addEventListener("save", handler);
+    }
+
+    onClear(handler: () => void) {
+        this.events.addEventListener("clear", handler);
     }
 
     async isInitialized(): Promise<boolean> {
@@ -38,19 +48,28 @@ export class DatabaseService {
         this.credentials = credentials;
     }
 
+    public async import(base64: string) {
+        return this.storage.write(this.storageKey, base64);
+    }
+
+    public async export() {
+        return this.storage.read<string>(this.storageKey);
+    }
+
     private async save(db: Kdbx) {
         const buffer = await db.save();
-        await this.storage.write(this.storageKey, readBufferAsBase64(buffer));
+        this.events.dispatchEvent(new Event("save"));
+        return this.import(readBufferAsBase64(buffer));
     }
 
     private async open(credentials: Credentials) {
-        const base64 = await this.storage.read(this.storageKey);
+        const base64 = await this.export()
 
         if (!base64) {
             throw new Error("Database not found: Ensure database is initialized");
         }
 
-        const bytes = readBase64AsBytes(base64 as string);
+        const bytes = readBase64AsBytes(base64);
 
         return await Kdbx.load(bytes.buffer, credentials);
     }
@@ -137,6 +156,7 @@ export class DatabaseService {
     }
 
     deleteDatabase() {
+        this.events.dispatchEvent(new Event("clear"));
         return this.storage.clear(this.storageKey);
     }
 }
