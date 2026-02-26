@@ -58,7 +58,7 @@ export const useSync = () => {
     const lastSyncAtHumanReadable = computed(() => {
         const when = lastSyncAt.value ? formatDistanceToNow(lastSyncAt.value, {addSuffix: true}) : ''
 
-        return `Ultima sincronización ${when}`
+        return `${when}`
     })
 
     const hasRemoteVault = computed(() => {

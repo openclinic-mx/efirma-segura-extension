@@ -25,6 +25,24 @@ export default defineBackground(() => {
     const syncService = new SyncService(accountService, storageService, vaultService);
     const realtimeService = new RealtimeService(accountService);
 
+    sidePanelService.onVisible(async () => {
+        const status = await syncService.status()
+        if (status.isEnabled) {
+            await syncService.syncDown()
+            await vaultService.requestBroadcast()
+        }
+
+        const user = await accountService.user();
+
+        if (user) {
+            await realtimeService.startListening();
+        }
+    })
+
+    sidePanelService.onHidden(async () => {
+        await realtimeService.stopListening();
+    })
+
     instance.interceptors.request.use(async (config) => {
         const token = await accountService.token();
         if (token) {
@@ -38,11 +56,6 @@ export default defineBackground(() => {
         return config;
     });
 
-    accountService.fetch().then(async user => {
-        if (user) {
-            await realtimeService.startListening();
-        }
-    })
 
     realtimeService.onVault(async () => {
         const status = await syncService.status()

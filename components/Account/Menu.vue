@@ -1,15 +1,20 @@
 <script setup lang="ts">
+import { computed} from "vue";
 import {useColorMode} from '@vueuse/core'
 import type {DropdownMenuItem} from '@nuxt/ui'
 import {useAccount} from "@/composables/account";
 import {useDatabase} from "@/composables/database";
+import {useNavigation} from "@/composables/navigation";
 
 const colorMode = useColorMode()
 
-const {user, logout, signIn} = useAccount()
+const {user, logout, signIn, isSubscribed} = useAccount()
 
 const {isUnlocked, lock} = useDatabase()
 
+const {navigate} = useNavigation()
+
+const {isEnabled} = useSync()
 
 const userMenu = computed(() => {
   return {
@@ -31,17 +36,27 @@ const items = computed<DropdownMenuItem[][]>(() => {
         {
           label: 'Cerrar sesión',
           icon: 'i-lucide-log-out',
-          onClick: () => logout()
+          onClick: () => {
+            if (isEnabled.value && confirm('¿Cerrar sesión? Se deshabilitara la sincronización de tu bóveda')) {
+              logout()
+              return;
+            }
+
+            if (confirm('¿Cerrar sesión? ')) {
+              logout()
+            }
+          }
         },
         {
           label: 'Subscripción',
-          icon: 'i-lucide-credit-card'
+          icon: 'i-lucide-credit-card',
+          onClick: () => navigate('upgrade')
         },
         {
           label: 'Sincronización',
-          icon: 'i-lucide-cloud-check'
+          icon: 'i-lucide-cloud',
+          onClick: () => navigate('upgrade')
         }
-
       ]
       : [
         {
@@ -59,36 +74,7 @@ const items = computed<DropdownMenuItem[][]>(() => {
     }
   ] : []
 
-  const items: DropdownMenuItem[][] = [
-    [{
-      label: 'Apariencia',
-      icon: 'i-lucide-sun-moon',
-      children: [{
-        label: 'Claro',
-        icon: 'i-lucide-sun',
-        type: 'checkbox',
-        checked: colorMode.value === 'light',
-        onSelect(e: Event) {
-          e.preventDefault()
-
-          colorMode.value = 'light'
-        }
-      }, {
-        label: 'Oscuro',
-        icon: 'i-lucide-moon',
-        type: 'checkbox',
-        checked: colorMode.value === 'dark',
-        onUpdateChecked(checked: boolean) {
-          if (checked) {
-            colorMode.value = 'dark'
-          }
-        },
-        onSelect(e: Event) {
-          e.preventDefault()
-        }
-      }]
-    }]
-  ]
+  const items: DropdownMenuItem[][] = []
 
   if (sessionItems.length > 0) {
     items.unshift([...sessionItems])
@@ -119,4 +105,33 @@ const items = computed<DropdownMenuItem[][]>(() => {
     />
 
   </UDropdownMenu>
+
+  <UModal title="¿Cerrar sesión?">
+    <template #body>
+      <article class="prose dark:prose-invert">
+        <template v-if="isEnabled">
+          La sincronización quedara deshabilitada y no podrás utilizar los beneficios de tu subscripción en este
+          dispositivo hasta que vuelvas a iniciar sesión.
+        </template>
+        <template v-else-if="isSubscribed">
+          Ya no podrás utilizar los beneficios de tu subscripción en este dispositivo hasta que vuelvas a iniciar
+          sesión.
+        </template>
+      </article>
+    </template>
+    <template #footer>
+      <div class="flex flex-col gap-4 w-full">
+        <UButton block @click="logout" icon="i-lucide-log-out">
+          Cerrar sesión
+        </UButton>
+
+        <template v-if="isEnabled">
+          <UButton block variant="ghost" @click="logout" icon="i-lucide-log-out">
+            Cerrar sesión y ocultar bóveda
+          </UButton>
+        </template>
+      </div>
+
+    </template>
+  </UModal>
 </template>

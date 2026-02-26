@@ -8,7 +8,7 @@ export class SidePanelService {
         browser.sidePanel.onOpened.addListener((info) => {
             this.openTabs.add(info.tabId)
 
-            if (this.openTabs.size > 0) {
+            if (this.openTabs.size === 1) {
                 this.events.dispatchEvent(new Event("visible"));
             }
         })

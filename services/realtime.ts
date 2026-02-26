@@ -9,6 +9,8 @@ export class RealtimeService {
 
     #echo: Echo<'reverb'> | null = null;
 
+    #interval: Timeout | null = null;
+
     constructor(account: AccountService) {
         this.account = account;
     }
@@ -46,6 +48,8 @@ export class RealtimeService {
             },
 
             Pusher,
+
+            activityTimeout: 20000,
         });
 
         this.#echo
