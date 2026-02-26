@@ -157,6 +157,10 @@ export class DatabaseService {
 
     deleteDatabase() {
         this.events.dispatchEvent(new Event("clear"));
+        return this.silentlyDeleteDatabase();
+    }
+
+    silentlyDeleteDatabase() {
         return this.storage.clear(this.storageKey);
     }
 }

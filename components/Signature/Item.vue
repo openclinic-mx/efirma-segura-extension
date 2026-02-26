@@ -3,7 +3,7 @@ import type {SignatureMeta} from "@/services/signature";
 import type {DropdownMenuItem} from '@nuxt/ui'
 import {useSignatures} from "@/composables/signatures";
 import SignatureDetails from "@/components/Signature/Details.vue"
-import {computed} from 'vue'
+import {computed, ref} from 'vue'
 
 const props = defineProps<{
   signature: SignatureMeta

@@ -1,7 +1,20 @@
 <script setup lang="ts">
 import {useAccount} from "@/composables/account";
+import {format, parseISO} from 'date-fns'
+import {computed} from "vue";
 
-const { user, checkout, isSubscribed } = useAccount()
+const {user, checkout, portal, isSubscribed} = useAccount()
+
+
+const actions = computed(() => {
+  return [{
+    label: 'Administrar',
+    color: 'primary',
+    variant: 'soft',
+    onClick: () => portal(),
+    loadingAuto: true,
+  }]
+})
 </script>
 
 <template>
@@ -9,8 +22,8 @@ const { user, checkout, isSubscribed } = useAccount()
     <UAlert icon="i-lucide-gem"
             variant="outline"
             title="Subscripción activa"
-            description="Se renueva el 25 de Octubre de 2026"
-            :actions="[{ label: 'Administrar', color: 'primary', variant: 'soft' }]"
+            :description="`Se renueva el ${format(parseISO(user!.subscription_renews_at), 'PPP')}`"
+            :actions="actions"
     >
     </UAlert>
   </template>
@@ -23,7 +36,9 @@ const { user, checkout, isSubscribed } = useAccount()
     </UAlert>
 
     <p>
-      <UButton @click="checkout" loading-auto :disabled="!user" block :variant="user ? 'solid' : 'outline'">Subscribirme por sólo $199.00 / año</UButton>
+      <UButton @click="checkout" loading-auto :disabled="!user" block :variant="user ? 'solid' : 'outline'">Subscribirme
+        por sólo $199.00 / año
+      </UButton>
     </p>
   </template>
 

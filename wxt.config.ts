@@ -33,7 +33,11 @@ export default defineConfig({
             // Comprobantes
             "https://wwwmat.sat.gob.mx/consultas/operacion/42968/consulta-y-recuperacion-de-comprobantes-(nuevo)",
         ],
-        chromiumArgs: ['--user-data-dir=./.wxt/chrome-data'],
+        chromiumArgs: [
+            '--user-data-dir=./.wxt/chrome-data',
+            // https://github.com/wxt-dev/wxt/issues/1890
+            '--disable-blink-features=AutomationControlled'
+        ],
     },
     // https://github.com/wxt-dev/wxt/issues/1272
     hooks: {

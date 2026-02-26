@@ -158,6 +158,10 @@ export class VaultService {
         return this.databaseService.export()
     }
 
+    async reset() {
+        return this.databaseService.silentlyDeleteDatabase()
+    }
+
     async #broadcastStatus() {
         const status = await this.status()
         browser.runtime.sendMessage({
@@ -176,4 +180,7 @@ export class VaultService {
         return list
     }
 
+    async requestBroadcast() {
+        return this.#broadcastList()
+    }
 }

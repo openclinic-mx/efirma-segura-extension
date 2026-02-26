@@ -9,6 +9,8 @@ import {AutoLockService} from "@/services/autoLock";
 import {VaultService} from "@/services/vault";
 import {AccountService} from "@/services/account";
 import {SyncService} from "@/services/sync";
+import {RealtimeService} from "@/services/realtime";
+import {instance} from "@/utils/axios";
 
 export default defineBackground(() => {
 
@@ -21,8 +23,48 @@ export default defineBackground(() => {
     const vaultService = new VaultService(databaseService, signatureService, autoLockService);
     const accountService = new AccountService(storageService);
     const syncService = new SyncService(accountService, storageService, vaultService);
+    const realtimeService = new RealtimeService(accountService);
 
-    accountService.onLogout(() => syncService.syncStop())
+    instance.interceptors.request.use(async (config) => {
+        const token = await accountService.token();
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    });
+
+    instance.interceptors.request.use(async (config) => {
+        config.headers['X-Socket-ID'] = realtimeService.socketId();
+        return config;
+    });
+
+    accountService.fetch().then(async user => {
+        if (user) {
+            await realtimeService.startListening();
+        }
+    })
+
+    realtimeService.onVault(async () => {
+        const status = await syncService.status()
+        if (status.isEnabled) {
+            await syncService.syncDown()
+            await vaultService.requestBroadcast()
+        }
+    })
+
+    realtimeService.onSubscription(() => {
+        accountService.fetch()
+    })
+
+    accountService.onLogin(async () => {
+        await realtimeService.startListening()
+    })
+
+    accountService.onLogout(async () => {
+        await syncService.syncStop()
+        realtimeService.stopListening()
+    })
+
 
     autoLockService.onLock(() => vaultService.lock())
 
@@ -41,6 +83,7 @@ export default defineBackground(() => {
     })
 
     syncService.onSync(() => {
+        // not sure why it was needed?
         accountService.fetch()
     })
 
@@ -106,6 +149,8 @@ export default defineBackground(() => {
                 return accountService.auth(message)
             case 'ACCOUNT_CHECKOUT':
                 return accountService.checkout()
+            case 'ACCOUNT_PORTAL':
+                return accountService.portal()
             case 'ACCOUNT_LOGOUT':
                 return accountService.clear()
             case 'SYNC_STATUS':

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import {reactive, ref, watch, useTemplateRef} from 'vue';
+import {reactive, ref, watch, useTemplateRef, nextTick} from 'vue';
 import {useDatabase} from '#imports'
-import AccountLogout from "@/components/Account/Logout.vue";
 import VaultReset from "@/components/Vault/Reset.vue";
 
 const state = reactive({

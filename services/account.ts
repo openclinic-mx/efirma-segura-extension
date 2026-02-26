@@ -1,4 +1,5 @@
 import {StorageService} from "@/services/storage";
+import {instance} from "@/utils/axios";
 
 export type User = {
     avatar: string,
@@ -11,6 +12,7 @@ export type User = {
     has_vault: boolean,
     is_subscribed: boolean,
     subscription_ends_at: string,
+    subscription_renews_at: string
 }
 
 export class AccountService {
@@ -27,6 +29,10 @@ export class AccountService {
         this.events.addEventListener("logout", handler);
     }
 
+    onLogin(handler: () => void) {
+        this.events.addEventListener("login", handler);
+    }
+
     baseUrl() {
         return import.meta.env.WXT_BACKEND;
     }
@@ -38,24 +44,10 @@ export class AccountService {
             return;
         }
 
-        const response = await fetch(this.baseUrl() + '/api/v1/auth/user', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
+        const { data: { data } } = await instance.get<{ data: User }>('/api/v1/auth/user')
 
-        if (!response.ok) {
-            if (response.status === 401) {
-                return this.clear()
-            } else {
-                return;
-            }
-        }
+        await this.storage.write('user', data)
 
-        const payload: { data: User } = await response.json()
-
-        await this.storage.write('user', payload.data
-        )
         return this.#broadcastStatus()
     }
 
@@ -70,27 +62,18 @@ export class AccountService {
             }
         }
 
-        const response = await fetch(this.baseUrl() + '/api/v1/auth/google', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({google_token})
-        })
 
-        if (!response.ok) {
-            return {
-                user: null,
-                error: 'Backend error',
-            }
-        }
-
-        const payload: { user: User, token: string } = await response.json()
+        const {data: payload} = await instance.post<{
+            user: User,
+            token: string
+        }>('/api/v1/auth/google', {google_token})
 
         await this.storage.write('token', payload.token)
         await this.storage.write('user', payload.user)
 
         this.#broadcastStatus()
+
+        this.events.dispatchEvent(new Event("login"));
 
         return {
             user: payload.user,
@@ -105,22 +88,21 @@ export class AccountService {
             return;
         }
 
-        const response = await fetch(this.baseUrl() + '/api/v1/subscription/checkout', {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
+        const {data} = await instance.post<{ checkout_url: string }>('/api/v1/subscription/checkout')
 
-        if (!response.ok) {
-            return {
-                error: 'Backend error',
-            }
+        return data;
+    }
+
+    async portal() {
+        const token = await this.token();
+
+        if (!token) {
+            return;
         }
 
-        const payload: { checkout_url: string } = await response.json()
+        const {data} = await instance.post<{ portal_url: string }>('/api/v1/subscription/portal')
 
-        return payload
+        return data;
     }
 
     async #logout() {

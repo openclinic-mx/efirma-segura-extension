@@ -19,6 +19,7 @@
     "@nodecfdi/credentials": "^3.2.0",
     "@nuxt/ui": "^4.4.0",
     "argon2-browser": "^1.18.0",
+    "axios": "^1.13.5",
     "date-fns": "^4.1.0",
     "fuse.js": "^7.1.0",
     "kdbxweb": "^2.1.1",
@@ -29,6 +30,8 @@
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",
     "@wxt-dev/module-vue": "^1.0.3",
+    "laravel-echo": "^2.3.0",
+    "pusher-js": "^8.4.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18",
     "vue-tsc": "^3.2.4",

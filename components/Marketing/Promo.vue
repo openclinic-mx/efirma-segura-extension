@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {ButtonProps} from "@nuxt/ui/components/Button.vue";
-import { useNavigation } from "@/composables/navigation";
+import {useNavigation} from "@/composables/navigation";
 
-const { navigate } = useNavigation()
+const {navigate} = useNavigation()
 
 const links = ref<ButtonProps[]>([
   {

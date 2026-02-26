@@ -69,11 +69,19 @@ export class SyncService {
 
         if (!data) {
             return {
-                error: 'No remote database found'
+                error: 'Error checking for updates'
             };
         }
 
-        await this.vault.import(data.base64);
+        // if user clears database remotely
+        // we need to clear it here too
+
+        if (data.base64 === null) {
+            await this.account.fetch()
+            await this.vault.reset()
+        } else {
+            await this.vault.import(data.base64);
+        }
 
         await this.#recordSync();
 
@@ -149,7 +157,7 @@ export class SyncService {
         return response
     }
 
-    async download(): Promise<{ base64: string, hash: string } | null> {
+    async download(): Promise<{ base64: string | null, hash: string | null } | null> {
         const token = await this.account.token();
 
         if (!token) {
@@ -164,6 +172,14 @@ export class SyncService {
         })
 
         if (!response.ok) {
+
+            if (response.status === 404) {
+                return {
+                    base64: null,
+                    hash: null
+                }
+            }
+
             return null;
         }
 

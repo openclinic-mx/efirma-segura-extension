@@ -32,7 +32,7 @@ const loginAndSyncDown = async () => {
               variant="outline"
               color="warning"
               description="Crea una contraseña maestra para comenzar"
-              :actions="[ { label: 'Cerrar sesión', color: 'primary', variant: 'soft', onClick: logout}]"
+              :actions="[ { label: 'Cerrar sesión', color: 'primary', variant: 'soft', onClick: logout, loadingAuto: true}]"
       >
       </UAlert>
     </template>

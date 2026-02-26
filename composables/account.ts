@@ -63,7 +63,7 @@ export const useAccount = () => {
 
         if (!granted) {
             toast.add({
-                title: 'No se obtuvo permiso para obtener tu identidad.',
+                title: 'No obtuvimos permisos para obtener tu identidad',
                 color: 'error'
             })
             return null;
@@ -73,7 +73,7 @@ export const useAccount = () => {
 
         if (!result) {
             toast.add({
-                title: 'No se obtuvo tu identidad',
+                title: 'No se completo el proceso de autenticación',
                 color: 'error'
             })
             return null;
@@ -88,7 +88,7 @@ export const useAccount = () => {
 
         if (response.error) {
             toast.add({
-                title: 'No se pudo iniciar sesion',
+                title: 'No hemos podido autenticarte',
                 color: 'error'
             })
         }
@@ -104,6 +104,14 @@ export const useAccount = () => {
         window.open(response.checkout_url, '_blank')
     }
 
+    const portal = async () => {
+        const response: { portal_url: string } = await browser.runtime.sendMessage({
+            type: 'ACCOUNT_PORTAL'
+        })
+
+        window.open(response.portal_url, '_blank')
+    }
+
     const logout = () => {
         browser.runtime.sendMessage({type: 'ACCOUNT_LOGOUT'})
     }
@@ -115,6 +123,7 @@ export const useAccount = () => {
         limitReached,
         signIn,
         logout,
-        checkout
+        checkout,
+        portal
     }
 }
