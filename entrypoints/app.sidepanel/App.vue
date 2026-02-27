@@ -33,8 +33,6 @@ const {view} = useNavigation()
         </UDashboardNavbar>
       </template>
       <template #body>
-        <BulkForm/>
-
         <div id="header">
         </div>
 

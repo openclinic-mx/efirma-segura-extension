@@ -88,7 +88,7 @@ export const useBulk = () => {
             }
         })
 
-        addSignatures(signatures)
+        return addSignatures(signatures)
     }
 
     return {

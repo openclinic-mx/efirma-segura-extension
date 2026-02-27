@@ -1,6 +1,7 @@
 import {AccountService} from "@/services/account";
 import {StorageService} from "@/services/storage";
 import {VaultService} from "@/services/vault";
+import {instance} from "@/utils/axios";
 
 export class SyncService {
     private account: AccountService;
@@ -146,15 +147,9 @@ export class SyncService {
 
         form.append("vault", file);
 
-        const response = await fetch(this.account.baseUrl() + '/api/v1/vaults', {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
-            body: form,
-        })
+        const response = await instance.post('/api/v1/vaults', form)
 
-        return response
+        return response.data
     }
 
     async download(): Promise<{ base64: string | null, hash: string | null } | null> {

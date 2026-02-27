@@ -6,6 +6,7 @@ import * as z from 'zod'
 import type {FormSubmitEvent} from '@nuxt/ui'
 import {useSignatures} from "@/composables/signatures";
 import BulkForm from "@/components/Bulk/Form.vue"
+import {useAccount} from "@/composables/account";
 
 const state = reactive({
   name: '',
@@ -92,6 +93,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 }
 
 const {navigate} = useNavigation()
+
+const { isSubscribed } = useAccount()
 </script>
 
 <template>
@@ -104,7 +107,6 @@ const {navigate} = useNavigation()
       </div>
     </template>
 
-    <BulkForm/>
 
     <UForm @submit.prevent="onSubmit" loading-auto :schema="schema" :state="state" class="contents"
            #default="{loading}">
@@ -142,6 +144,47 @@ const {navigate} = useNavigation()
         </UInput>
       </UFormField>
       <UButton type="submit" icon="i-lucide-save" block :loading="loading">Guardar e.firma</UButton>
+
+      <UModal title="Carga masiva">
+        <UButton variant="ghost" icon="i-lucide-gem" block>Carga masiva</UButton>
+
+        <template #body>
+
+          <article class="prose dark:prose-invert prose-sm">
+
+            <h3>Cada e.firma en un folder</h3>
+
+            <p>Cada e.firma debera estar en un folder que contenga los archivos .key, .cer y la contraseña en un archivo
+              .txt</p>
+
+            <h3>Archivo .txt</h3>
+
+            <p>Asegura que el archivo .txt contiene únicamente la contraseña de tu e.firma, sin espacios al principio,
+              al final o cualquier otro texto.</p>
+
+            <h3>Archivos</h3>
+
+            <p>Los nombres de los archivos .key, .cer y .txt no importan, únicamente su extensión</p>
+
+
+
+
+          </article>
+        </template>
+
+        <template #footer>
+          <template v-if="!isSubscribed">
+            <UButton block color="primary" @click="navigate('upgrade')" icon="i-lucide-gem">Activar Licencia
+              Profesional
+            </UButton>
+          </template>
+
+          <template v-else>
+            <BulkForm/>
+          </template>
+        </template>
+
+      </UModal>
     </UForm>
   </UPageCard>
 </template>
