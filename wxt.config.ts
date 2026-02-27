@@ -3,7 +3,10 @@ import ui from '@nuxt/ui/vite'
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
-    modules: ['@wxt-dev/module-vue'],
+    modules: [
+        '@wxt-dev/module-vue',
+        '@wxt-dev/auto-icons'
+    ],
     manifest: () => ({
         permissions: ['storage', 'alarms'],
         optional_permissions: ['identity'],
