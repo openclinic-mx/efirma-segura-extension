@@ -13,7 +13,7 @@ const {navigate} = useNavigation()
 
     <AccountAuth/>
 
-    <h2>Paso 2. Subscríbete</h2>
+    <h2>Paso 2. Activa tu Licencia</h2>
 
     <AccountPayment/>
 

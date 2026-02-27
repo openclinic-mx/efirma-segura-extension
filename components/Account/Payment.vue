@@ -29,17 +29,19 @@ const actions = computed(() => {
   </template>
 
   <template v-else>
-    <UAlert icon="i-lucide-clock" variant="outline" title="Precio de introducción">
+    <UAlert icon="i-lucide-shield-check" variant="outline" title="Pago seguro con tarjeta de crédito o débito">
       <template #description>
-        Solo quedan 16 espacios disponibles,<br>después sube a $499.00 / año
+        Cancela en cualquier momento sin cargos adicionales.
       </template>
     </UAlert>
 
     <p>
-      <UButton @click="checkout" loading-auto :disabled="!user" block :variant="user ? 'solid' : 'outline'">Subscribirme
-        por sólo $199.00 / año
+      <UButton @click="checkout" loading-auto :disabled="!user" block :variant="user ? 'solid' : 'outline'">
+        Activar mi Licencia Profesional — $599/año
       </UButton>
     </p>
+
+    <p class="text-xs text-center">Los precios mostrados están expresados en MXN</p>
   </template>
 
 
