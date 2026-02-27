@@ -17,6 +17,48 @@ export class VaultService {
         this.autoLockService = autoLockService;
     }
 
+    async addSignatures(message: any) {
+        const {
+            signatures
+        } = message.payload as { signatures: { name: string, cer: string, key: string, password: string }[] };
+
+        try {
+            const ids = await this.signatureService.addSignatures(
+                await Promise.all(
+                    signatures.map((signature) => {
+                        return {
+                            title: signature.name,
+                            cer: readBase64AsBytes(signature.cer),
+                            key: readBase64AsBytes(signature.key),
+                            password: signature.password
+                        }
+                    })
+                )
+            )
+
+            this.autoLockService.resetTimer()
+            this.#broadcastList()
+
+            return {
+                ids,
+                error: null
+            }
+        } catch (e) {
+            this.#broadcastStatus()
+            if (e instanceof Error) {
+                return {
+                    ids: null,
+                    error: e.message
+                }
+            } else {
+                return {
+                    ids: null,
+                    error: 'Unexpected error'
+                }
+            }
+        }
+    }
+
     async addSignature(message: any) {
         const {
             name,

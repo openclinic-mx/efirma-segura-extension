@@ -49,6 +49,37 @@ export class SignatureService {
         return entryToSignature(entry);
     }
 
+    addSignatures(signatures: {
+        title: string,
+        cer: Uint8Array<ArrayBuffer>,
+        key: Uint8Array<ArrayBuffer>,
+        password: string
+    }[]) {
+        const validSignatures = signatures.filter(({cer, key, password}) => {
+            try {
+                const certificate = new Certificate(bytesToBinaryString(cer));
+
+                const privateKey = new PrivateKey(bytesToBinaryString(key), password);
+
+                return privateKey.belongsTo(certificate);
+            } catch (e) {
+                console.log(e)
+                return false;
+            }
+        })
+
+        return this.database.addEntries(
+            validSignatures.map(({title, cer, key, password}) => {
+                return signatureToEntryInstruction(
+                    title,
+                    cer.buffer,
+                    key.buffer,
+                    password
+                )
+            })
+        )
+    }
+
     addSignature(title: string, cer: Uint8Array<ArrayBuffer>, key: Uint8Array<ArrayBuffer>, password: string) {
 
         const certificate = new Certificate(bytesToBinaryString(cer));

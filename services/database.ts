@@ -112,6 +112,25 @@ export class DatabaseService {
         return entry;
     }
 
+
+    async addEntries(withData: ((entry: KdbxEntry) => Promise<KdbxEntry>)[]): Promise<string[]> {
+        const db = await this.getDb();
+
+        const group = db.getDefaultGroup();
+
+        const entries: KdbxEntry[] = [];
+
+        for (const updateEntry of withData) {
+            const entry = db.createEntry(group);
+            await updateEntry(entry)
+            entries.push(entry)
+        }
+
+        await this.save(db);
+
+        return entries.map(entry => entry.uuid.toString());
+    }
+
     async addEntry(withData: (entry: KdbxEntry) => Promise<KdbxEntry>): Promise<string> {
         const db = await this.getDb();
 

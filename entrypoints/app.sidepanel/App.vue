@@ -9,6 +9,7 @@ import AccountPromo from "@/components/Marketing/Promo.vue"
 import AccountUpgrade from "@/components/Marketing/Upgrade.vue"
 import { useDatabase} from "@/composables/database";
 import { useNavigation} from "@/composables/navigation";
+import BulkForm from "@/components/Bulk/Form.vue";
 
 const {isInitialized, isUnlocked} = useDatabase()
 
@@ -32,6 +33,8 @@ const {view} = useNavigation()
         </UDashboardNavbar>
       </template>
       <template #body>
+        <BulkForm/>
+
         <div id="header">
         </div>
 

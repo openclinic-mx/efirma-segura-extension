@@ -5,6 +5,7 @@ import {useNavigation} from "@/composables/navigation";
 import * as z from 'zod'
 import type {FormSubmitEvent} from '@nuxt/ui'
 import {useSignatures} from "@/composables/signatures";
+import BulkForm from "@/components/Bulk/Form.vue"
 
 const state = reactive({
   name: '',
@@ -102,6 +103,8 @@ const {navigate} = useNavigation()
         <span>Nueva e.firma</span>
       </div>
     </template>
+
+    <BulkForm/>
 
     <UForm @submit.prevent="onSubmit" loading-auto :schema="schema" :state="state" class="contents"
            #default="{loading}">

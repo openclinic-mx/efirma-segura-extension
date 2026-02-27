@@ -148,6 +148,8 @@ export default defineBackground(() => {
                 return vaultService.removeSignature(message)
             case 'VAULT_ADD':
                 return vaultService.addSignature(message)
+            case 'VAULT_ADD_MANY':
+                return vaultService.addSignatures(message)
             case 'TOGGLE_TAB':
                 return sidePanelService.toggle(sender);
             case 'OPEN_TAB':

@@ -85,7 +85,7 @@ export class SyncService {
 
         await this.#recordSync();
 
-        await this.#recordHash(data.hash)
+        await this.#recordHash(data.hash ?? '')
 
         return this.#broadcastStatus()
     }

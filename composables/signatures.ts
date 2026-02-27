@@ -1,6 +1,6 @@
 import {SignatureMeta} from "@/services/signature";
 import {readFileAsBase64} from "@/utils/files";
-import { ref, watch, onMounted } from "vue";
+import {onMounted, ref, watch} from "vue";
 
 export const useSignatures = () => {
 
@@ -43,10 +43,27 @@ export const useSignatures = () => {
             }
         })
 
-        // signatures.value = response.signatures;
+        return response;
+    }
+
+    const addSignatures = async (signatures: { name: string, cer: File, key: File, password: string }[]) => {
+        const response = await browser.runtime.sendMessage({
+            type: 'VAULT_ADD_MANY',
+            payload: {
+                signatures: await Promise.all(signatures.map(async signature => {
+                    return {
+                        name: signature.name,
+                        cer: await readFileAsBase64(signature.cer),
+                        key: await readFileAsBase64(signature.key),
+                        password: signature.password,
+                    }
+                })),
+            }
+        })
 
         return response;
     }
+
 
     const removeSignature = async (uuid: string) => {
         const response = await browser.runtime.sendMessage({
@@ -64,6 +81,7 @@ export const useSignatures = () => {
     return {
         signatures,
         addSignature,
+        addSignatures,
         removeSignature,
     }
 }
