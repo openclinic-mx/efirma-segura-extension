@@ -10,8 +10,8 @@ import {useAccount} from "@/composables/account";
 
 const state = reactive({
   name: '',
-  cer: null,
-  key: null,
+  cer: undefined as File | undefined,
+  key: undefined as File | undefined,
   password: '',
 })
 
@@ -33,7 +33,8 @@ const schema = z.object({
   name: z.string(),
   cer: z.file({
     error: 'El archivo .CER es requerido'
-  }).refine((file) => file.size > 0, {message: "El archivo .CER está vacio"})
+  })
+      .refine((file) => file.size > 0, {message: "El archivo .CER está vacio"})
       .refine((val) => isValid.value === null ? true : isValid.value, {
         error: `El certificado expiró`
       }).refine((val) => isSignature.value === null ? true : isSignature.value, {
@@ -41,7 +42,8 @@ const schema = z.object({
       }),
   key: z.file({
     error: 'El archivo .KEY es requerido'
-  }).refine((file) => file.size > 0, {message: "El archivo .KEY está vacio"})
+  })
+      .refine((file) => file.size > 0, {message: "El archivo .KEY está vacio"})
       .refine(() => isCorrectPair.value === null ? true : isCorrectPair.value, {
         error: `La llave privada no corresponde al certificado`,
       }),
@@ -94,7 +96,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
 const {navigate} = useNavigation()
 
-const { isSubscribed } = useAccount()
+const {isSubscribed} = useAccount()
 </script>
 
 <template>
@@ -165,8 +167,6 @@ const { isSubscribed } = useAccount()
             <h3>Archivos</h3>
 
             <p>Los nombres de los archivos .key, .cer y .txt no importan, únicamente su extensión</p>
-
-
 
 
           </article>

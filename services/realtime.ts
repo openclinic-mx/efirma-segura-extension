@@ -9,7 +9,7 @@ export class RealtimeService {
 
     #echo: Echo<'reverb'> | null = null;
 
-    #interval: Timeout | null = null;
+    #interval: ReturnType<typeof setTimeout>  | null = null;
 
     constructor(account: AccountService) {
         this.account = account;

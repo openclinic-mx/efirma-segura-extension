@@ -2,7 +2,7 @@ import {beforeEach, expect, test} from 'vitest'
 import {readFile} from "node:fs/promises";
 import {DatabaseService} from './database'
 import {StorageService} from './storage'
-import {SignatureService} from './signatures'
+import {SignatureService} from './signature'
 import {fakeBrowser} from 'wxt/testing/fake-browser';
 
 let storageService = new StorageService();

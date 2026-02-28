@@ -4,8 +4,8 @@ import {isFuture} from "date-fns";
 import {readFileAsBinaryString} from "@/utils/files";
 
 export const useSignature = (
-    cer: Ref<File | null>,
-    key: Ref<File | null>,
+    cer: Ref<File | undefined>,
+    key: Ref<File | undefined>,
     password: Ref<string>,
 ) => {
     const readKey = ref<string | null>(null);

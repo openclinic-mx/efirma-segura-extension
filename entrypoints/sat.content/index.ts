@@ -47,13 +47,13 @@ export default defineContentScript({
                         if (submit) {
                             await new Promise((resolve) => setTimeout(resolve, 500))
 
-                            const submit = document.querySelector('#submit')
+                            const submitButton = document.querySelector<HTMLButtonElement>('#submit')
 
-                            if (submit) {
-                                submit.click()
+                            if (submitButton) {
                                 window.addEventListener("pagehide", (e) => {
                                     browser.runtime.sendMessage({type: 'CLOSE_TAB'})
                                 });
+                                submitButton.click()
                             }
                         }
                     } else {
@@ -68,7 +68,7 @@ export default defineContentScript({
                 const anchor = document.querySelector('#contrasena') ?? document.querySelector('#submit')
 
                 if (passwordForm) {
-                    const automation = passwordForm.querySelector('#buttonFiel')
+                    const automation = passwordForm.querySelector<HTMLButtonElement>('#buttonFiel')
 
                     if (!automation) {
                         return;

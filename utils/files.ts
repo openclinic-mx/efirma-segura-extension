@@ -38,7 +38,7 @@ export const readBase64AsFile = (base64: string, fileName: string, mimeType: str
     return new File([readBase64AsBytes(base64)], fileName, {type: mimeType});
 }
 
-export const bytesToBinaryString = (bytes: Uint8Array<ArrayBuffer>, chunk = 0x8000): string => {
+export const bytesToBinaryString = (bytes: Uint8Array, chunk = 0x8000): string => {
     let binary = "";
 
     for (let i = 0; i < bytes.length; i += chunk) {

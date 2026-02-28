@@ -2,6 +2,10 @@
 import {useAccount} from "@/composables/account";
 
 const {signIn, isLoggedIn, user, logout} = useAccount()
+
+const handleContinue = () => {
+  signIn()
+};
 </script>
 
 <template>
@@ -16,6 +20,6 @@ const {signIn, isLoggedIn, user, logout} = useAccount()
     ]"></UAlert>
   </template>
   <template v-else>
-    <UButton block @click="signIn" loading-auto>Continuar con Google</UButton>
+    <UButton block @click="handleContinue" loading-auto>Continuar con Google</UButton>
   </template>
 </template>
