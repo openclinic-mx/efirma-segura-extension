@@ -1,5 +1,7 @@
 # e.firma Segura
 
+![e.firma Segura](/assets/store.png)
+
 e.firma Segura te permite almacenar y autocompletar tus credenciales de e.firma del SAT de forma segura. Guarda tus
 archivos .cer, .key y contraseña de llave privada en una bóveda cifrada con AES-256 protegida por una contraseña
 maestra.
@@ -14,9 +16,9 @@ está disponible opcionalmente.
 
 ## Instalación
 
-Descarga e.firma Segura desde la [Chrome Web Store](#) o descarga el [último release](https://github.com/openclinic-mx/efirma-segura-extension/releases/latest) como archivo .zip y cárgalo manualmente en `chrome://extensions` con el modo de desarrollador activado.
+Descarga e.firma Segura desde la [Chrome Web Store](#) o descarga el [último release](https://github.com/openclinic-mx/efirma-segura-extension/releases/latest) como archivo .zip y cárgalo manualmente en [chrome://extensions](chrome://extensions) con el modo de desarrollador activado.
 
-Para cargar la extensión manualmente en modo desarrollo, consulta la sección de Desarrollo Local.
+Para cargar la extensión manualmente en modo desarrollo, consulta la sección de [Desarrollo Local](#desarrollo-local).
 
 ## Seguridad y Privacidad
 
