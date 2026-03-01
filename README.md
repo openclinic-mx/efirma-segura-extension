@@ -16,7 +16,7 @@ está disponible opcionalmente.
 
 ## Instalación
 
-Descarga e.firma Segura desde la [Chrome Web Store](#) o descarga el [último release](https://github.com/openclinic-mx/efirma-segura-extension/releases/latest) como archivo .zip y cárgalo manualmente en [chrome://extensions](chrome://extensions) con el modo de desarrollador activado.
+Descarga e.firma Segura desde la [Chrome Web Store](https://chromewebstore.google.com/detail/efirma-segura/ffhifkllfkjhcbihlfjhojbidgdbmjcd) o descarga el [último release](https://github.com/openclinic-mx/efirma-segura-extension/releases/latest) como archivo .zip y cárgalo manualmente en [chrome://extensions](chrome://extensions) con el modo de desarrollador activado.
 
 Para cargar la extensión manualmente en modo desarrollo, consulta la sección de [Desarrollo Local](#desarrollo-local).
 
