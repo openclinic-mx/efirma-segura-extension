@@ -4,22 +4,27 @@ Business Source License
 License text copyright (c) 2020 MariaDB Corporation Ab, All Rights Reserved.
 “Business Source License” is a trademark of MariaDB Corporation Ab.
 
-Parameters
+## Parameters
 
 Licensor:             OpenClinic SAPI de CV
+
 Licensed Works:       The Licensed Work is (c) 2026 OpenClinic SAPI de CV
-Additional Use Grant: 
-Change Date:          Four years from the date the Licensed Work is published
-Change License:       MPL 2.0
+
+Additional Use Grant:
+
+Change Date:          2030-03-01
+
+Change License:       GNU Affero General Public License v3.0 or later
+
 
 For information about commercial licensing arrangements for the Licensed Work,
-please contact sales@artillery.io.
+please contact hola@openclinic.mx.
 
-Notice
+## Notice
 
 Business Source License 1.1
 
-Terms
+## Terms
 
 The Licensor hereby grants you the right to copy, modify, create derivative works, redistribute, and make non-production use of the Licensed Work. The Licensor may make an Additional Use Grant, above, permitting limited production use.
 
