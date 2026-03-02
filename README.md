@@ -66,7 +66,3 @@ Este proyecto está licenciado bajo [Business Source License 1.1](./LICENSE.md).
   la [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.html).
 
 Para consultas sobre licenciamiento comercial, contáctanos en hola@openclinic.mx.
-
-> **Nota:** La Business Source License no es una licencia de Código Abierto según la definición de la
-> [Open Source Initiative](https://opensource.org/osd). Sin embargo, el Trabajo Licenciado estará
-> disponible bajo una licencia aprobada por la OSI (AGPL v3.0) a partir de la Fecha de Cambio.
