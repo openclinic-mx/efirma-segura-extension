@@ -57,7 +57,7 @@ const handleSelect = async (signature: SignatureMeta) => {
 
 const fuse = computed(() => {
   return new Fuse(props.signatures, {
-    threshold: 0.5,
+    threshold: 0.35,
     keys: [
       'title',
       'rfc',
@@ -67,7 +67,11 @@ const fuse = computed(() => {
 })
 
 const filteredResults = computed(() => {
-  return query.value ? fuse.value.search(query.value).map(item => item.item) : props.signatures;
+  const results = query.value
+      ? fuse.value.search(query.value).map(item => item.item)
+      : props.signatures;
+
+  return results.sort((a, b) => a.title.localeCompare(b.title))
 })
 
 const {limitReached} = useAccount()
@@ -75,7 +79,7 @@ const {limitReached} = useAccount()
 
 <template>
 
-  <UInput placeholder="Buscar..." v-model="query" icon="i-lucide-search" ref="input">
+  <UInput :placeholder="`Buscar en ${props.signatures.length} efirma(s)...`" v-model="query" icon="i-lucide-search" ref="input">
     <template #trailing>
       <UKbd value="/"/>
     </template>

@@ -6,14 +6,14 @@ import {useNavigation} from "@/composables/navigation";
 
 const {parse} = useBulk()
 
-const { navigate } = useNavigation()
+const {navigate} = useNavigation()
 
 const toast = useToast()
 
 const onDrop = async (e: DragEvent) => {
   const folders = await getSignatureFolders(e)
 
-  const response: {ids: string[] | null, error: null | string} = await parse(folders)
+  const response: { ids: string[] | null, error: null | string } = await parse(folders)
 
   if (response.ids && response.ids.length) {
     toast.add({
@@ -25,7 +25,8 @@ const onDrop = async (e: DragEvent) => {
   } else {
     toast.add({
       color: 'error',
-      title: `Algo salio mal`
+      title: `Algo salio mal`,
+      description: response.error ?? 'Error desconocido'
     })
   }
 
