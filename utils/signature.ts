@@ -9,6 +9,10 @@ export const validCerts = async (cers: File[]): Promise<{ parsed: Certificate, f
 
             const certificate = new Certificate(file);
 
+            if (!certificate.satType().isFiel()) {
+                continue;
+            }
+
             certs.push({parsed: certificate, file: cer})
         } catch (e) {
             //
