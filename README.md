@@ -36,7 +36,7 @@ Esta extensión está construida con [WXT](https://wxt.dev/) y [Nuxt UI](https:/
 
 Dependencias clave:
 
-- **[kdbxweb](https://github.com/nicholasgasior/kdbxweb)** — Manejo de la bóveda cifrada (formato KeePass/KDBX)
+- **[kdbxweb](https://github.com/nicholasgasior/kdbxweb)** — Manejo de la bóveda cifrada
 - **[@nodecfdi/credentials](https://github.com/nodecfdi/credentials)** — Lectura y validación de archivos .cer y .key de
   e.firma
 
@@ -51,7 +51,7 @@ npm install
 npm run dev
 ```
 
-Para la lista completa de comandos disponibles (build, zip, etc.), consulta nuestro [package.json](/package.json), así como la [documentación de WXT](https://wxt.dev/api/cli/wxt.html).
+Para la lista completa de comandos disponibles, consulta nuestro [package.json](/package.json), así como la [documentación de WXT](https://wxt.dev/api/cli/wxt.html).
 
 ## Licencia
 
