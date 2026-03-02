@@ -33,7 +33,7 @@ const {view} = useNavigation()
         </UDashboardNavbar>
       </template>
       <template #body>
-        <div id="header">
+        <div id="header" class="empty:hidden">
         </div>
 
         <template v-if="view === 'promo'">
