@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {reactive, ref, watch, useTemplateRef, nextTick} from 'vue';
+import {reactive, ref, useTemplateRef, watch} from 'vue';
 import {useDatabase} from '#imports'
 import VaultReset from "@/components/Vault/Reset.vue";
 
@@ -21,9 +21,9 @@ const openVault = async () => {
   if (response.error) {
     error.value = response.error
     state.password = ''
-    nextTick(() => {
+    setTimeout(() => {
       input.value?.inputRef?.focus()
-    })
+    }, 50)
   }
 }
 
@@ -36,7 +36,7 @@ watch(() => state.password, (value) => {
 
 <template>
   <UPageCard title="Ingresa tu contraseña maestra para desbloquear." variant="naked">
-    <UForm @submit.prevent="openVault" class="contents" loading-auto>
+    <UForm @submit.prevent="openVault" class="contents" loading-auto #default="{ loading }">
       <UFormField label="Contraseña maestra" required size="xl" class="w-full" :error="error">
         <UInput type="password" required class="block" minlength="12" v-model="state.password"
                 ref="input"
@@ -44,7 +44,7 @@ watch(() => state.password, (value) => {
         </UInput>
       </UFormField>
 
-      <UButton type="submit" block icon="i-lucide-lock-open">Desbloquear</UButton>
+      <UButton type="submit" block icon="i-lucide-lock-open" :loading="loading">Desbloquear</UButton>
     </UForm>
   </UPageCard>
 
