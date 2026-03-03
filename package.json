@@ -2,7 +2,7 @@
   "name": "efirma-segura",
   "description": "Gestor seguro de e.firmas del SAT con autocompletado",
   "private": true,
-  "version": "2.2.0",
+  "version": "2.2.1",
   "type": "module",
   "scripts": {
     "dev": "wxt",

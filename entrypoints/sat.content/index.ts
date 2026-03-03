@@ -14,8 +14,8 @@ export default defineContentScript({
             onMount: (container) => {
                 const passwordForm = document.querySelector('#IDPLogin');
 
-                const signatureFormCer = findCandidate(['#fileCertificate']);
-                const signatureFormKey = findCandidate(['#filePrivateKey']);
+                const signatureFormCer = findCandidate(['#fileCertificate', '#certificate']);
+                const signatureFormKey = findCandidate(['#filePrivateKey', '#privateKey']);
                 const signatureFormPassword = findCandidate(['#privateKeyPassword']);
 
                 const trigger = document.createElement("button");
@@ -23,49 +23,11 @@ export default defineContentScript({
                 trigger.classList.add('btn', 'btn-success')
                 trigger.textContent = "Autocompletar";
 
-                browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
-                    const {cer, key, password, submit} = message.payload
 
-                    if (message.type !== 'AUTOCOMPLETE_ACTION') {
-                        return;
-                    }
 
-                    if ((signatureFormCer instanceof HTMLInputElement)
-                        && (signatureFormKey instanceof HTMLInputElement)
-                        && (signatureFormPassword instanceof HTMLInputElement)) {
-
-                        setFileInput(signatureFormCer, readBase64AsFile(cer, 'signature.cer', 'application/x-x509-ca-cert'))
-
-                        setFileInput(signatureFormKey, readBase64AsFile(key, 'signature.key', 'application/octet-stream'))
-
-                        setTextInput(signatureFormPassword, password)
-
-                        sendResponse({
-                            error: null
-                        })
-
-                        if (submit) {
-                            await new Promise((resolve) => setTimeout(resolve, 500))
-
-                            const submitButton = document.querySelector<HTMLButtonElement>('#submit')
-
-                            if (submitButton) {
-                                window.addEventListener("pagehide", (e) => {
-                                    browser.runtime.sendMessage({type: 'CLOSE_TAB'})
-                                });
-                                submitButton.click()
-                            }
-                        }
-                    } else {
-                        sendResponse({
-                            error: 'Form not found',
-                        })
-                    }
-
-                    return true;
-                })
-
-                const anchor = document.querySelector('#contrasena') ?? document.querySelector('#submit')
+                const anchor = document.querySelector('#contrasena')
+                    ?? document.querySelector('#submit')
+                    ?? document.querySelector('#btnValidaOSCP')
 
                 if (passwordForm) {
                     const automation = passwordForm.querySelector<HTMLButtonElement>('#buttonFiel')
@@ -93,6 +55,48 @@ export default defineContentScript({
                     if (!anchor) {
                         return;
                     }
+
+                    browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+                        const {cer, key, password, submit} = message.payload
+
+                        if (message.type !== 'AUTOCOMPLETE_ACTION') {
+                            return;
+                        }
+
+                        if ((signatureFormCer instanceof HTMLInputElement)
+                            && (signatureFormKey instanceof HTMLInputElement)
+                            && (signatureFormPassword instanceof HTMLInputElement)) {
+
+                            setFileInput(signatureFormCer, readBase64AsFile(cer, 'signature.cer', 'application/x-x509-ca-cert'))
+
+                            setFileInput(signatureFormKey, readBase64AsFile(key, 'signature.key', 'application/octet-stream'))
+
+                            setTextInput(signatureFormPassword, password)
+
+                            sendResponse({
+                                error: null
+                            })
+
+                            if (submit) {
+                                await new Promise((resolve) => setTimeout(resolve, 500))
+
+                                const submitButton = document.querySelector<HTMLButtonElement>('#submit')
+
+                                if (submitButton) {
+                                    window.addEventListener("pagehide", (e) => {
+                                        browser.runtime.sendMessage({type: 'CLOSE_TAB'})
+                                    });
+                                    submitButton.click()
+                                }
+                            }
+                        } else {
+                            sendResponse({
+                                error: 'Form not found',
+                            })
+                        }
+
+                        return true;
+                    })
 
                     anchor.parentNode!.prepend(trigger)
 
