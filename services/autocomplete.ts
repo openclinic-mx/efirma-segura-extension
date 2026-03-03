@@ -37,6 +37,7 @@ export class AutocompleteService {
             const response = await browser.tabs.sendMessage(tabId, {
                 type: 'AUTOCOMPLETE_ACTION',
                 payload: {
+                    taxId: signature.rfc,
                     password: signature.password,
                     cer: readBytesAsBase64(signature.cer),
                     key: readBytesAsBase64(signature.key),
