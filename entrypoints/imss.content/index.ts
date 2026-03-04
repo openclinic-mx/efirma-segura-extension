@@ -38,9 +38,16 @@ export default defineContentScript({
 
                 browser.runtime.onMessage.addListener(listener)
 
-                const imssTrigger = () => tryRenderTrigger(
-                    import.meta.env.WXT_IMSS_FORM_ANCHOR.split("|")
-                )
+                const imssTrigger = () => {
+                    const trigger = tryRenderTrigger(
+                        import.meta.env.WXT_IMSS_FORM_ANCHOR.split("|")
+                    )
+
+                    if (trigger) {
+                        // IMSS doesn't space the element accordingly
+                        trigger.style.marginRight = '1rem'
+                    }
+                }
 
                 const observer = new MutationObserver(() => imssTrigger());
 

@@ -38,7 +38,7 @@ export const makeTrigger = (classList: string[] = ['btn', 'btn-success', 'boton'
     trigger.type = 'button';
     trigger.classList.add(...classList)
     trigger.id = TRIGGER_ID
-    trigger.style.marginRight = '1rem'
+
     trigger.textContent = "Autocompletar";
     trigger.addEventListener('click', () => {
         browser.runtime.sendMessage({type: 'TOGGLE_TAB'})
@@ -47,7 +47,7 @@ export const makeTrigger = (classList: string[] = ['btn', 'btn-success', 'boton'
 }
 
 export const tryRenderTrigger = (anchors: string[]) => {
-    const hasTrigger = findCandidate([TRIGGER_SELECTOR]);
+    const hasTrigger = findCandidate<HTMLButtonElement>([TRIGGER_SELECTOR]);
 
     if (hasTrigger) {
         return hasTrigger;
@@ -73,9 +73,9 @@ export const tryRenderTrigger = (anchors: string[]) => {
 export const trySubmitForm = async (candidates: string[]) => {
     await new Promise((resolve) => setTimeout(resolve, 275))
 
-    const submitButton = findCandidate(candidates)
+    const submitButton = findCandidate<HTMLInputElement>(candidates)
 
-    if (!(submitButton instanceof HTMLButtonElement)) {
+    if (!submitButton) {
         return
     }
 
@@ -85,5 +85,5 @@ export const trySubmitForm = async (candidates: string[]) => {
         once: true
     });
 
-    submitButton.click()
+    (submitButton).click()
 }

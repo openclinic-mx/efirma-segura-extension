@@ -25,9 +25,9 @@ export default defineContentScript({
                         return;
                     }
 
-                    handleAutocompleteAction(message, sendResponse)
+                    const filled = handleAutocompleteAction(message, sendResponse)
 
-                    if (message.payload.submit) {
+                    if (filled && message.payload.submit) {
                         trySubmitForm(
                             import.meta.env.WXT_SAT_FORM_SUBMIT.split("|")
                         )
@@ -36,24 +36,26 @@ export default defineContentScript({
                     return true;
                 }
 
+                browser.runtime.onMessage.addListener(listener)
+
                 const tryRenderTriggerWithNavigation = () => {
                     const trigger = tryRenderTrigger(
-                        import.meta.env.WXT_SAT_FORM_ANCHOR.split(",")
+                        import.meta.env.WXT_SAT_FORM_ANCHOR.split("|")
                     );
 
-                    const passwordForm = document.querySelector('#IDPLogin');
-
-                    if (passwordForm && trigger) {
-                        trigger.addEventListener('click', () => {
-                            const navigateToSignatureLogin = passwordForm.querySelector<HTMLButtonElement>('#buttonFiel')
-
-                            if (navigateToSignatureLogin) {
-                                navigateToSignatureLogin.click()
-                            }
-                        })
-
+                    if (!trigger) {
                         return;
                     }
+
+                    trigger.addEventListener('click', () => {
+                        const navigateToSignatureLogin = findCandidate<HTMLButtonElement>([
+                            '#buttonFiel',
+                        ])
+
+                        if (navigateToSignatureLogin) {
+                            navigateToSignatureLogin.click()
+                        }
+                    })
                 }
 
                 const observer = new MutationObserver(() => tryRenderTriggerWithNavigation());
@@ -96,7 +98,7 @@ const handleAutocompleteAction = (message: any, sendResponse: (response?: any) =
         sendResponse({
             error: 'Form not found',
         })
-        return
+        return false;
     }
 
     setFileInput(signatureFormCer, readBase64AsFile(cer, 'signature.cer', 'application/x-x509-ca-cert'))
@@ -104,4 +106,10 @@ const handleAutocompleteAction = (message: any, sendResponse: (response?: any) =
     setFileInput(signatureFormKey, readBase64AsFile(key, 'signature.key', 'application/octet-stream'))
 
     setTextInput(signatureFormPassword, password)
+
+    sendResponse({
+        error: null
+    })
+
+    return true;
 }

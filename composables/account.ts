@@ -51,7 +51,13 @@ export const useAccount = () => {
             interactive: true,
         }
 
-        return new Promise<Browser.identity.GetAuthTokenResult>((resolve, reject) => {
+        return new Promise<Browser.identity.GetAuthTokenResult | null>((resolve, reject) => {
+
+            if (!browser.identity) {
+                resolve(null)
+                return;
+            }
+
             browser.identity.getAuthToken(options, (accessToken) => {
                 resolve(accessToken)
             });
@@ -63,7 +69,8 @@ export const useAccount = () => {
 
         if (!granted) {
             toast.add({
-                title: 'No obtuvimos permisos para obtener tu identidad',
+                title: 'No obtuvimos permisos para obtener tu identidad.',
+                description: 'Favor de reintentar de nuevo.',
                 color: 'error'
             })
             return null;
@@ -73,7 +80,8 @@ export const useAccount = () => {
 
         if (!result) {
             toast.add({
-                title: 'No se completo el proceso de autenticación',
+                title: 'No se completo el proceso de autenticación.',
+                description: 'Favor de reintentar de nuevo.',
                 color: 'error'
             })
             return null;
@@ -88,7 +96,8 @@ export const useAccount = () => {
 
         if (response.error) {
             toast.add({
-                title: 'No hemos podido autenticarte',
+                title: 'No hemos podido autenticarte.',
+                description: 'Favor de reintentar de nuevo.',
                 color: 'error'
             })
         }
