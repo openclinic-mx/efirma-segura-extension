@@ -28,18 +28,18 @@ export default defineContentScript({
                     handleAutocompleteAction(message, sendResponse)
 
                     if (message.payload.submit) {
-                        trySubmitForm()
+                        trySubmitForm(
+                            import.meta.env.WXT_SAT_FORM_SUBMIT.split("|")
+                        )
                     }
 
                     return true;
                 }
 
                 const tryRenderTriggerWithNavigation = () => {
-                    const trigger = tryRenderTrigger([
-                        '#contrasena',
-                        '#submit',
-                        '#btnValidaOSCP'
-                    ]);
+                    const trigger = tryRenderTrigger(
+                        import.meta.env.WXT_SAT_FORM_ANCHOR.split(",")
+                    );
 
                     const passwordForm = document.querySelector('#IDPLogin');
 
@@ -77,20 +77,16 @@ export default defineContentScript({
 const handleAutocompleteAction = (message: any, sendResponse: (response?: any) => void) => {
     const {cer, key, password, submit} = message.payload
 
-    const signatureFormCer = findCandidate([
-        '#localCertificate',
-        '#fileCertificate',
-        '#certificate'
-    ]);
-    const signatureFormKey = findCandidate([
-        '#localPrivateKey',
-        '#filePrivateKey',
-        '#privateKey'
-    ]);
-    const signatureFormPassword = findCandidate([
-        '#localPassword',
-        '#privateKeyPassword'
-    ]);
+    const signatureFormCer = findCandidate(
+        import.meta.env.WXT_SAT_FORM_CER.split("|")
+    );
+
+    const signatureFormKey = findCandidate(
+        import.meta.env.WXT_SAT_FORM_KEY.split("|")
+    );
+    const signatureFormPassword = findCandidate(
+        import.meta.env.WXT_SAT_FORM_PASSWORD.split("|")
+    );
 
     if ((signatureFormCer instanceof HTMLInputElement)
         && (signatureFormKey instanceof HTMLInputElement)
@@ -108,8 +104,4 @@ const handleAutocompleteAction = (message: any, sendResponse: (response?: any) =
     setFileInput(signatureFormKey, readBase64AsFile(key, 'signature.key', 'application/octet-stream'))
 
     setTextInput(signatureFormPassword, password)
-
-    if (submit) {
-        trySubmitForm(['#submit'])
-    }
 }

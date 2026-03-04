@@ -28,11 +28,9 @@ export default defineContentScript({
                     handleAutocompleteAction(message, sendResponse)
 
                     if (message.payload.submit) {
-                        trySubmitForm([
-                            '#botonValidarCert',
-                            '#botonFirma',
-                            '#btnFirmaNoApplet'
-                        ])
+                        trySubmitForm(
+                            import.meta.env.WXT_IMSS_FORM_SUBMIT.split("|")
+                        )
                     }
 
                     return true;
@@ -40,12 +38,9 @@ export default defineContentScript({
 
                 browser.runtime.onMessage.addListener(listener)
 
-                const imssTrigger = () => tryRenderTrigger([
-                    '#inputFirma',
-                    '#botonFirma',
-                    '#botonValidarCert',
-                    '#btnFirmaNoApplet',
-                ])
+                const imssTrigger = () => tryRenderTrigger(
+                    import.meta.env.WXT_IMSS_FORM_ANCHOR.split("|")
+                )
 
                 const observer = new MutationObserver(() => imssTrigger());
 
@@ -66,26 +61,18 @@ export default defineContentScript({
 });
 
 const handleAutocompleteAction = (message: any, sendResponse: (response?: any) => void) => {
-    const signatureFormCer = findCandidate([
-        '#localCertificate',
-        '#certificado',
-        '#inputCertificado'
-    ]);
-    const signatureFormKey = findCandidate([
-        '#localPrivateKey',
-        '#llave',
-        '#inputKey'
-    ]);
-    const signatureFormPassword = findCandidate([
-        '#localPassword',
-        '#password',
-        '#inputPassword'
-    ]);
-    const signatureFormTaxId = findCandidate([
-        '#localRFC',
-        '#idUsuario',
-        '#inputRFC'
-    ])
+    const signatureFormCer = findCandidate(
+        import.meta.env.WXT_IMSS_FORM_CER.split("|")
+    );
+    const signatureFormKey = findCandidate(
+        import.meta.env.WXT_IMSS_FORM_KEY.split("|")
+    );
+    const signatureFormPassword = findCandidate(
+        import.meta.env.WXT_IMSS_FORM_PASSWORD.split("|")
+    );
+    const signatureFormTaxId = findCandidate(
+        import.meta.env.WXT_IMSS_FORM_TAX_ID.split("|")
+    )
 
     const {taxId, cer, key, password} = message.payload
 

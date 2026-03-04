@@ -26,16 +26,7 @@ export default defineConfig({
         ]
     }),
     webExt: {
-        startUrls: [
-            // Declaraciones
-            "https://pstcdypisr.clouda.sat.gob.mx/",
-            // CertiSAT
-            "https://aplicacionesc.mat.sat.gob.mx/certisat/",
-            // Buzón
-            "https://wwwmat.sat.gob.mx/personas/iniciar-sesion",
-            // Comprobantes
-            "https://wwwmat.sat.gob.mx/consultas/operacion/42968/consulta-y-recuperacion-de-comprobantes-(nuevo)",
-        ],
+        startUrls: import.meta.env.WXT_START_URLS.split("|"),
         chromiumArgs: [
             '--user-data-dir=./.wxt/chrome-data',
             // https://github.com/wxt-dev/wxt/issues/1890
