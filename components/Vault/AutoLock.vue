@@ -52,7 +52,9 @@ const progress = computed(() => {
   const lockProgress = lockEnd - now.value
 
   // elapsed time / total time = progress
-  return (lockProgress / lockDuration.value) * 100
+  const progress = (lockProgress / lockDuration.value) * 100
+
+  return Math.max(0, Math.min(100, progress))
 })
 </script>
 
