@@ -35,6 +35,8 @@ export default defineConfig({
             "https://wwwmat.sat.gob.mx/personas/iniciar-sesion",
             // Comprobantes
             "https://wwwmat.sat.gob.mx/consultas/operacion/42968/consulta-y-recuperacion-de-comprobantes-(nuevo)",
+            // IMSS
+            "https://idse.imss.gob.mx/imss/",
         ],
         chromiumArgs: [
             '--user-data-dir=./.wxt/chrome-data',
