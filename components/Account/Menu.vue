@@ -48,7 +48,7 @@ const items = computed<DropdownMenuItem[][]>(() => {
           }
         },
         {
-          label: 'Subscripción',
+          label: 'Licencia',
           icon: 'i-lucide-credit-card',
           onClick: () => navigate('upgrade')
         },

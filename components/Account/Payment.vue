@@ -21,7 +21,7 @@ const actions = computed(() => {
   <template v-if="isSubscribed">
     <UAlert icon="i-lucide-gem"
             variant="outline"
-            title="Subscripción activa"
+            title="Licencia activa"
             :description="`Se renueva el ${format(parseISO(user!.subscription_renews_at), 'PPP')}`"
             :actions="actions"
     >
