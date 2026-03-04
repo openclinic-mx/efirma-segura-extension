@@ -19,13 +19,71 @@ export const setTextInput = (input: HTMLInputElement, value: string) => {
     input.dispatchEvent(new Event("change", {bubbles: true}));
 }
 
-export const findCandidate = (selectors: string[]) => {
+export const findCandidate = <T extends Element>(selectors: string[]) => {
     for (const selector of selectors) {
-        const input = document.querySelector(selector)
+        const input = document.querySelector<T>(selector)
         if (input) {
             return input;
         }
     }
-
     return null;
+}
+
+export const TRIGGER_ID = 'efirmaAutocomplete'
+
+export const TRIGGER_SELECTOR = `#${TRIGGER_ID}`
+
+export const makeTrigger = (classList: string[] = ['btn', 'btn-success', 'boton']) => {
+    const trigger = document.createElement("button");
+    trigger.type = 'button';
+    trigger.classList.add(...classList)
+    trigger.id = TRIGGER_ID
+    trigger.style.marginRight = '1rem'
+    trigger.textContent = "Autocompletar";
+    trigger.addEventListener('click', () => {
+        browser.runtime.sendMessage({type: 'TOGGLE_TAB'})
+    })
+    return trigger;
+}
+
+export const tryRenderTrigger = (anchors: string[]) => {
+    const hasTrigger = findCandidate([TRIGGER_SELECTOR]);
+
+    if (hasTrigger) {
+        return hasTrigger;
+    }
+
+    const anchor = findCandidate(anchors)
+
+    if (!anchor) {
+        return null;
+    }
+
+    if (!anchor.parentNode) {
+        return null;
+    }
+
+    const trigger = makeTrigger()
+
+    anchor.parentNode.prepend(trigger);
+
+    return trigger;
+}
+
+export const trySubmitForm = async (candidates: string[]) => {
+    await new Promise((resolve) => setTimeout(resolve, 275))
+
+    const submitButton = findCandidate(candidates)
+
+    if (!(submitButton instanceof HTMLButtonElement)) {
+        return
+    }
+
+    window.addEventListener("pagehide", (e) => {
+        browser.runtime.sendMessage({type: 'CLOSE_TAB'})
+    }, {
+        once: true
+    });
+
+    submitButton.click()
 }
