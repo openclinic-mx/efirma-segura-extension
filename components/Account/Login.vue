@@ -22,7 +22,7 @@ const loginAndSyncDown = async () => {
 <template>
   <template v-if="isLoggedIn">
     <template v-if="hasRemoteVault">
-      <Teleport to="#footer">
+      <Teleport to="#footer" defer>
         <SyncStatus/>
       </Teleport>
     </template>

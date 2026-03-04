@@ -21,7 +21,7 @@ const {navigate} = useNavigation()
 
     <AccountSync/>
 
-    <Teleport to="#footer">
+    <Teleport to="#footer" defer>
       <UButton variant="ghost" block color="neutral" icon="i-lucide-arrow-left" @click="navigate('home')">
         Regresar
       </UButton>

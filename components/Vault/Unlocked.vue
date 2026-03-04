@@ -22,7 +22,7 @@ const {isSubscribed} = useAccount()
     <SignatureList :signatures="signatures" v-if="signatures.length"/>
     <SignatureEmpty class="my-auto" v-else/>
 
-    <Teleport to="#footer">
+    <Teleport to="#footer" defer>
       <AccountSubscribe v-if="!isSubscribed"/>
     </Teleport>
   </template>
@@ -41,7 +41,7 @@ const {isSubscribed} = useAccount()
     </UError>
   </template>
 
-  <Teleport to="#footer">
+  <Teleport to="#footer" defer>
     <VaultAutoLock class="order-last"/>
   </Teleport>
 

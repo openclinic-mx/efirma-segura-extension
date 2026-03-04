@@ -48,7 +48,7 @@ watch(() => state.password, (value) => {
     </UForm>
   </UPageCard>
 
-  <Teleport to="#footer">
+  <Teleport to="#footer" defer>
     <VaultReset/>
   </Teleport>
 </template>
