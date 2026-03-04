@@ -52,16 +52,17 @@ const {view} = useNavigation()
             <VaultLocked/>
           </template>
 
-          <Teleport to="#footer">
+          <Teleport to="#footer" defer>
             <SyncStatus v-if="isSubscribed"/>
           </Teleport>
         </template>
         <template v-else>
           <VaultCreate/>
-          <AccountLogin/>
+          <Teleport to="#footer" defer>
+            <AccountLogin/>
+          </Teleport>
         </template>
         <div class="mt-auto gap-4 flex flex-col" id="footer">
-
         </div>
       </template>
     </UDashboardPanel>
