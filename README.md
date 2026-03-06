@@ -47,8 +47,8 @@ Requisitos: [Node.js](https://nodejs.org/) (v22+)
 ```bash
 git clone https://github.com/openclinic-mx/efirma-segura-extension.git
 cd efirma-segura-extension
-npm install
-npm run dev
+pnpm i
+pnpm dev
 ```
 
 Para la lista completa de comandos disponibles, consulta nuestro [package.json](/package.json), así como la [documentación de WXT](https://wxt.dev/api/cli/wxt.html).
