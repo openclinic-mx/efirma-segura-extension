@@ -36,8 +36,8 @@ export const useAccount = () => {
         return signatures.value.length >= 3
     })
 
-    const requestPermission = async () => {
-        return new Promise((resolve) => {
+    const requestPermission = () => {
+        return new Promise<boolean>((resolve) => {
             browser.permissions.request({
                 permissions: ['identity'],
             }, (granted) => {
@@ -65,12 +65,12 @@ export const useAccount = () => {
     }
     const signIn = async () => {
 
-        const granted = requestPermission()
+        const granted = await requestPermission()
 
         if (!granted) {
             toast.add({
                 title: 'No obtuvimos permisos para obtener tu identidad.',
-                description: 'Favor de reintentar de nuevo.',
+                description: 'Favor de intentar de nuevo.',
                 color: 'error'
             })
             return null;
@@ -81,7 +81,7 @@ export const useAccount = () => {
         if (!result) {
             toast.add({
                 title: 'No se completo el proceso de autenticación.',
-                description: 'Favor de reintentar de nuevo.',
+                description: 'Favor de intentar de nuevo.',
                 color: 'error'
             })
             return null;
@@ -97,7 +97,7 @@ export const useAccount = () => {
         if (response.error) {
             toast.add({
                 title: 'No hemos podido autenticarte.',
-                description: 'Favor de reintentar de nuevo.',
+                description: 'Favor de intentar de nuevo.',
                 color: 'error'
             })
         }
