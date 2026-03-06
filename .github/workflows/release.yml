@@ -1,0 +1,50 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'   # triggers on any tag starting with "v"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Zip extensions
+        run: |
+          pnpm zip
+        env:
+          WXT_MANIFEST_KEY: ${{secrets.WXT_MANIFEST_KEY}}
+          WXT_OAUTH2_CLIENT_ID: ${{secrets.WXT_OAUTH2_CLIENT_ID}}
+
+          WXT_BACKEND: ${{vars.WXT_BACKEND}}
+          WXT_REVERB_APP_KEY: ${{vars.WXT_REVERB_APP_KEY}}
+          WXT_REVERB_HOST: ${{vars.WXT_REVERB_HOST}}
+          WXT_REVERB_PORT: ${{vars.WXT_REVERB_PORT}}
+          WXT_REVERB_SCHEME: ${{vars.WXT_REVERB_SCHEME}}
+
+          WXT_SAT_FORM_CER: ${{secrets.WXT_SAT_FORM_CER}}
+          WXT_SAT_FORM_KEY: ${{secrets.WXT_SAT_FORM_KEY}}
+          WXT_SAT_FORM_PASSWORD: ${{secrets.WXT_SAT_FORM_PASSWORD}}
+          WXT_SAT_FORM_ANCHOR: ${{secrets.WXT_SAT_FORM_ANCHOR}}
+          WXT_SAT_FORM_SUBMIT: ${{secrets.WXT_SAT_FORM_SUBMIT}}
+
+          WXT_IMSS_FORM_CER: ${{secrets.WXT_IMSS_FORM_CER}}
+          WXT_IMSS_FORM_KEY: ${{secrets.WXT_IMSS_FORM_KEY}}
+          WXT_IMSS_FORM_PASSWORD: ${{secrets.WXT_IMSS_FORM_PASSWORD}}
+          WXT_IMSS_FORM_TAX_ID: ${{secrets.WXT_IMSS_FORM_TAX_ID}}
+          WXT_IMSS_FORM_ANCHOR: ${{secrets.WXT_IMSS_FORM_ANCHOR}}
+          WXT_IMSS_FORM_SUBMIT: ${{secrets.WXT_IMSS_FORM_SUBMIT}}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: .output/*
