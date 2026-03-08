@@ -11,7 +11,6 @@ export default defineConfig({
         permissions: ['storage', 'alarms'],
         optional_permissions: ['identity'],
         name: 'e.firma Segura',
-        description: "Gestor seguro de e.firmas del SAT con autocompletado",
         key: import.meta.env.WXT_MANIFEST_KEY,
         oauth2: {
             client_id: import.meta.env.WXT_OAUTH2_CLIENT_ID,
