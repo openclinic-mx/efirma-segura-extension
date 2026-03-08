@@ -1,6 +1,6 @@
 {
   "name": "efirma-segura",
-  "description": "Gestor seguro de e.firmas del SAT con autocompletado",
+  "description": "Una bóveda cifrada en tu navegador que autocompleta tus e.firmas en el portal del SAT con un clic.",
   "private": true,
   "version": "2.3.1",
   "type": "module",
