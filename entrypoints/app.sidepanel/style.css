@@ -5,12 +5,7 @@
 
 body {
     min-width: 320px;
-}
-
-:root {
-    --ui-primary: #19f30d;
-}
-
-#app {
     max-width: 1280px;
+    font-family: 'Noto Sans', sans-serif;
+    --ui-primary: #19f30d;
 }
