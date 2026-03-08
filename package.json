@@ -2,7 +2,7 @@
   "name": "efirma-segura",
   "description": "Una bóveda cifrada en tu navegador que autocompleta tus e.firmas en el portal del SAT con un clic.",
   "private": true,
-  "version": "2.3.2",
+  "version": "2.3.3",
   "type": "module",
   "scripts": {
     "dev": "wxt",
