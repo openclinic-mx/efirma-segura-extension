@@ -2,7 +2,7 @@
 
 ![e.firma Segura](/assets/store.png)
 
-**e.firma Segura** almacena tus archivos .cer, .key y contraseña de llave privada en una bóveda cifrada con AES-256, protegida por una contraseña maestra.
+**e.firma Segura** almacena tus archivos .cer, .key y contraseña en una bóveda cifrada con AES-256, protegida por una contraseña maestra.
 
 Al ingresar al portal del SAT, un botón de "Autocompletar" aparece directamente en el formulario de acceso con e.firma para llenar todos los campos con un solo clic.
 
@@ -18,13 +18,9 @@ Para usar la extensión en modo desarrollo, consulta la sección de [Desarrollo 
 
 ## Seguridad y Privacidad
 
-Obtener permisos para mejorar tu experiencia en sat.gob.mx y almacenar tus e.firmas puede plantear serias preocupaciones
-de seguridad y privacidad.
+Sabemos que confiar tus e.firmas a una extensión de navegador requiere total transparencia. Por eso e.firma Segura publica su código fuente: puedes revisar exactamente qué hace y cómo lo hace.
 
-En búsqueda de ser la solución más confiable para administrar tus credenciales en tu operación contable y fiscal,
-e.firma Segura publica su código fuente.
-
-Puedes descargar y auditar el código fuente en https://github.com/openclinic-mx/efirma-segura-extension
+Audita el código fuente en https://github.com/openclinic-mx/efirma-segura-extension
 
 ## Estructura del proyecto
 
