@@ -44,6 +44,8 @@ const {
         Sincronizar bóveda
       </UButton>
 
+      <p class="text-xs">El servicio de sincronización es opcional.</p>
+
 
 
       <template #body v-if="hasRemoteVault">
