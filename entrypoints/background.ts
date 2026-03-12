@@ -128,6 +128,13 @@ export default defineBackground(() => {
         await browser.sidePanel.open({tabId: tab.id});
     });
 
+    browser.runtime.onInstalled.addListener(async (details) => {
+        if (details.reason !== "install") {
+            return;
+        }
+        browser.tabs.create({ url: 'welcome.html' });
+    })
+
     const mapMessageToService = async (message: any, sender: Browser.runtime.MessageSender) => {
         switch (message.type) {
             case 'AUTOCOMPLETE_REQUEST':
