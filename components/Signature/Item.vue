@@ -18,7 +18,7 @@ const items = computed<DropdownMenuItem[][]>(() => {
     [
       {
         label: props.signature.rfc,
-        icon: 'i-lucide-key',
+        icon: 'i-lucide-user',
         type: 'label'
       },
 
@@ -27,6 +27,14 @@ const items = computed<DropdownMenuItem[][]>(() => {
         icon: 'i-lucide-info',
         onClick: () => {
           open.value = true
+        }
+      },
+
+      {
+        label: 'Autocompletar',
+        icon: 'i-lucide-key',
+        onClick: () => {
+          emits('autocomplete')
         }
       },
 
