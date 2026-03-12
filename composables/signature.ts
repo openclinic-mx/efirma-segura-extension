@@ -26,8 +26,7 @@ export const useSignature = (
             return null;
         }
 
-        // @ts-ignore
-        return parsedCertificate.value.satType.isFiel()
+        return parsedCertificate.value.satType().isFiel()
     });
 
     const isCorrectPassword = computed(() => {
