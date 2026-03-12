@@ -150,7 +150,7 @@ const showAlert = ref(true)
                 class="shrink-0"
                 icon="i-lucide-check"
                 title="¡Listo! Ya tienes e.firma Segura instalada"
-                description="Solo faltan 3 pasos rápidos para que puedas realizar trámites con tu e.firma en un solo clic."
+                description="Solo faltan 3 pasos rápidos para que puedas utilizar tu e.firma con un solo clic."
                 close
                 @update:open="showAlert = false"
             />
