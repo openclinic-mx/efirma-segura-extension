@@ -105,6 +105,18 @@ export class AccountService {
         return data;
     }
 
+    async cfdi() {
+        const token = await this.token();
+
+        if (!token) {
+            return;
+        }
+
+        const {data} = await instance.post<{ portal_url: string }>('/api/v1/subscription/cfdi')
+
+        return data;
+    }
+
     async #logout() {
         const token = await this.token();
 

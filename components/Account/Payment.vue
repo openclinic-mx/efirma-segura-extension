@@ -3,17 +3,27 @@ import {useAccount} from "@/composables/account";
 import {format, parseISO} from 'date-fns'
 import {computed} from "vue";
 
-const {user, checkout, portal, isSubscribed} = useAccount()
+const {user, checkout, portal, cfdi, isSubscribed} = useAccount()
 
 
 const actions = computed(() => {
-  return [{
-    label: 'Administrar',
-    color: 'primary',
-    variant: 'soft',
-    onClick: () => portal(),
-    loadingAuto: true,
-  }]
+  return [
+    {
+      label: 'Administrar',
+      color: 'primary',
+      variant: 'soft',
+      onClick: () => portal(),
+      loadingAuto: true,
+    },
+    {
+      label: 'Facturación',
+      color: 'primary',
+      variant: 'soft',
+      onClick: () => cfdi(),
+      target: '_blank',
+      loadingAuto: true,
+    }
+  ]
 })
 </script>
 
@@ -41,7 +51,8 @@ const actions = computed(() => {
       </UButton>
     </p>
 
-    <p class="text-xs text-center">Los precios mostrados están expresados en MXN</p>
+    <p class="text-xs">Los precios mostrados están expresados en MXN e incluyen IVA.</p>
+    <p class="text-xs">Puede solicitar tu CFDI una vez realizado tu pago.</p>
   </template>
 
 

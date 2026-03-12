@@ -121,6 +121,14 @@ export const useAccount = () => {
         window.open(response.portal_url, '_blank')
     }
 
+    const cfdi = async () => {
+        const response: { cfdi_url: string } = await browser.runtime.sendMessage({
+            type: 'ACCOUNT_CFDI'
+        })
+
+        window.open(response.cfdi_url, '_blank')
+    }
+
     const logout = () => {
         browser.runtime.sendMessage({type: 'ACCOUNT_LOGOUT'})
     }
@@ -133,6 +141,7 @@ export const useAccount = () => {
         signIn,
         logout,
         checkout,
-        portal
+        portal,
+        cfdi,
     }
 }

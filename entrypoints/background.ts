@@ -173,6 +173,8 @@ export default defineBackground(() => {
                 return accountService.checkout()
             case 'ACCOUNT_PORTAL':
                 return accountService.portal()
+            case 'ACCOUNT_CFDI':
+                return accountService.cfdi()
             case 'ACCOUNT_LOGOUT':
                 return accountService.clear()
             case 'SYNC_STATUS':
