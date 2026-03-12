@@ -21,5 +21,7 @@ const handleContinue = () => {
   </template>
   <template v-else>
     <UButton block @click="handleContinue" loading-auto>Continuar con Google</UButton>
+
+    <p class="text-xs ">Al crear una cuenta aceptas el <a target="_blank" href="https://efirmasegura.com/aviso-de-privacidad">Aviso de privacidad</a> y los <a target="_blank" href="https://efirmasegura.com/terminos-y-condiciones">Términos y condiciones</a>.</p>
   </template>
 </template>
