@@ -109,7 +109,7 @@ const instructions = [
     docs: [
       {
         question: '¿Dónde puedo utilizar e.firma Segura?',
-        answer: 'Puedes iniciar sesión y realizar trámites en todos los portales en línea del SAT y el IMSS. Si encuentras un formulario que no muestre el botón de autocompletar, repórtalo a hola@openclinic.mx.',
+        answer: 'Puedes iniciar sesión y realizar trámites en todos los portales en línea del SAT e IMSS. Si encuentras un formulario que no muestre el botón de autocompletar, repórtalo a hola@openclinic.mx.',
         defaultOpen: true,
       },
       {
