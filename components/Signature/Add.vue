@@ -112,13 +112,19 @@ const {isSubscribed} = useAccount()
 
     <UForm @submit.prevent="onSubmit" loading-auto :schema="schema" :state="state" class="contents"
            #default="{loading}">
-      <UFormField label="Archivo .CER" required class="w-full" name="cer">
+      <UFormField label="Archivo .cer" required class="w-full" name="cer">
         <UFileUpload required accept=".cer" v-model="state.cer" position="inside" layout="list">
+          <template #description>
+            Arrastra tu archivo <strong>.cer</strong> aquí o <span class="text-primary">explora tus archivos</span>
+          </template>
         </UFileUpload>
       </UFormField>
 
-      <UFormField label="Archivo .KEY" required class="w-full" name="key">
+      <UFormField label="Archivo .key" required class="w-full" name="key">
         <UFileUpload required accept=".key" v-model="state.key" position="inside" layout="list">
+          <template #description>
+            Arrastra tu archivo <strong>.key</strong> aquí o <span class="text-primary">explora tus archivos</span>
+          </template>
         </UFileUpload>
       </UFormField>
 
