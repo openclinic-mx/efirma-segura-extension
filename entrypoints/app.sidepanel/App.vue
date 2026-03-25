@@ -7,15 +7,17 @@ import AccountMenu from "@/components/Account/Menu.vue"
 import SyncStatus from "@/components/Sync/Status.vue"
 import AccountPromo from "@/components/Marketing/Promo.vue"
 import AccountUpgrade from "@/components/Marketing/Upgrade.vue"
-import { useDatabase} from "@/composables/database";
-import { useNavigation} from "@/composables/navigation";
-import BulkForm from "@/components/Bulk/Form.vue";
+import {useDatabase} from "@/composables/database";
+import {useNavigation} from "@/composables/navigation";
+import {usePort} from "@/composables/port";
 
 const {isInitialized, isUnlocked} = useDatabase()
 
 const {isSubscribed} = useAccount()
 
 const {view} = useNavigation()
+
+usePort(isUnlocked)
 </script>
 
 <template>
@@ -27,7 +29,7 @@ const {view} = useNavigation()
             <AccountMenu/>
           </template>
 
-          <template #right >
+          <template #right>
             <AccountMenu/>
           </template>
         </UDashboardNavbar>
