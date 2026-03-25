@@ -6,7 +6,7 @@ import {
     tryRenderTrigger,
     trySubmitForm
 } from "@/utils/autocomplete";
-import {Browser} from "@wxt-dev/browser";
+import {Browser} from "wxt/browser";
 
 export default defineContentScript({
     matches: [
