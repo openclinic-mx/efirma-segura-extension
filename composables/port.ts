@@ -10,8 +10,6 @@ export const usePort = (isUnlocked: Ref) => {
         port.onDisconnect.addListener(() => {
             isUnlocked.value = false;
         });
-
-        console.log('Connected to background script')
     }
 
     const disconnect = () => {
@@ -19,8 +17,6 @@ export const usePort = (isUnlocked: Ref) => {
             port.disconnect();
             port = null;
         }
-
-        console.log('Disconnected from background script')
     }
 
     watch(isUnlocked, (unlocked) => {
