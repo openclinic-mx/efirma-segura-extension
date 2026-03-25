@@ -15,7 +15,10 @@ export default defineConfig({
         oauth2: {
             client_id: import.meta.env.WXT_OAUTH2_CLIENT_ID,
             scopes: ['openid', 'email', 'profile'],
-        }
+        },
+        action: {
+            default_title: "Da clic para mostrar tu bóveda"
+        },
     }),
     vite: () => ({
         plugins: [
