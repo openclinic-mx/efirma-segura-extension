@@ -23,6 +23,18 @@ export class AccountService {
 
     constructor(storage: StorageService) {
         this.storage = storage;
+
+        this.installInterceptors();
+    }
+
+    installInterceptors() {
+        instance.interceptors.request.use(async (config) => {
+            const token = await this.token();
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+            return config;
+        });
     }
 
     onLogout(handler: () => void) {
@@ -44,7 +56,7 @@ export class AccountService {
             return;
         }
 
-        const { data: { data } } = await instance.get<{ data: User }>('/api/v1/auth/user')
+        const {data: {data}} = await instance.get<{ data: User }>('/api/v1/auth/user')
 
         await this.storage.write('user', data)
 

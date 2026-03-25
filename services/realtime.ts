@@ -1,6 +1,7 @@
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js/worker'
 import {AccountService} from "@/services/account";
+import {instance} from "@/utils/axios";
 
 export class RealtimeService {
     private account: AccountService;
@@ -11,6 +12,15 @@ export class RealtimeService {
 
     constructor(account: AccountService) {
         this.account = account;
+
+        this.installInterceptors();
+    }
+
+    installInterceptors() {
+        instance.interceptors.request.use(async (config) => {
+            config.headers['X-Socket-ID'] = this.socketId();
+            return config;
+        });
     }
 
     socketId() {
@@ -60,11 +70,11 @@ export class RealtimeService {
             })
     }
 
-    async onVault(handler: () => void) {
+    onVault(handler: () => void) {
         this.events.addEventListener("vault", handler);
     }
 
-    async onSubscription(handler: () => void) {
+    onSubscription(handler: () => void) {
         this.events.addEventListener("subscription", handler)
     }
 

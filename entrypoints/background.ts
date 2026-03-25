@@ -10,7 +10,9 @@ import {VaultService} from "@/services/vault";
 import {AccountService} from "@/services/account";
 import {SyncService} from "@/services/sync";
 import {RealtimeService} from "@/services/realtime";
-import {instance} from "@/utils/axios";
+import {WelcomeService} from "@/services/welcome";
+import {PortService} from "@/services/port";
+
 
 export default defineBackground(() => {
 
@@ -19,13 +21,26 @@ export default defineBackground(() => {
     const signatureService = new SignatureService(databaseService);
     const sidePanelService = new SidePanelService();
     const autoLockService = new AutoLockService(5);
-    const autocompleteService = new AutocompleteService(signatureService, autoLockService);
-    const vaultService = new VaultService(databaseService, signatureService, autoLockService);
+    const autocompleteService = new AutocompleteService(signatureService);
+    const vaultService = new VaultService(databaseService, signatureService);
     const accountService = new AccountService(storageService);
     const syncService = new SyncService(accountService, storageService, vaultService);
     const realtimeService = new RealtimeService(accountService);
+    const welcomeService = new WelcomeService();
+    const portService = new PortService();
+
+    // we want to tell the autoLock service all the events that will start, stop or restart the clock.
+    autoLockService.registerListeners(autocompleteService, vaultService,)
+    autoLockService.onLock(() => vaultService.lock())
+
+    // even though the side panels are opened, the background can be killed.
+    // We will prevent it by listening for a connection from the side panel
+
+    // additionally, if the side panel is closed (often automatically)
+    // we need to keep the background running, we can do it by opening a realtime service
 
     sidePanelService.onVisible(async () => {
+        // when the side panel is open, we will try to sync the vault and open a socket
         const status = await syncService.status()
         if (status.isEnabled) {
             await syncService.syncDown()
@@ -39,25 +54,14 @@ export default defineBackground(() => {
         }
     })
 
-    sidePanelService.onHidden(async () => {
-        await realtimeService.stopListening();
+    sidePanelService.onHidden(() => {
+        // when all the side panels are closed, we will stop listening to the socket
+        realtimeService.stopListening();
     })
 
-    instance.interceptors.request.use(async (config) => {
-        const token = await accountService.token();
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    });
-
-    instance.interceptors.request.use(async (config) => {
-        config.headers['X-Socket-ID'] = realtimeService.socketId();
-        return config;
-    });
-
-
     realtimeService.onVault(async () => {
+        // when we receive a vault update, we will download the last update
+        // and broadcast it to the side panels
         const status = await syncService.status()
         if (status.isEnabled) {
             await syncService.syncDown()
@@ -65,23 +69,27 @@ export default defineBackground(() => {
         }
     })
 
-    realtimeService.onSubscription(() => {
-        accountService.fetch()
+    realtimeService.onSubscription(async () => {
+        // user subscription status has changed in the server
+        await accountService.fetch()
     })
 
     accountService.onLogin(async () => {
+        // we want to start listening when the user is logged-in
+        // user only logs in via Google, and it happens once
         await realtimeService.startListening()
     })
 
     accountService.onLogout(async () => {
+        // we want to stop listening and disable the sync
+        // user logs out by clicking the buttons
         await syncService.syncStop()
         realtimeService.stopListening()
     })
 
-
-    autoLockService.onLock(() => vaultService.lock())
-
     databaseService.onSave(async () => {
+        // when the database is saved and syncing is enabled,
+        // we will upload the database to the server
         const status = await syncService.status()
         if (status.isEnabled) {
             await syncService.syncUp()
@@ -89,50 +97,18 @@ export default defineBackground(() => {
     })
 
     databaseService.onClear(async () => {
+        // when the database is destroyed and syncing is enabled,
+        // we will delete the database from the server
         const status = await syncService.status()
         if (status.isEnabled) {
             await syncService.destroy()
         }
     })
 
-    syncService.onSync(() => {
-        // not sure why it was needed?
-        accountService.fetch()
-    })
-
-    autoLockService.onStart(() => {
-        browser.runtime.sendMessage({
-            type: 'TIMER_START',
-            payload: autoLockService.getStatus()
-        })
-    })
-
-    autoLockService.onClear(() => {
-        browser.runtime.sendMessage({
-            type: 'TIMER_CLEAR',
-            payload: autoLockService.getStatus()
-        })
-    })
-
-    browser.action.setPopup({popup: ""});
-
-    browser.action.onClicked.addListener(async (tab) => {
-        if (!tab?.id) return;
-
-        browser.sidePanel.setOptions({
-            tabId: tab.id,
-            path: "app.html",
-            enabled: true,
-        });
-
-        await browser.sidePanel.open({tabId: tab.id});
-    });
-
-    browser.runtime.onInstalled.addListener(async (details) => {
-        if (details.reason !== "install") {
-            return;
-        }
-        browser.tabs.create({ url: 'welcome.html' });
+    syncService.onSync(async () => {
+        // since we check for vault existence in the user,
+        // we want to upload those values if we receive a remote sync
+        await accountService.fetch()
     })
 
     const mapMessageToService = async (message: any, sender: Browser.runtime.MessageSender) => {
