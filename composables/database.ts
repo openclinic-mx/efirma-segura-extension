@@ -1,8 +1,6 @@
 import { ref, watch, onMounted } from "vue"
 
 export const useDatabase = () => {
-    const { navigate } = useNavigation()
-
     const isInitialized = ref(false);
     const isUnlocked = ref(false);
 
@@ -14,12 +12,6 @@ export const useDatabase = () => {
         isUnlocked.value = response.isUnlocked;
         isInitialized.value = response.isInitialized;
     }
-
-    watch(isUnlocked, (unlocked) => {
-        if (!unlocked) {
-            //
-        }
-    })
 
     onMounted(async () => {
         await refreshStatus();
