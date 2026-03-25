@@ -1,3 +1,6 @@
+import {AutocompleteService} from "@/services/autocomplete";
+import {VaultService} from "@/services/vault";
+
 export class AutoLockService {
 
     alarmName = 'lock'
@@ -15,6 +18,20 @@ export class AutoLockService {
 
         this.onClear(() => {
             this.lockStart = null
+        })
+
+        this.onStart(() => {
+            browser.runtime.sendMessage({
+                type: 'TIMER_START',
+                payload: this.getStatus()
+            })
+        })
+
+        this.onClear(() => {
+            browser.runtime.sendMessage({
+                type: 'TIMER_CLEAR',
+                payload: this.getStatus()
+            })
         })
     }
 
@@ -57,6 +74,26 @@ export class AutoLockService {
     clearTimer() {
         browser.alarms.clear(this.alarmName)
         this.events.dispatchEvent(new Event("clear"));
+    }
 
+    registerListeners(
+        autocompleteService: AutocompleteService,
+        vaultService: VaultService,
+    ) {
+        autocompleteService.onRequest(() => {
+            this.resetTimer()
+        })
+
+        vaultService.onUnlock(() => {
+            this.startTimer()
+        })
+
+        vaultService.onLock(() => {
+            this.clearTimer()
+        })
+
+        vaultService.onSignature(() => {
+            this.resetTimer()
+        })
     }
 }

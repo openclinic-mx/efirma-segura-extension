@@ -3,18 +3,29 @@ import {SignatureService} from "@/services/signature";
 import {AutoLockService} from "@/services/autoLock";
 
 export class VaultService {
+    private events = new EventTarget();
+
     private databaseService: DatabaseService;
     private signatureService: SignatureService;
-    private autoLockService: AutoLockService;
 
     constructor(
         databaseService: DatabaseService,
-        signatureService: SignatureService,
-        autoLockService: AutoLockService
+        signatureService: SignatureService
     ) {
         this.databaseService = databaseService
         this.signatureService = signatureService
-        this.autoLockService = autoLockService;
+    }
+
+    onSignature(handler: () => void) {
+        this.events.addEventListener("signature", handler);
+    }
+
+    onLock(handler: () => void) {
+        this.events.addEventListener("lock", handler);
+    }
+
+    onUnlock(handler: () => void) {
+        this.events.addEventListener("unlock", handler);
     }
 
     async addSignatures(message: any) {
@@ -36,7 +47,8 @@ export class VaultService {
                 )
             )
 
-            this.autoLockService.resetTimer()
+            this.events.dispatchEvent(new Event("signature"));
+
             this.#broadcastList()
 
             return {
@@ -75,7 +87,8 @@ export class VaultService {
                 password
             )
 
-            this.autoLockService.resetTimer()
+            this.events.dispatchEvent(new Event("signature"));
+
             this.#broadcastList()
 
             return {
@@ -103,7 +116,9 @@ export class VaultService {
 
         try {
             await this.signatureService.removeSignature(id)
-            this.autoLockService.resetTimer()
+
+            this.events.dispatchEvent(new Event("remove-signature"));
+
             this.#broadcastList()
 
             return {id}
@@ -157,7 +172,9 @@ export class VaultService {
         try {
             const masterPassword = message.payload.masterPassword;
             await this.databaseService.unlock(masterPassword)
-            this.autoLockService.startTimer()
+
+            this.events.dispatchEvent(new Event("unlock"));
+
             return this.#broadcastStatus()
         } catch (e) {
             if (e instanceof Error) {
@@ -174,20 +191,26 @@ export class VaultService {
 
     async lock() {
         this.databaseService.lock()
-        this.autoLockService.clearTimer()
+
+        this.events.dispatchEvent(new Event("lock"));
+
         return this.#broadcastStatus()
     }
 
     async destroy() {
         await this.databaseService.deleteDatabase()
-        this.autoLockService.clearTimer()
+
+        this.events.dispatchEvent(new Event("lock"));
+
         return this.#broadcastStatus()
     }
 
     async initialize(message: any) {
         const masterPassword = message.payload.masterPassword;
         await this.databaseService.initialize(masterPassword)
-        this.autoLockService.startTimer()
+
+        this.events.dispatchEvent(new Event("unlock"));
+
         return this.#broadcastStatus()
     }
 

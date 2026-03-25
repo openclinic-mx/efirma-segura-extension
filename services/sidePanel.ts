@@ -5,6 +5,11 @@ export class SidePanelService {
     private events = new EventTarget();
 
     constructor() {
+        this.installListenersForAction();
+        this.installListenersForVisibility()
+    }
+
+    installListenersForVisibility() {
         browser.sidePanel.onOpened.addListener((info) => {
             this.openTabs.add(info.tabId)
 
@@ -20,6 +25,24 @@ export class SidePanelService {
                 this.events.dispatchEvent(new Event("hidden"));
             }
         })
+    }
+
+    installListenersForAction() {
+        browser.sidePanel
+            .setPanelBehavior({openPanelOnActionClick: true})
+            .catch((error) => console.error(error));
+
+        browser.action.onClicked.addListener(async (tab) => {
+            if (!tab?.id) return;
+
+            browser.sidePanel.setOptions({
+                tabId: tab.id,
+                path: "app.html",
+                enabled: true,
+            });
+
+            await browser.sidePanel.open({tabId: tab.id});
+        });
     }
 
     onVisible(handler: () => void) {

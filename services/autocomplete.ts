@@ -1,39 +1,42 @@
 import {readBytesAsBase64} from "@/utils/files";
 import {SignatureService} from "@/services/signature";
-import {AutoLockService} from "@/services/autoLock";
 
 export class AutocompleteService {
 
-    private signatureService: SignatureService
-    private autoLockService: AutoLockService;
+    private events = new EventTarget();
 
-    constructor(signatureService: SignatureService, autoLockService: AutoLockService) {
+    private signatureService: SignatureService
+
+    constructor(signatureService: SignatureService) {
         this.signatureService = signatureService;
-        this.autoLockService = autoLockService;
+    }
+
+    onRequest(handler: () => void) {
+        this.events.addEventListener("request", handler);
     }
 
     async request(message: any): Promise<{ error: string | null }> {
-        this.autoLockService.resetTimer()
+        this.events.dispatchEvent(new Event("request"));
 
         const id = message.payload.id;
         const tabId = message.payload.tabId;
         const submit = message.payload.submit;
 
-        const signature = await this.signatureService.getSignature(id);
-
-        if (!signature) {
-            return {
-                error: 'Signature not found',
-            }
-        }
-
-        if (!tabId) {
-            return {
-                error: 'Need a tab id to autocomplete',
-            }
-        }
-
         try {
+            const signature = await this.signatureService.getSignature(id);
+
+            if (!signature) {
+                return {
+                    error: 'Signature not found',
+                }
+            }
+
+            if (!tabId) {
+                return {
+                    error: 'Need a tab id to autocomplete',
+                }
+            }
+
             const response = await browser.tabs.sendMessage(tabId, {
                 type: 'AUTOCOMPLETE_ACTION',
                 payload: {
@@ -51,7 +54,7 @@ export class AutocompleteService {
         } catch (e) {
             console.error(e)
             return {
-                error: 'Something went wrong',
+                error: 'Algo salio mal. Intenta abrir tu bóveda de nuevo.',
             }
         }
 
