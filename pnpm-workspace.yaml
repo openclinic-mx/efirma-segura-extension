@@ -1,0 +1,6 @@
+minimumReleaseAge: 4320 # 3 days
+allowBuilds:
+  esbuild: false
+  sharp: false
+  spawn-sync: false
+  vue-demi: false

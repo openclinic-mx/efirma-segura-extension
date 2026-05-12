@@ -23,7 +23,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --config.strict-dep-builds=false
+        run: pnpm install
 
       - name: Zip extensions
         run: |
