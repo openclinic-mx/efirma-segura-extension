@@ -3,8 +3,8 @@ import {useAccountStore} from "@/stores/account";
 
 const accountStore = useAccountStore()
 
-const handleContinue = () => {
-  return accountStore.signIn()
+const handleContinue = async () => {
+  await accountStore.signIn()
 };
 </script>
 

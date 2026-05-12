@@ -13,7 +13,7 @@ const toast = useToast()
 const onDrop = async (e: DragEvent) => {
   const folders = await getSignatureFolders(e)
 
-  const response: { ids: string[] | null, error: null | string } = await parse(folders)
+  const response = await parse(folders)
 
   if (response.ids && response.ids.length) {
     toast.add({

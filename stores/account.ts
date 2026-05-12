@@ -149,8 +149,8 @@ export const useAccountStore = defineStore("account", () => {
         window.open(response.cfdi_url, '_blank')
     }
 
-    const logout = () => {
-        return sendMessage('ACCOUNT_LOGOUT')
+    const logout = async () => {
+        await sendMessage('ACCOUNT_LOGOUT')
     }
 
     return {

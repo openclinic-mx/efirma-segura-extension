@@ -30,16 +30,16 @@ export const useSyncStore = defineStore("sync", () => {
         })
     })
 
-    const syncUp = () => {
-        return sendMessage('SYNC_UP')
+    const syncUp = async () => {
+        await sendMessage('SYNC_UP')
     }
 
-    const syncDown = () => {
-        return sendMessage('SYNC_DOWN')
+    const syncDown = async ( ) => {
+        await sendMessage('SYNC_DOWN')
     }
 
-    const syncStop = () => {
-        return sendMessage('SYNC_STOP')
+    const syncStop = async () => {
+        await sendMessage('SYNC_STOP')
     }
 
     const remoteHash = () => {

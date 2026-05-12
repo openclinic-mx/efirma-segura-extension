@@ -66,6 +66,7 @@ interface VaultProtocolMap {
         error: null
     } | {
         ids: null,
+        error: string
     }
 
     VAULT_LIST_UPDATE(payload: VaultList): void
