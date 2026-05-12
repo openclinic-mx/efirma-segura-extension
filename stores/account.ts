@@ -93,6 +93,7 @@ export const useAccountStore = defineStore("account", () => {
                 description: `Favor de intentar de nuevo. (${response.error})`,
                 color: 'error'
             })
+            return null;
         }
 
         toast.add({
