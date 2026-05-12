@@ -11,7 +11,7 @@ const props = defineProps<{
 <template>
   <article class="prose dark:prose-invert">
     <dl>
-      <dt class="mt-0">Nombre legal</dt>
+      <dt class="mt-0">Razón social</dt>
       <dd>{{ signature.legalName }}</dd>
       <dt>RFC</dt>
       <dd>{{ signature.rfc }}</dd>
