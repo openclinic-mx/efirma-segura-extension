@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import {onMounted, ref, computed} from "vue";
+import {onMessage, sendMessage} from "@/messaging";
 
 const lockStart = ref()
 const lockDuration = ref()
 
 const now = ref(Date.now())
 
-const updateStatus = (status: { lockStart: number, lockDuration: number }) => {
+const updateStatus = (status: { lockStart: number | null, lockDuration: number }) => {
   lockStart.value = status.lockStart
   lockDuration.value = status.lockDuration
 }
@@ -16,20 +17,15 @@ onMounted(async () => {
     now.value = Date.now()
   }, 1000)
 
-  const status = await browser.runtime.sendMessage({
-    type: 'TIMER_STATUS'
-  })
+  const status = await sendMessage('TIMER_STATUS')
 
   updateStatus(status)
 
-  browser.runtime.onMessage.addListener(async (message) => {
-    if (message.type === 'TIMER_START') {
-      updateStatus(message.payload)
-    }
-
-    if (message.type === 'TIMER_CLEAR') {
-      updateStatus(message.payload)
-    }
+  onMessage('TIMER_START', (message) => {
+    updateStatus(message.data)
+  })
+  onMessage('TIMER_CLEAR', (message) => {
+    updateStatus(message.data)
   })
 })
 

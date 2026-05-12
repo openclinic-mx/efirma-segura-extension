@@ -6,7 +6,7 @@ import {
     tryRenderTrigger,
     trySubmitForm
 } from "@/utils/autocomplete";
-import {Browser} from "wxt/browser";
+import {onMessage} from "@/messaging";
 
 
 export default defineContentScript({
@@ -21,23 +21,17 @@ export default defineContentScript({
             position: "inline",
             anchor: "body",
             onMount: (container) => {
-                const listener = (message: any, sender: Browser.runtime.MessageSender, sendResponse: (response?: any) => void) => {
-                    if (message.type !== 'AUTOCOMPLETE_ACTION') {
-                        return;
-                    }
+                const remove = onMessage('AUTOCOMPLETE_ACTION', (message) => {
+                    const error = handleAutocompleteAction(message.data)
 
-                    const filled = handleAutocompleteAction(message, sendResponse)
-
-                    if (filled && message.payload.submit) {
+                    if (!error && message.data.submit) {
                         trySubmitForm(
                             import.meta.env.WXT_SAT_FORM_SUBMIT.split("|")
                         )
                     }
 
-                    return true;
-                }
-
-                browser.runtime.onMessage.addListener(listener)
+                    return {error};
+                })
 
                 const tryRenderTriggerWithNavigation = () => {
                     const trigger = tryRenderTrigger(
@@ -67,7 +61,7 @@ export default defineContentScript({
 
                 ctx.onInvalidated(() => {
                     observer.disconnect()
-                    browser.runtime.onMessage.removeListener(listener)
+                    remove();
                     document.querySelector(TRIGGER_SELECTOR)?.remove();
                 });
             },
@@ -77,8 +71,14 @@ export default defineContentScript({
     },
 });
 
-const handleAutocompleteAction = (message: any, sendResponse: (response?: any) => void) => {
-    const {cer, key, password, submit} = message.payload
+const handleAutocompleteAction = (action: {
+    taxId: string,
+    cer: string,
+    key: string,
+    password: string,
+    submit: boolean,
+}) => {
+    const {cer, key, password} = action
 
     const signatureFormCer = findCandidate(
         import.meta.env.WXT_SAT_FORM_CER.split("|")
@@ -96,10 +96,7 @@ const handleAutocompleteAction = (message: any, sendResponse: (response?: any) =
         && (signatureFormPassword instanceof HTMLInputElement)) {
         //
     } else {
-        sendResponse({
-            error: 'Form not found',
-        })
-        return false;
+        return 'Formulario no encontrado';
     }
 
     setFileInput(signatureFormCer, readBase64AsFile(cer, 'signature.cer', 'application/x-x509-ca-cert'))
@@ -108,9 +105,5 @@ const handleAutocompleteAction = (message: any, sendResponse: (response?: any) =
 
     setTextInput(signatureFormPassword, password)
 
-    sendResponse({
-        error: null
-    })
-
-    return true;
+    return null;
 }

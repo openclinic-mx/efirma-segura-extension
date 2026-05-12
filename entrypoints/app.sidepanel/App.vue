@@ -7,15 +7,19 @@ import AccountMenu from "@/components/Account/Menu.vue"
 import SyncStatus from "@/components/Sync/Status.vue"
 import AccountPromo from "@/components/Marketing/Promo.vue"
 import AccountUpgrade from "@/components/Marketing/Upgrade.vue"
-import {useDatabase} from "@/composables/database";
 import {useNavigation} from "@/composables/navigation";
 import {usePort} from "@/composables/port";
+import {useDatabaseStore} from "@/stores/database";
+import {useAccountStore} from "@/stores/account";
+import {storeToRefs} from "pinia";
 
-const {isInitialized, isUnlocked} = useDatabase()
+const databaseStore = useDatabaseStore()
 
-const {isSubscribed} = useAccount()
+const accountStore = useAccountStore()
 
 const {view} = useNavigation()
+
+const {isUnlocked} = storeToRefs(databaseStore)
 
 usePort(isUnlocked)
 </script>
@@ -25,7 +29,7 @@ usePort(isUnlocked)
     <UDashboardPanel :ui="{ root: '' }">
       <template #header>
         <UDashboardNavbar title="Bóveda" icon="i-lucide-landmark" :toggle="false" :ui="{ title: 'text-base' }">
-          <template #right v-if="isUnlocked">
+          <template #right v-if="databaseStore.isUnlocked">
             <AccountMenu/>
           </template>
 
@@ -46,8 +50,8 @@ usePort(isUnlocked)
           <AccountUpgrade/>
         </template>
 
-        <template v-else-if="isInitialized">
-          <template v-if="isUnlocked">
+        <template v-else-if="databaseStore.isInitialized">
+          <template v-if="databaseStore.isUnlocked">
             <VaultUnlocked/>
           </template>
           <template v-else>
@@ -55,7 +59,7 @@ usePort(isUnlocked)
           </template>
 
           <Teleport to="#footer" defer>
-            <SyncStatus v-if="isSubscribed"/>
+            <SyncStatus v-if="accountStore.isSubscribed"/>
           </Teleport>
         </template>
         <template v-else>

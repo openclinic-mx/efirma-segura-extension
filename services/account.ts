@@ -1,5 +1,6 @@
 import {StorageService} from "@/services/storage";
 import {instance} from "@/utils/axios";
+import {sendMessage} from "@/messaging";
 
 export type User = {
     avatar: string,
@@ -63,34 +64,35 @@ export class AccountService {
         return this.#broadcastStatus()
     }
 
-    async auth(message: any) {
+    async auth(google_token: string) {
 
-        const google_token = message.payload.google_token;
+        try {
+            const {data: payload} = await instance.post<{
+                user: User,
+                token: string
+            }>('/api/v1/auth/google', {google_token})
 
-        if (!google_token) {
+            await this.storage.write('token', payload.token)
+            await this.storage.write('user', payload.user)
+
+            this.#broadcastStatus()
+
+            this.events.dispatchEvent(new Event("login"));
+
+            return {
+                user: payload.user,
+                error: null,
+            }
+        } catch (e) {
             return {
                 user: null,
-                error: 'Missing google token',
+                error: e instanceof Error ? e.message : 'Unexpected error'
             }
         }
 
 
-        const {data: payload} = await instance.post<{
-            user: User,
-            token: string
-        }>('/api/v1/auth/google', {google_token})
 
-        await this.storage.write('token', payload.token)
-        await this.storage.write('user', payload.user)
 
-        this.#broadcastStatus()
-
-        this.events.dispatchEvent(new Event("login"));
-
-        return {
-            user: payload.user,
-            error: null,
-        }
     }
 
     async checkout() {
@@ -124,7 +126,7 @@ export class AccountService {
             return;
         }
 
-        const {data} = await instance.post<{ portal_url: string }>('/api/v1/subscription/cfdi')
+        const {data} = await instance.post<{ cfdi_url: string }>('/api/v1/subscription/cfdi')
 
         return data;
     }
@@ -175,10 +177,7 @@ export class AccountService {
     async #broadcastStatus() {
         const user = await this.user();
 
-        browser.runtime.sendMessage({
-            type: 'ACCOUNT_STATUS_UPDATE',
-            payload: user
-        })
+        sendMessage('ACCOUNT_STATUS_UPDATE', user)
 
         return user
     }

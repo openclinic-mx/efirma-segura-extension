@@ -2,6 +2,7 @@ import {AccountService} from "@/services/account";
 import {StorageService} from "@/services/storage";
 import {VaultService} from "@/services/vault";
 import {instance} from "@/utils/axios";
+import {sendMessage} from "@/messaging";
 
 export class SyncService {
     private account: AccountService;
@@ -31,7 +32,7 @@ export class SyncService {
     async status() {
         return {
             isEnabled: await this.storage.read<boolean>(this.statusKey),
-            lastSyncAt: await this.storage.read<boolean>(this.lastSyncKey),
+            lastSyncAt: await this.storage.read<string>(this.lastSyncKey),
             hash: await this.storage.read<string>(this.hashKey),
         }
     }
@@ -211,10 +212,7 @@ export class SyncService {
     async #broadcastStatus() {
         const status = await this.status();
 
-        browser.runtime.sendMessage({
-            type: 'SYNC_STATUS_UPDATE',
-            payload: status
-        })
+        sendMessage('SYNC_STATUS_UPDATE', status)
 
         return status;
     }

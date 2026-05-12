@@ -1,13 +1,15 @@
 <script setup lang="ts">
-const {isLoggedIn, user} = useAccount()
+import {useAccountStore} from "@/stores/account";
+
+const accountStore = useAccountStore()
 </script>
 
 <template>
   <UAlert
-      v-if="isLoggedIn"
+      v-if="accountStore.isLoggedIn"
       color="primary"
       variant="naked"
-      :title="`Buenas tardes ${user?.name}`"
+      :title="`Buenas tardes ${accountStore.user?.name}`"
       icon="i-lucide-sparkles"
   />
 </template>

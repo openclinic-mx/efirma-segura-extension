@@ -1,5 +1,6 @@
 import {readBytesAsBase64} from "@/utils/files";
 import {SignatureService} from "@/services/signature";
+import {sendMessage} from "@/messaging";
 
 export class AutocompleteService {
 
@@ -15,15 +16,15 @@ export class AutocompleteService {
         this.events.addEventListener("request", handler);
     }
 
-    async request(message: any): Promise<{ error: string | null }> {
+    async request(request: {
+        id: string
+        tabId: number,
+        submit: boolean,
+    }): Promise<{ error: string | null }> {
         this.events.dispatchEvent(new Event("request"));
 
-        const id = message.payload.id;
-        const tabId = message.payload.tabId;
-        const submit = message.payload.submit;
-
         try {
-            const signature = await this.signatureService.getSignature(id);
+            const signature = await this.signatureService.getSignature(request.id);
 
             if (!signature) {
                 return {
@@ -31,21 +32,20 @@ export class AutocompleteService {
                 }
             }
 
-            if (!tabId) {
+            if (!request.tabId) {
                 return {
                     error: 'Need a tab id to autocomplete',
                 }
             }
 
-            const response = await browser.tabs.sendMessage(tabId, {
-                type: 'AUTOCOMPLETE_ACTION',
-                payload: {
-                    taxId: signature.rfc,
-                    password: signature.password,
-                    cer: readBytesAsBase64(signature.cer),
-                    key: readBytesAsBase64(signature.key),
-                    submit: submit
-                }
+            const response = await sendMessage('AUTOCOMPLETE_ACTION', {
+                taxId: signature.rfc,
+                password: signature.password,
+                cer: readBytesAsBase64(signature.cer),
+                key: readBytesAsBase64(signature.key),
+                submit: request.submit
+            }, {
+                tabId: request.tabId,
             })
 
             return {

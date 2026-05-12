@@ -1,14 +1,15 @@
 <script lang="ts" setup>
 import SkyBg from "@/components/SkyBg.vue";
-import {useDatabase} from "@/composables/database";
-import {useSignatures} from "@/composables/signatures";
+import {sendMessage} from "@/messaging";
+import {useDatabaseStore} from "@/stores/database";
+import {useSignaturesStore} from "@/stores/signatures";
 
-const {isInitialized} = useDatabase()
+const databaseStore = useDatabaseStore()
 
-const {signatures} = useSignatures()
+const signaturesStore = useSignaturesStore()
 
 const openSidePanel = () => {
-  browser.runtime.sendMessage({type: 'OPEN_TAB'})
+  sendMessage('OPEN_TAB')
 }
 
 const openAddSignature = () => {
@@ -16,7 +17,7 @@ const openAddSignature = () => {
   openSidePanel();
 
   setTimeout(() => {
-    browser.runtime.sendMessage({type: 'VIEW_ADD_SIGNATURE'})
+    sendMessage('VIEW_ADD_SIGNATURE')
   }, 500)
 }
 
@@ -121,11 +122,11 @@ const instructions = [
 ]
 
 const active = computed(() => {
-  if (signatures.value.length !== 0) {
+  if (signaturesStore.signatures.length !== 0) {
     return 3;
   }
 
-  if (isInitialized.value) {
+  if (databaseStore.isInitialized) {
     return 2;
   }
 

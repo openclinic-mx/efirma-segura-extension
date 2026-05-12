@@ -25,6 +25,10 @@ const props = defineProps<{
         {{ formatDistanceToNow(signature.issuedAt, {addSuffix: true}) }}, <br>
         {{ format(signature.issuedAt, 'PPP') }}
       </dd>
+      <dt>Numero de serie</dt>
+      <dd>
+        {{ signature.serialNumber }}
+      </dd>
     </dl>
   </article>
 </template>

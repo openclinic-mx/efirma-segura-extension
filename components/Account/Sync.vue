@@ -1,17 +1,22 @@
 <script setup lang="ts">
-import {useAccount} from "@/composables/account";
-import {useSync} from "@/composables/sync";
+import {useAccountStore} from "@/stores/account";
+import {useSyncStore} from "@/stores/sync";
+import {storeToRefs} from "pinia";
 
-const {isSubscribed, user} = useAccount()
+const accountStore = useAccountStore()
+const syncStore = useSyncStore()
+
+const {
+  isEnabled,
+  lastSyncAtHumanReadable,
+  hasRemoteVault,
+} = storeToRefs(syncStore)
 
 const {
   syncUp,
   syncDown,
   syncStop,
-  isEnabled,
-  lastSyncAtHumanReadable,
-  hasRemoteVault,
-} = useSync()
+} = syncStore
 
 </script>
 
@@ -35,8 +40,8 @@ const {
 
     <UModal title="Opera desde cualquier equipo">
 
-      <UButton :disabled="!isSubscribed"
-               :variant="isSubscribed ? 'solid' : 'outline'"
+      <UButton :disabled="!accountStore.isSubscribed"
+               :variant="accountStore.isSubscribed ? 'solid' : 'outline'"
                block
                loading-auto
                icon="i-lucide-cloud"
@@ -45,7 +50,6 @@ const {
       </UButton>
 
       <p class="text-xs">El servicio de sincronización es opcional.</p>
-
 
 
       <template #body v-if="hasRemoteVault">

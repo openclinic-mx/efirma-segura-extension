@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {reactive, ref, useTemplateRef, watch} from 'vue';
-import {useDatabase} from '#imports'
 import VaultReset from "@/components/Vault/Reset.vue";
+import {useDatabaseStore} from "@/stores/database";
 
 const state = reactive({
   password: ''
@@ -9,16 +9,16 @@ const state = reactive({
 
 const error = ref<string | boolean>(false)
 
-const {unlock} = useDatabase();
+const databaseStore = useDatabaseStore();
 
 const input = useTemplateRef('input')
 
 const openVault = async () => {
   error.value = '';
 
-  const response = await unlock(state.password)
+  const response = await databaseStore.unlock(state.password)
 
-  if (response.error) {
+  if ('error' in response) {
     error.value = response.error
     state.password = ''
     setTimeout(() => {

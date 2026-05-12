@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import {useSync} from "@/composables/sync";
+import {sendMessage} from "@/messaging";
+import {useSyncStore} from "@/stores/sync";
 
-const {isEnabled} = useSync()
+const syncStore = useSyncStore()
 
 const resetVault = async () => {
   if (confirm('¿Reiniciar la bóveda? Se eliminarán TODAS las e.firmas guardadas. Esta acción no se puede deshacer.')) {
-    return browser.runtime.sendMessage({
-      type: 'VAULT_RESET',
-    })
+    await sendMessage('VAULT_RESET')
   }
 }
 </script>
@@ -21,6 +20,6 @@ const resetVault = async () => {
            variant="ghost"
            color="error"
   >Reiniciar
-    bóveda {{ isEnabled ? 'sincronizada' : 'local' }}
+    bóveda {{ syncStore.isEnabled ? 'sincronizada' : 'local' }}
   </UButton>
 </template>

@@ -1,3 +1,5 @@
+import {sendMessage} from "@/messaging";
+
 export const setFileInput = (input: HTMLInputElement, file: File) => {
     const dt = new DataTransfer();
     dt.items.add(file);
@@ -41,7 +43,7 @@ export const makeTrigger = (classList: string[] = ['btn', 'btn-success', 'boton'
 
     trigger.textContent = "Autocompletar";
     trigger.addEventListener('click', () => {
-        browser.runtime.sendMessage({type: 'TOGGLE_TAB'})
+        sendMessage('TOGGLE_TAB')
     })
     return trigger;
 }
@@ -80,7 +82,7 @@ export const trySubmitForm = async (candidates: string[]) => {
     }
 
     window.addEventListener("pagehide", (e) => {
-        browser.runtime.sendMessage({type: 'CLOSE_TAB'})
+        sendMessage('CLOSE_TAB')
     }, {
         once: true
     });

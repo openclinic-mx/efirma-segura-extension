@@ -6,7 +6,7 @@ import {
     tryRenderTrigger,
     trySubmitForm
 } from "@/utils/autocomplete";
-import {Browser} from "wxt/browser";
+import {onMessage} from "@/messaging";
 
 export default defineContentScript({
     matches: [
@@ -20,23 +20,19 @@ export default defineContentScript({
             position: "inline",
             anchor: "body",
             onMount: (container) => {
-                const listener = (message: any, sender: Browser.runtime.MessageSender, sendResponse: (response?: any) => void) => {
-                    if (message.type !== 'AUTOCOMPLETE_ACTION') {
-                        return;
-                    }
+                const remove = onMessage('AUTOCOMPLETE_ACTION', async (message) => {
+                    const error = handleAutocompleteAction(message.data)
 
-                    handleAutocompleteAction(message, sendResponse)
-
-                    if (message.payload.submit) {
+                    if (!error && message.data.submit) {
                         trySubmitForm(
                             import.meta.env.WXT_IMSS_FORM_SUBMIT.split("|")
                         )
                     }
 
-                    return true;
-                }
-
-                browser.runtime.onMessage.addListener(listener)
+                    return {
+                        error
+                    };
+                })
 
                 const imssTrigger = () => {
                     const trigger = tryRenderTrigger(
@@ -57,7 +53,7 @@ export default defineContentScript({
 
                 ctx.onInvalidated(() => {
                     observer.disconnect()
-                    browser.runtime.onMessage.removeListener(listener)
+                    remove()
                     document.querySelector(TRIGGER_SELECTOR)?.remove();
                 });
             },
@@ -67,7 +63,12 @@ export default defineContentScript({
     },
 });
 
-const handleAutocompleteAction = (message: any, sendResponse: (response?: any) => void) => {
+const handleAutocompleteAction = (action: {
+    taxId: string,
+    cer: string,
+    key: string,
+    password: string,
+}) => {
     const signatureFormCer = findCandidate(
         import.meta.env.WXT_IMSS_FORM_CER.split("|")
     );
@@ -81,7 +82,7 @@ const handleAutocompleteAction = (message: any, sendResponse: (response?: any) =
         import.meta.env.WXT_IMSS_FORM_TAX_ID.split("|")
     )
 
-    const {taxId, cer, key, password} = message.payload
+    const {taxId, cer, key, password} = action
 
     if ((signatureFormCer instanceof HTMLInputElement)
         && (signatureFormKey instanceof HTMLInputElement)
@@ -89,10 +90,7 @@ const handleAutocompleteAction = (message: any, sendResponse: (response?: any) =
     ) {
         //
     } else {
-        sendResponse({
-            error: 'Form not found',
-        })
-        return
+        return 'Formulario no encontrado'
     }
 
     setFileInput(signatureFormCer, readBase64AsFile(cer, 'signature.cer', 'application/x-x509-ca-cert'))
@@ -105,7 +103,5 @@ const handleAutocompleteAction = (message: any, sendResponse: (response?: any) =
         setTextInput(signatureFormTaxId, taxId)
     }
 
-    sendResponse({
-        error: null
-    })
+    return null
 }

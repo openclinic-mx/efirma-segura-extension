@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import type {SignatureMeta} from "@/services/signature";
 import type {DropdownMenuItem} from '@nuxt/ui'
-import {useSignatures} from "@/composables/signatures";
 import SignatureDetails from "@/components/Signature/Details.vue"
 import {computed, ref} from 'vue'
+import {useSignaturesStore} from "@/stores/signatures";
 
 const props = defineProps<{
   signature: SignatureMeta
 }>()
 
-const {removeSignature} = useSignatures()
+const signaturesStore = useSignaturesStore()
 
 const open = ref(false)
 
@@ -45,7 +45,7 @@ const items = computed<DropdownMenuItem[][]>(() => {
         icon: 'i-lucide-trash',
         onClick: () => {
           if (confirm('¿Eliminar esta e.firma? Esta acción no se puede deshacer.')) {
-            removeSignature(props.signature.id)
+            signaturesStore.removeSignature(props.signature.id)
           }
         }
       }

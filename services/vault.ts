@@ -1,6 +1,6 @@
 import {DatabaseService} from "@/services/database";
 import {SignatureService} from "@/services/signature";
-import {AutoLockService} from "@/services/autoLock";
+import {sendMessage, SignatureForm} from "@/messaging";
 
 export class VaultService {
     private events = new EventTarget();
@@ -28,11 +28,7 @@ export class VaultService {
         this.events.addEventListener("unlock", handler);
     }
 
-    async addSignatures(message: any) {
-        const {
-            signatures
-        } = message.payload as { signatures: { name: string, cer: string, key: string, password: string }[] };
-
+    async addSignatures(signatures: SignatureForm[]) {
         try {
             const ids = await this.signatureService.addSignatures(
                 await Promise.all(
@@ -71,20 +67,14 @@ export class VaultService {
         }
     }
 
-    async addSignature(message: any) {
-        const {
-            name,
-            cer,
-            key,
-            password
-        } = message.payload;
+    async addSignature(signature: SignatureForm) {
 
         try {
             const id = await this.signatureService.addSignature(
-                name,
-                readBase64AsBytes(cer),
-                readBase64AsBytes(key),
-                password
+                signature.name,
+                readBase64AsBytes(signature.cer),
+                readBase64AsBytes(signature.key),
+                signature.password
             )
 
             this.events.dispatchEvent(new Event("signature"));
@@ -111,9 +101,7 @@ export class VaultService {
         }
     }
 
-    async removeSignature(message: any) {
-        const id = message.payload.id;
-
+    async removeSignature(id: string) {
         try {
             await this.signatureService.removeSignature(id)
 
@@ -168,9 +156,8 @@ export class VaultService {
         }
     }
 
-    async unlock(message: any) {
+    async unlock(masterPassword: string) {
         try {
-            const masterPassword = message.payload.masterPassword;
             await this.databaseService.unlock(masterPassword)
 
             this.events.dispatchEvent(new Event("unlock"));
@@ -205,8 +192,7 @@ export class VaultService {
         return this.#broadcastStatus()
     }
 
-    async initialize(message: any) {
-        const masterPassword = message.payload.masterPassword;
+    async initialize(masterPassword: string) {
         await this.databaseService.initialize(masterPassword)
 
         this.events.dispatchEvent(new Event("unlock"));
@@ -229,19 +215,13 @@ export class VaultService {
 
     async #broadcastStatus() {
         const status = await this.status()
-        browser.runtime.sendMessage({
-            type: 'VAULT_STATUS_UPDATE',
-            payload: status
-        })
+        sendMessage('VAULT_STATUS_UPDATE', status)
         return status
     }
 
     async #broadcastList() {
         const list = await this.list();
-        browser.runtime.sendMessage({
-            type: 'VAULT_LIST_UPDATE',
-            payload: list
-        })
+        sendMessage('VAULT_LIST_UPDATE', list)
         return list
     }
 

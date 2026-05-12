@@ -1,3 +1,5 @@
+import {sendMessage} from "@/messaging";
+
 export const useAutocomplete = () => {
 
     async function getActiveTabId() {
@@ -6,13 +8,16 @@ export const useAutocomplete = () => {
     }
 
     const select = async (signatureId: string, autoSubmit: boolean) => {
-        return await browser.runtime.sendMessage({
-            type: 'AUTOCOMPLETE_REQUEST',
-            payload: {
-                id: signatureId,
-                tabId: await getActiveTabId(),
-                submit: autoSubmit
-            }
+        const tabId = await getActiveTabId()
+
+        if (!tabId) {
+            return
+        }
+
+        return sendMessage('AUTOCOMPLETE_REQUEST', {
+            id: signatureId,
+            tabId,
+            submit: autoSubmit
         })
     }
 

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {useAccount} from "@/composables/account";
 import {format, parseISO} from 'date-fns'
 import {computed} from "vue";
+import {useAccountStore} from "@/stores/account";
 
-const {user, checkout, portal, cfdi, isSubscribed} = useAccount()
+const accountStore = useAccountStore()
 
 
 const actions = computed(() => {
@@ -12,14 +12,14 @@ const actions = computed(() => {
       label: 'Administrar',
       color: 'primary',
       variant: 'soft',
-      onClick: () => portal(),
+      onClick: () => accountStore.portal(),
       loadingAuto: true,
     },
     {
       label: 'Facturación',
       color: 'primary',
       variant: 'soft',
-      onClick: () => cfdi(),
+      onClick: () => accountStore.cfdi(),
       target: '_blank',
       loadingAuto: true,
     }
@@ -28,11 +28,11 @@ const actions = computed(() => {
 </script>
 
 <template>
-  <template v-if="isSubscribed">
+  <template v-if="accountStore.isSubscribed">
     <UAlert icon="i-lucide-gem"
             variant="outline"
             title="Licencia activa"
-            :description="`Se renueva el ${format(parseISO(user!.subscription_renews_at), 'PPP')}`"
+            :description="`Se renueva el ${format(parseISO(accountStore.user!.subscription_renews_at), 'PPP')}`"
             :actions="actions"
     >
     </UAlert>
@@ -46,7 +46,8 @@ const actions = computed(() => {
     </UAlert>
 
     <p>
-      <UButton @click="checkout" loading-auto :disabled="!user" block :variant="user ? 'solid' : 'outline'">
+      <UButton @click="accountStore.checkout" loading-auto :disabled="!accountStore.user" block
+               :variant="accountStore.user ? 'solid' : 'outline'">
         Activar mi Licencia Profesional — $599/año
       </UButton>
     </p>

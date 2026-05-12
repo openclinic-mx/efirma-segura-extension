@@ -4,26 +4,26 @@ import SignatureEmpty from "@/components/Signature/Empty.vue"
 import SignatureList from "@/components/Signature/List.vue"
 import AccountSubscribe from "@/components/Marketing/Subscribe.vue";
 import VaultAutoLock from "@/components/Vault/AutoLock.vue";
-import SyncStatus from "@/components/Sync/Status.vue";
-import {useSignatures} from "@/composables/signatures";
 import {useNavigation} from "@/composables/navigation";
+import {useSignaturesStore} from "@/stores/signatures";
+import {useAccountStore} from "@/stores/account";
 
 const {view, navigate} = useNavigation()
 
-const {signatures} = useSignatures()
+const signaturesStore = useSignaturesStore()
 
-const {isSubscribed} = useAccount()
+const accountStore = useAccountStore()
 </script>
 
 <template>
   <SignatureAdd v-if="view === 'add'"/>
 
   <template v-else-if="view === 'home'">
-    <SignatureList :signatures="signatures" v-if="signatures.length"/>
+    <SignatureList :signatures="signaturesStore.signatures" v-if="signaturesStore.signatures.length"/>
     <SignatureEmpty class="my-auto" v-else/>
 
     <Teleport to="#footer" defer>
-      <AccountSubscribe v-if="!isSubscribed"/>
+      <AccountSubscribe v-if="!accountStore.isSubscribed"/>
     </Teleport>
   </template>
 

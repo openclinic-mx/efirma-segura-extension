@@ -1,5 +1,6 @@
 import {AutocompleteService} from "@/services/autocomplete";
 import {VaultService} from "@/services/vault";
+import {sendMessage} from "@/messaging";
 
 export class AutoLockService {
 
@@ -21,17 +22,11 @@ export class AutoLockService {
         })
 
         this.onStart(() => {
-            browser.runtime.sendMessage({
-                type: 'TIMER_START',
-                payload: this.getStatus()
-            })
+            sendMessage('TIMER_START', this.getStatus())
         })
 
         this.onClear(() => {
-            browser.runtime.sendMessage({
-                type: 'TIMER_CLEAR',
-                payload: this.getStatus()
-            })
+            sendMessage('TIMER_CLEAR', this.getStatus())
         })
     }
 

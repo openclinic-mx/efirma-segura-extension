@@ -1,20 +1,18 @@
-import {useSignatures} from "@/composables/signatures";
-import {computed, onMounted, ref} from "vue";
+import {defineStore} from "pinia"
+import {computed, onMounted, ref} from "vue"
+import {onMessage, sendMessage} from "@/messaging"
 import {User} from "@/services/account";
+import {useSignaturesStore} from "@/stores/signatures";
 
-
-export const useAccount = () => {
+export const useAccountStore = defineStore("account", () => {
     const toast = useToast()
 
     const user = ref<null | User>(null)
 
     onMounted(async () => {
-        user.value = await browser.runtime.sendMessage({type: 'ACCOUNT_STATUS'})
-
-        browser.runtime.onMessage.addListener((message) => {
-            if (message.type === 'ACCOUNT_STATUS_UPDATE') {
-                user.value = message.payload;
-            }
+        user.value = await sendMessage('ACCOUNT_STATUS')
+        onMessage('ACCOUNT_STATUS_UPDATE', message => {
+            user.value = message.data;
         })
     })
 
@@ -26,14 +24,14 @@ export const useAccount = () => {
         return user.value?.is_subscribed ?? false
     })
 
-    const {signatures} = useSignatures()
+    const signaturesStore = useSignaturesStore()
 
     const limitReached = computed(() => {
         if (isSubscribed.value) {
             return false;
         }
 
-        return signatures.value.length >= 3
+        return signaturesStore.signatures.length >= 3
     })
 
     const requestPermission = () => {
@@ -51,7 +49,7 @@ export const useAccount = () => {
             interactive: true,
         }
 
-        return new Promise<Browser.identity.GetAuthTokenResult | null>((resolve, reject) => {
+        return new Promise<string | null>((resolve, reject) => {
 
             if (!browser.identity) {
                 resolve(null)
@@ -59,7 +57,7 @@ export const useAccount = () => {
             }
 
             browser.identity.getAuthToken(options, (accessToken) => {
-                resolve(accessToken)
+                resolve(accessToken as string)
             });
         })
     }
@@ -87,50 +85,72 @@ export const useAccount = () => {
             return null;
         }
 
-        const response: { error: string | null, user: User | null } = await browser.runtime.sendMessage({
-            type: 'ACCOUNT_AUTH',
-            payload: {
-                google_token: result
-            }
-        })
+        const response = await sendMessage('ACCOUNT_AUTH', result)
 
         if (response.error) {
             toast.add({
                 title: 'No hemos podido autenticarte.',
-                description: 'Favor de intentar de nuevo.',
+                description: `Favor de intentar de nuevo. (${response.error})`,
                 color: 'error'
             })
         }
+
+        toast.add({
+            title: `Bienvenid@ de vuelta`,
+            description: `${response.user?.name}`,
+            color: 'success'
+        })
 
         return response.user
     }
 
     const checkout = async () => {
-        const response: { checkout_url: string } = await browser.runtime.sendMessage({
-            type: 'ACCOUNT_CHECKOUT'
-        })
+        const response = await sendMessage('ACCOUNT_CHECKOUT')
+
+        if (!response) {
+            toast.add({
+                title: 'No se pudo cargar el enlace de pago.',
+                description: 'Favor de intentar de nuevo.',
+                color: 'error'
+            })
+            return;
+        }
 
         window.open(response.checkout_url, '_blank')
     }
 
     const portal = async () => {
-        const response: { portal_url: string } = await browser.runtime.sendMessage({
-            type: 'ACCOUNT_PORTAL'
-        })
+        const response = await sendMessage('ACCOUNT_PORTAL')
+
+        if (!response) {
+            toast.add({
+                title: 'No se pudo cargar el enlace de pago.',
+                description: 'Favor de intentar de nuevo.',
+                color: 'error'
+            })
+            return;
+        }
 
         window.open(response.portal_url, '_blank')
     }
 
     const cfdi = async () => {
-        const response: { cfdi_url: string } = await browser.runtime.sendMessage({
-            type: 'ACCOUNT_CFDI'
-        })
+        const response = await sendMessage('ACCOUNT_CFDI')
+
+        if (!response) {
+            toast.add({
+                title: 'No se pudo cargar el enlace de facturación.',
+                description: 'Favor de intentar de nuevo.',
+                color: 'error'
+            })
+            return;
+        }
 
         window.open(response.cfdi_url, '_blank')
     }
 
     const logout = () => {
-        browser.runtime.sendMessage({type: 'ACCOUNT_LOGOUT'})
+        return sendMessage('ACCOUNT_LOGOUT')
     }
 
     return {
@@ -144,4 +164,4 @@ export const useAccount = () => {
         portal,
         cfdi,
     }
-}
+})

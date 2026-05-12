@@ -6,7 +6,7 @@ import {useAutocomplete} from "@/composables/autocomplete";
 import SignatureItem from "@/components/Signature/Item.vue"
 import AccountLimit from "@/components/Account/Limit.vue"
 import type {SignatureMeta} from "@/services/signature";
-import {useAccount} from "@/composables/account";
+import {useAccountStore} from "@/stores/account";
 
 const input = useTemplateRef('input')
 
@@ -38,9 +38,10 @@ const handleSelect = async (signature: SignatureMeta) => {
   try {
     const response = await select(signature.id, autoSubmit.value)
 
-    if (response.error) {
+    if (response?.error) {
       toast.add({
-        title: response.error,
+        title: 'No pudimos completar el formulario.',
+        description: response.error,
         color: 'error'
       })
     } else {
@@ -74,7 +75,7 @@ const filteredResults = computed(() => {
   return results.sort((a, b) => a.title.localeCompare(b.title))
 })
 
-const {limitReached} = useAccount()
+const accountStore = useAccountStore()
 </script>
 
 <template>
@@ -102,7 +103,7 @@ const {limitReached} = useAccount()
 
   </UPageList>
 
-  <template v-if="limitReached">
+  <template v-if="accountStore.limitReached">
     <AccountLimit>
       <UButton type="submit" block
                icon="i-lucide-gem"

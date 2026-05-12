@@ -12,6 +12,7 @@ import {SyncService} from "@/services/sync";
 import {RealtimeService} from "@/services/realtime";
 import {WelcomeService} from "@/services/welcome";
 import {PortService} from "@/services/port";
+import {onMessage} from "@/messaging";
 
 
 export default defineBackground(() => {
@@ -111,65 +112,30 @@ export default defineBackground(() => {
         await accountService.fetch()
     })
 
-    const mapMessageToService = async (message: any, sender: Browser.runtime.MessageSender) => {
-        switch (message.type) {
-            case 'AUTOCOMPLETE_REQUEST':
-                return autocompleteService.request(message);
-            case 'VAULT_LIST':
-                return vaultService.list()
-            case 'VAULT_STATUS':
-                return vaultService.status()
-            case 'VAULT_LOCK':
-                return vaultService.lock()
-            case 'VAULT_UNLOCK':
-                return vaultService.unlock(message)
-            case 'VAULT_INITIALIZE':
-                return vaultService.initialize(message)
-            case 'VAULT_RESET':
-                return vaultService.destroy()
-            case 'VAULT_REMOVE':
-                return vaultService.removeSignature(message)
-            case 'VAULT_ADD':
-                return vaultService.addSignature(message)
-            case 'VAULT_ADD_MANY':
-                return vaultService.addSignatures(message)
-            case 'TOGGLE_TAB':
-                return sidePanelService.toggle(sender);
-            case 'OPEN_TAB':
-                return sidePanelService.open(sender);
-            case 'CLOSE_TAB':
-                return sidePanelService.close(sender);
-            case 'TIMER_STATUS':
-                return autoLockService.getStatus()
-            case 'ACCOUNT_STATUS':
-                return accountService.user()
-            case 'ACCOUNT_AUTH':
-                return accountService.auth(message)
-            case 'ACCOUNT_CHECKOUT':
-                return accountService.checkout()
-            case 'ACCOUNT_PORTAL':
-                return accountService.portal()
-            case 'ACCOUNT_CFDI':
-                return accountService.cfdi()
-            case 'ACCOUNT_LOGOUT':
-                return accountService.clear()
-            case 'SYNC_STATUS':
-                return syncService.status()
-            case 'SYNC_DESTROY':
-                return syncService.destroy()
-            case 'SYNC_STOP':
-                return syncService.syncStop()
-            case 'SYNC_UP':
-                return syncService.syncUp()
-            case 'SYNC_REMOTE_HASH':
-                return syncService.remoteHash()
-            case 'SYNC_DOWN':
-                return syncService.syncDown()
-        }
-    }
-
-    browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-        mapMessageToService(message, sender).then(sendResponse).catch(error => sendResponse({error: error}))
-        return true;
-    });
+    onMessage('AUTOCOMPLETE_REQUEST', message => autocompleteService.request(message.data))
+    onMessage('VAULT_LIST', () => vaultService.list());
+    onMessage('VAULT_STATUS', () => vaultService.status());
+    onMessage('VAULT_LOCK', () => vaultService.lock());
+    onMessage('VAULT_UNLOCK', message => vaultService.unlock(message.data));
+    onMessage('VAULT_INITIALIZE', message => vaultService.initialize(message.data));
+    onMessage('VAULT_RESET', () => vaultService.destroy());
+    onMessage('VAULT_REMOVE', message => vaultService.removeSignature(message.data));
+    onMessage('VAULT_ADD', message => vaultService.addSignature(message.data));
+    onMessage('VAULT_ADD_MANY', message => vaultService.addSignatures(message.data));
+    onMessage('TOGGLE_TAB', (message) => sidePanelService.toggle(message.sender))
+    onMessage('OPEN_TAB', (message) => sidePanelService.open(message.sender))
+    onMessage('CLOSE_TAB', (message) => sidePanelService.close(message.sender))
+    onMessage('TIMER_STATUS', () => autoLockService.getStatus());
+    onMessage('ACCOUNT_STATUS', () => accountService.user())
+    onMessage('ACCOUNT_AUTH', message => accountService.auth(message.data))
+    onMessage('ACCOUNT_CHECKOUT', () => accountService.checkout())
+    onMessage('ACCOUNT_PORTAL', () => accountService.portal())
+    onMessage('ACCOUNT_CFDI', () => accountService.cfdi())
+    onMessage('ACCOUNT_LOGOUT', () => accountService.clear())
+    onMessage('SYNC_STATUS', () => syncService.status())
+    onMessage('SYNC_DESTROY', () => syncService.destroy())
+    onMessage('SYNC_STOP', () => syncService.syncStop())
+    onMessage('SYNC_UP', () => syncService.syncUp())
+    onMessage('SYNC_REMOTE_HASH', () => syncService.remoteHash())
+    onMessage('SYNC_DOWN', () => syncService.syncDown())
 });

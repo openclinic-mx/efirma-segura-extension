@@ -1,7 +1,7 @@
-import {useSignatures} from "@/composables/signatures";
 import {SignatureFolder,} from "@/utils/dataTransfer";
 import {validCerts} from "@/utils/signature";
 import {Certificate, PrivateKey} from "@nodecfdi/credentials/browser";
+import {useSignaturesStore} from "@/stores/signatures";
 
 type Combination = {
     cer: {
@@ -17,7 +17,7 @@ type Combination = {
 
 export const useBulk = () => {
 
-    const {addSignatures} = useSignatures()
+    const signaturesStore = useSignaturesStore()
 
     const makeCombinations = async (folder: SignatureFolder) => {
         const certs = await validCerts(folder.cers)
@@ -88,7 +88,7 @@ export const useBulk = () => {
             }
         })
 
-        return addSignatures(signatures)
+        return signaturesStore.addSignatures(signatures)
     }
 
     return {

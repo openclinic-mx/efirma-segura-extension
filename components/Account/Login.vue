@@ -1,27 +1,27 @@
 <script setup lang="ts">
 import SyncStatus from "@/components/Sync/Status.vue";
-import {useAccount} from "@/composables/account";
-import {useSync} from "@/composables/sync";
+import {useAccountStore} from "@/stores/account";
+import {useSyncStore} from "@/stores/sync";
 
-const {signIn, isLoggedIn, logout, isSubscribed} = useAccount()
-const {hasRemoteVault, syncDown} = useSync()
+const accountStore = useAccountStore()
+const syncStore = useSyncStore()
 
 const loginAndSyncDown = async () => {
-  const user = await signIn()
+  const user = await accountStore.signIn()
 
   if (!user) {
     return;
   }
 
   if (user.has_vault) {
-    await syncDown()
+    await syncStore.syncDown()
   }
 }
 </script>
 
 <template>
-  <template v-if="isLoggedIn">
-    <template v-if="hasRemoteVault">
+  <template v-if="accountStore.isLoggedIn">
+    <template v-if="syncStore.hasRemoteVault">
       <Teleport to="#footer" defer>
         <SyncStatus/>
       </Teleport>
@@ -32,7 +32,7 @@ const loginAndSyncDown = async () => {
               variant="outline"
               color="warning"
               description="Crea una contraseña maestra para comenzar"
-              :actions="[ { label: 'Cerrar sesión', color: 'primary', variant: 'soft', onClick: logout, loadingAuto: true}]"
+              :actions="[ { label: 'Cerrar sesión', color: 'primary', variant: 'soft', onClick: accountStore.logout, loadingAuto: true}]"
       >
       </UAlert>
     </template>

@@ -139,7 +139,7 @@ function entryToSignatureMeta(entry: KdbxEntry): SignatureMeta {
     return {
         id: entry.uuid.toString(),
         title: entry.fields.get('Title')?.toString() ?? '-',
-        serialNumber: certificate.serialNumber().decimal(),
+        serialNumber: certificate.serialNumber().bytes(),
         rfc: certificate.rfc(),
         legalName: certificate.legalName(),
         expiredAt: certificate.validTo(),

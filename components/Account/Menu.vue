@@ -1,27 +1,28 @@
 <script setup lang="ts">
-import { computed} from "vue";
-import {useColorMode} from '@vueuse/core'
+import {computed} from "vue";
 import type {DropdownMenuItem} from '@nuxt/ui'
-import {useAccount} from "@/composables/account";
-import {useDatabase} from "@/composables/database";
 import {useNavigation} from "@/composables/navigation";
+import {useDatabaseStore} from "@/stores/database";
+import {useAccountStore} from "@/stores/account";
+import {useSyncStore} from "@/stores/sync";
 
-const colorMode = useColorMode()
+const accountStore = useAccountStore()
 
-const {user, logout, signIn, isSubscribed} = useAccount()
-
-const {isUnlocked, lock} = useDatabase()
+const databaseStore = useDatabaseStore()
 
 const {navigate} = useNavigation()
 
-const {isEnabled} = useSync()
+const syncStore = useSyncStore()
 
 const userMenu = computed(() => {
+
+  const user = accountStore.user
+
   return {
-    name: user.value?.name.split(' ')[0],
-    avatar: user.value?.avatar ? {
-      src: user.value.avatar,
-      alt: user.value?.name
+    name: user?.name.split(' ')[0],
+    avatar: user?.avatar ? {
+      src: user.avatar,
+      alt: user?.name
     } : {
       icon: 'i-lucide-user',
     }
@@ -31,19 +32,19 @@ const userMenu = computed(() => {
 
 const items = computed<DropdownMenuItem[][]>(() => {
 
-  const sessionItems: DropdownMenuItem[] = user.value ?
+  const sessionItems: DropdownMenuItem[] = accountStore.user ?
       [
         {
           label: 'Cerrar sesión',
           icon: 'i-lucide-log-out',
           onClick: () => {
-            if (isEnabled.value && confirm('¿Cerrar sesión? Se deshabilitara la sincronización de tu bóveda')) {
-              logout()
+            if (syncStore.isEnabled && confirm('¿Cerrar sesión? Se deshabilitara la sincronización de tu bóveda')) {
+              accountStore.logout()
               return;
             }
 
             if (confirm('¿Cerrar sesión? ')) {
-              logout()
+              accountStore.logout()
             }
           }
         },
@@ -62,15 +63,15 @@ const items = computed<DropdownMenuItem[][]>(() => {
         {
           label: 'Iniciar sesión',
           icon: 'i-lucide-log-in',
-          onClick: () => signIn()
+          onClick: () => accountStore.signIn()
         },
       ]
 
-  const databaseItems: DropdownMenuItem[] = isUnlocked.value ? [
+  const databaseItems: DropdownMenuItem[] = databaseStore.isUnlocked ? [
     {
       label: 'Cerrar bóveda',
       icon: 'i-lucide-lock',
-      onClick: () => lock()
+      onClick: () => databaseStore.lock()
     }
   ] : []
 
@@ -109,11 +110,11 @@ const items = computed<DropdownMenuItem[][]>(() => {
   <UModal title="¿Cerrar sesión?">
     <template #body>
       <article class="prose dark:prose-invert">
-        <template v-if="isEnabled">
+        <template v-if="syncStore.isEnabled">
           La sincronización quedara deshabilitada y no podrás utilizar los beneficios de tu subscripción en este
           dispositivo hasta que vuelvas a iniciar sesión.
         </template>
-        <template v-else-if="isSubscribed">
+        <template v-else-if="accountStore.isSubscribed">
           Ya no podrás utilizar los beneficios de tu subscripción en este dispositivo hasta que vuelvas a iniciar
           sesión.
         </template>
@@ -121,12 +122,12 @@ const items = computed<DropdownMenuItem[][]>(() => {
     </template>
     <template #footer>
       <div class="flex flex-col gap-4 w-full">
-        <UButton block @click="logout" icon="i-lucide-log-out">
+        <UButton block @click="accountStore.logout" icon="i-lucide-log-out">
           Cerrar sesión
         </UButton>
 
-        <template v-if="isEnabled">
-          <UButton block variant="ghost" @click="logout" icon="i-lucide-log-out">
+        <template v-if="syncStore.isEnabled">
+          <UButton block variant="ghost" @click="accountStore.logout" icon="i-lucide-log-out">
             Cerrar sesión y ocultar bóveda
           </UButton>
         </template>

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import * as z from "zod"
 import {reactive} from 'vue';
+import {useDatabaseStore} from "@/stores/database";
 
 const passwordLength = 12;
 
@@ -19,13 +20,13 @@ const state = reactive<Schema>({
   repeatPassword: ''
 })
 
-const {initialize} = useDatabase();
+const databaseStore = useDatabaseStore();
 </script>
 
 <template>
   <UPageCard title="Crea una contraseña maestra para proteger tu e.firma." variant="naked">
 
-    <UForm @submit.prevent="initialize(state.password)" loading-auto :schema="schema" :state="state" class="contents">
+    <UForm @submit.prevent="databaseStore.initialize(state.password)" loading-auto :schema="schema" :state="state" class="contents">
       <UFormField label="Contraseña maestra" required size="xl" class="w-full" name="password">
         <UInput type="password" v-model="state.password" required class="block" :minlength="passwordLength"
                 :placeholder="`Mínimo ${passwordLength} caracteres`">

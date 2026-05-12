@@ -4,9 +4,9 @@ import {useSignature} from "@/composables/signature";
 import {useNavigation} from "@/composables/navigation";
 import * as z from 'zod'
 import type {FormSubmitEvent} from '@nuxt/ui'
-import {useSignatures} from "@/composables/signatures";
 import BulkForm from "@/components/Bulk/Form.vue"
-import {useAccount} from "@/composables/account";
+import {useSignaturesStore} from "@/stores/signatures";
+import {useAccountStore} from "@/stores/account";
 
 const state = reactive({
   name: '',
@@ -65,14 +65,14 @@ watch(parsedCertificate, (value) => {
 
 const show = ref(false)
 
-const {addSignature} = useSignatures()
+const signaturesStore = useSignaturesStore()
 
 const toast = useToast()
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
 
   try {
-    await addSignature(
+    await signaturesStore.addSignature(
         event.data.name,
         event.data.cer,
         event.data.key,
@@ -96,7 +96,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
 const {navigate} = useNavigation()
 
-const {isSubscribed} = useAccount()
+const accountStore = useAccountStore()
 </script>
 
 <template>
@@ -179,7 +179,7 @@ const {isSubscribed} = useAccount()
         </template>
 
         <template #footer>
-          <template v-if="!isSubscribed">
+          <template v-if="!accountStore.isSubscribed">
             <UButton block color="primary" @click="navigate('upgrade')" icon="i-lucide-gem">Activar Licencia
               Profesional
             </UButton>

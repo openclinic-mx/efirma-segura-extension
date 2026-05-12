@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import {useAccount} from "@/composables/account";
+import {useAccountStore} from "@/stores/account";
 
-const {signIn, isLoggedIn, user, logout} = useAccount()
+const accountStore = useAccountStore()
 
 const handleContinue = () => {
-  signIn()
+  return accountStore.signIn()
 };
 </script>
 
 <template>
-  <template v-if="isLoggedIn">
-    <UAlert icon="i-lucide-user" color="primary" variant="outline" :title="`Hola ${user?.name}!`" :actions="[
+  <template v-if="accountStore.isLoggedIn">
+    <UAlert icon="i-lucide-user" color="primary" variant="outline" :title="`Hola ${accountStore.user?.name}!`" :actions="[
       {
         label: 'Cerrar sesión',
         color: 'primary',
         variant: 'soft',
-        onClick: logout
+        onClick: accountStore.logout
       }
     ]"></UAlert>
   </template>

@@ -5,10 +5,13 @@ import ui from '@nuxt/ui/vue-plugin'
 import { createHead } from '@unhead/vue/client'
 import { es } from 'date-fns/locale'
 import {setDefaultOptions} from "date-fns";
+import {createPinia} from "pinia";
 
 setDefaultOptions({ locale: es })
 
 const head = createHead()
+
+const pinia = createPinia()
 
 // Disable unhead tinkering with inline scripts
 head.hooks.hook('tags:resolve', (ctx) => {
@@ -17,6 +20,7 @@ head.hooks.hook('tags:resolve', (ctx) => {
 
 
 createApp(App)
+    .use(pinia)
     .use(head)
     .use(ui)
     .mount('#app');
