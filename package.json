@@ -17,28 +17,28 @@
   },
   "dependencies": {
     "@nodecfdi/credentials": "^3.2.0",
-    "@unhead/vue": "^2.1.10",
-    "@vueuse/core": "^14.2.1",
+    "@unhead/vue": "^2.1.15",
+    "@vueuse/core": "^14.3.0",
     "@webext-core/messaging": "^2.3.0",
     "axios": "^1.16.0",
     "date-fns": "^4.1.0",
-    "fuse.js": "^7.1.0",
+    "fuse.js": "^7.3.0",
     "kdbxweb": "^2.1.1",
-    "laravel-echo": "^2.3.0",
+    "laravel-echo": "^2.3.4",
     "pinia": "^3.0.4",
-    "pusher-js": "^8.4.0",
-    "vue": "^3.5.27",
-    "zod": "^4.3.6"
+    "pusher-js": "^8.5.0",
+    "vue": "^3.5.34",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@nuxt/ui": "^4.4.0",
+    "@nuxt/ui": "^4.7.1",
     "@tailwindcss/typography": "^0.5.19",
     "@wxt-dev/auto-icons": "^1.1.1",
     "@wxt-dev/module-vue": "^1.0.3",
-    "tailwindcss": "^4.1.18",
+    "tailwindcss": "^4.3.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.18",
-    "vue-tsc": "^3.2.4",
-    "wxt": "^0.20.17"
+    "vitest": "^4.1.6",
+    "vue-tsc": "^3.2.8",
+    "wxt": "^0.20.26"
   }
 }

@@ -1,5 +1,0 @@
-allowBuilds:
-  esbuild: true
-  sharp: true
-  spawn-sync: true
-  vue-demi: true
