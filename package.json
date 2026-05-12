@@ -40,13 +40,5 @@
     "vitest": "^4.0.18",
     "vue-tsc": "^3.2.4",
     "wxt": "^0.20.17"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "sharp",
-      "spawn-sync",
-      "vue-demi"
-    ]
   }
 }
