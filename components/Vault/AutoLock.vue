@@ -55,7 +55,7 @@ const progress = computed(() => {
 </script>
 
 <template>
-  <UButton block variant="ghost" color="neutral" leading-icon="i-lucide-lock" trailing-icon="i-lucide-lock-open">
+  <UButton block variant="ghost" color="neutral" leading-icon="i-lucide-lock" trailing-icon="i-lucide-lock-open" class="pointer-events-none">
     <UProgress :model-value="progress" v-if="progress" size="xs"/>
   </UButton>
 </template>
