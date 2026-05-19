@@ -24,6 +24,7 @@ export default defineConfig({
         plugins: [
             ui({
                 router: false,
+                colorMode: false
             })
         ]
     }),
