@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import {reactive, ref, useTemplateRef, watch} from 'vue';
 import VaultReset from "@/components/Vault/Reset.vue";
+import VaultImport from "@/components/Vault/Import.vue";
 import {useDatabaseStore} from "@/stores/database";
 
 const state = reactive({
@@ -50,5 +51,6 @@ watch(() => state.password, (value) => {
 
   <Teleport to="#footer" defer>
     <VaultReset/>
+    <VaultImport/>
   </Teleport>
 </template>

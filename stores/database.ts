@@ -46,12 +46,17 @@ export const useDatabaseStore = defineStore("database", () => {
         return response
     }
 
+    const exportVault = async () => {
+        return sendMessage("VAULT_EXPORT")
+    }
+
     return {
         isInitialized,
         isUnlocked,
         refreshStatus,
         unlock,
         lock,
+        exportVault,
         initialize,
     }
 })

@@ -5,6 +5,7 @@ import {useNavigation} from "@/composables/navigation";
 import {useDatabaseStore} from "@/stores/database";
 import {useAccountStore} from "@/stores/account";
 import {useSyncStore} from "@/stores/sync";
+import { formatISO } from "date-fns";
 
 const accountStore = useAccountStore()
 
@@ -67,7 +68,31 @@ const items = computed<DropdownMenuItem[][]>(() => {
         },
       ]
 
+  const exportVault = async () => {
+    const vault = await databaseStore.exportVault();
+
+    if (!("showSaveFilePicker" in window)) {
+      return;
+    }
+
+    const response = await fetch(`data:${'application/x-keepass'};base64,${vault.base64}`);
+
+    const url = URL.createObjectURL(await response.blob());
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `boveda-${formatISO(new Date())}.kdbx`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
   const databaseItems: DropdownMenuItem[] = databaseStore.isUnlocked ? [
+    {
+      label: 'Exportar bóveda',
+      icon: 'i-lucide-download',
+      onClick: exportVault
+    },
     {
       label: 'Cerrar bóveda',
       icon: 'i-lucide-lock',

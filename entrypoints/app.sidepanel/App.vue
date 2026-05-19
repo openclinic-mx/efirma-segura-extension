@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import VaultImport from '@/components/Vault/Import.vue'
 import VaultCreate from '@/components/Vault/Create.vue'
 import VaultLocked from '@/components/Vault/Locked.vue'
 import VaultUnlocked from '@/components/Vault/Unlocked.vue'
@@ -29,10 +30,6 @@ usePort(isUnlocked)
     <UDashboardPanel :ui="{ root: '' }">
       <template #header>
         <UDashboardNavbar title="Bóveda" icon="i-lucide-landmark" :toggle="false" :ui="{ title: 'text-base' }">
-          <template #right v-if="databaseStore.isUnlocked">
-            <AccountMenu/>
-          </template>
-
           <template #right>
             <AccountMenu/>
           </template>
@@ -66,6 +63,7 @@ usePort(isUnlocked)
           <VaultCreate/>
           <Teleport to="#footer" defer>
             <AccountLogin/>
+            <VaultImport/>
           </Teleport>
         </template>
         <div class="mt-auto gap-4 flex flex-col" id="footer">

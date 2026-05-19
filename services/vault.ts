@@ -184,6 +184,12 @@ export class VaultService {
         return this.#broadcastStatus()
     }
 
+    async $export() {
+        return {
+            base64: await this.databaseService.export()
+        }
+    }
+
     async destroy() {
         await this.databaseService.deleteDatabase()
 

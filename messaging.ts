@@ -44,6 +44,12 @@ interface VaultProtocolMap {
 
     VAULT_INITIALIZE(masterPassword: string): VaultStatus;
 
+    VAULT_EXPORT(): {
+        base64: string | null
+    };
+
+    VAULT_IMPORT(base64: string): VaultStatus | { error: string };
+
     VAULT_RESET(): VaultStatus;
 
     VAULT_REMOVE(id: string): {
