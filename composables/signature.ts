@@ -57,7 +57,7 @@ export const useSignature = (
         try {
             parsedCertificate.value = new Certificate(file);
         } catch (e) {
-            return null;
+            parsedCertificate.value = null;
         }
     });
 
