@@ -13,6 +13,7 @@ import {usePort} from "@/composables/port";
 import {useDatabaseStore} from "@/stores/database";
 import {useAccountStore} from "@/stores/account";
 import {storeToRefs} from "pinia";
+import config from "~/package.json"
 
 const databaseStore = useDatabaseStore()
 
@@ -29,7 +30,12 @@ usePort(isUnlocked)
   <UApp>
     <UDashboardPanel :ui="{ root: '' }">
       <template #header>
-        <UDashboardNavbar title="Bóveda" icon="i-lucide-landmark" :toggle="false" :ui="{ title: 'text-base' }">
+        <UDashboardNavbar title="Bóveda"
+                          icon="i-lucide-landmark"
+                          :toggle="false"
+                          :ui="{ title: 'text-base' }"
+                          @click="view = 'home'"
+        >
           <template #right>
             <AccountMenu/>
           </template>
@@ -63,10 +69,30 @@ usePort(isUnlocked)
           <VaultCreate/>
           <Teleport to="#footer" defer>
             <AccountLogin/>
+          </Teleport>
+        </template>
+
+        <template v-if="!databaseStore.isUnlocked">
+          <Teleport to="#footer" defer>
             <VaultImport/>
           </Teleport>
         </template>
+
+
         <div class="mt-auto gap-4 flex flex-col" id="footer">
+        </div>
+
+        <div class="text-xs text-center flex gap-4 mt-2">
+          <span>
+            OpenClinic SAPI de CV
+          </span>
+          <span class="flex-1"></span>
+          <ULink href="https://chromewebstore.google.com/detail/ffhifkllfkjhcbihlfjhojbidgdbmjcd/support">
+            Soporte
+          </ULink>
+          <span>
+            Versión {{config.version}}
+          </span>
         </div>
       </template>
     </UDashboardPanel>
