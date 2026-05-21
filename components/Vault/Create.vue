@@ -21,12 +21,28 @@ const state = reactive<Schema>({
 })
 
 const databaseStore = useDatabaseStore();
+
+
+const toast = useToast()
+
+const initialize = async () => {
+  const response = await databaseStore.initialize(state.password)
+
+  if ('error' in response) {
+    toast.add({
+      color: 'error',
+      title: 'Algo salio mal',
+      description: `${response.error}`
+    })
+    return;
+  }
+}
 </script>
 
 <template>
   <UPageCard title="Crea una contraseña maestra para proteger tu e.firma." variant="naked">
 
-    <UForm @submit.prevent="databaseStore.initialize(state.password)" loading-auto :schema="schema" :state="state" class="contents">
+    <UForm @submit.prevent="initialize" loading-auto :schema="schema" :state="state" class="contents">
       <UFormField label="Contraseña maestra" required size="xl" class="w-full" name="password">
         <UInput type="password" v-model="state.password" required class="block" :minlength="passwordLength"
                 :placeholder="`Mínimo ${passwordLength} caracteres`">

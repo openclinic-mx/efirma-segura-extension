@@ -199,6 +199,13 @@ export class VaultService {
     }
 
     async initialize(masterPassword: string) {
+
+        if (await this.databaseService.isInitialized()) {
+            return {
+                error: 'La bóveda ya fue inicializada previamente, intenta reiniciar tu navegador.',
+            }
+        }
+
         await this.databaseService.initialize(masterPassword)
 
         this.events.dispatchEvent(new Event("unlock"));

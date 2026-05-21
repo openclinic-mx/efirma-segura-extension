@@ -42,7 +42,7 @@ interface VaultProtocolMap {
 
     VAULT_UNLOCK(masterPassword: string): VaultStatus | { error: string };
 
-    VAULT_INITIALIZE(masterPassword: string): VaultStatus;
+    VAULT_INITIALIZE(masterPassword: string): VaultStatus | {error: string};
 
     VAULT_EXPORT(): {
         base64: string | null
