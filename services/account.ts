@@ -95,14 +95,16 @@ export class AccountService {
 
     }
 
-    async checkout() {
+    async checkout(type: 'month' | 'year') {
         const token = await this.token();
 
         if (!token) {
             return;
         }
 
-        const {data} = await instance.post<{ checkout_url: string }>('/api/v1/subscription/checkout')
+        const {data} = await instance.post<{ checkout_url: string }>('/api/v1/subscription/checkout', {
+            type,
+        })
 
         return data;
     }

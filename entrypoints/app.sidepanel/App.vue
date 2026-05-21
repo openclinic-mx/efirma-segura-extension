@@ -59,6 +59,9 @@ usePort(isUnlocked)
           </template>
           <template v-else>
             <VaultLocked/>
+            <Teleport to="#footer" defer>
+              <VaultImport/>
+            </Teleport>
           </template>
 
           <Teleport to="#footer" defer>
@@ -69,11 +72,6 @@ usePort(isUnlocked)
           <VaultCreate/>
           <Teleport to="#footer" defer>
             <AccountLogin/>
-          </Teleport>
-        </template>
-
-        <template v-if="!databaseStore.isUnlocked">
-          <Teleport to="#footer" defer>
             <VaultImport/>
           </Teleport>
         </template>

@@ -45,15 +45,22 @@ const actions = computed(() => {
       </template>
     </UAlert>
 
-    <p>
-      <UButton @click="accountStore.checkout" loading-auto :disabled="!accountStore.user" block
-               :variant="accountStore.user ? 'solid' : 'outline'">
-        Activar mi Licencia Profesional — $599/año
+    <p class="space-y-2 text-center">
+      <UButton @click="accountStore.checkout('year')" loading-auto :disabled="!accountStore.user" block
+               :variant="accountStore.user ? 'solid' : 'ghost'">
+        Licencia Profesional — $599/año
+      </UButton>
+
+      <div class="text-sm">ó</div>
+
+      <UButton @click="accountStore.checkout('month')" loading-auto :disabled="!accountStore.user" block
+               :variant="accountStore.user ? 'outline' : 'ghost'">
+        Licencia Profesional — $59/mes
       </UButton>
     </p>
 
     <p class="text-xs">Los precios mostrados están expresados en MXN e incluyen IVA.</p>
-    <p class="text-xs">Puede solicitar tu CFDI una vez realizado tu pago.</p>
+    <p class="text-xs">Puedes generar tu CFDI una vez realizado tu pago.</p>
   </template>
 
 

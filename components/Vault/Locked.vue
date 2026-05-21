@@ -36,7 +36,7 @@ watch(() => state.password, (value) => {
 </script>
 
 <template>
-  <UPageCard title="Ingresa tu contraseña maestra para desbloquear." variant="naked">
+  <UPageCard title="Ingresa tu contraseña maestra para desbloquear tu bóveda." variant="naked">
     <UForm @submit.prevent="openVault" class="contents" loading-auto #default="{ loading }">
       <UFormField label="Contraseña maestra" required size="xl" class="w-full" :error="error">
         <UInput type="password" required class="block" minlength="12" v-model="state.password"
@@ -51,6 +51,5 @@ watch(() => state.password, (value) => {
 
   <Teleport to="#footer" defer>
     <VaultReset/>
-    <VaultImport/>
   </Teleport>
 </template>

@@ -109,7 +109,7 @@ interface AccountProtocolMap {
         error: null,
     }
 
-    ACCOUNT_CHECKOUT(): {
+    ACCOUNT_CHECKOUT(type: 'year' | 'month'): {
         checkout_url: string,
     } | undefined
 

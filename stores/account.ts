@@ -105,8 +105,8 @@ export const useAccountStore = defineStore("account", () => {
         return response.user
     }
 
-    const checkout = async () => {
-        const response = await sendMessage('ACCOUNT_CHECKOUT')
+    const checkout = async (type: 'year' | 'month') => {
+        const response = await sendMessage('ACCOUNT_CHECKOUT', type)
 
         if (!response) {
             toast.add({

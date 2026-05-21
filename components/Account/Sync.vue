@@ -41,7 +41,7 @@ const {
     <UModal title="Opera desde cualquier equipo">
 
       <UButton :disabled="!accountStore.isSubscribed"
-               :variant="accountStore.isSubscribed ? 'solid' : 'outline'"
+               :variant="accountStore.isSubscribed ? 'solid' : 'ghost'"
                block
                loading-auto
                icon="i-lucide-cloud"
