@@ -51,7 +51,7 @@ const actions = computed(() => {
         Licencia Profesional — $599/año
       </UButton>
 
-      <div class="text-sm">ó</div>
+      <span class="text-sm block">ó</span>
 
       <UButton @click="accountStore.checkout('month')" loading-auto :disabled="!accountStore.user" block
                :variant="accountStore.user ? 'outline' : 'ghost'">
