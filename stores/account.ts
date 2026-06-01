@@ -3,6 +3,7 @@ import {computed, onMounted, ref} from "vue"
 import {onMessage, sendMessage} from "@/messaging"
 import {User} from "@/services/account";
 import {useSignaturesStore} from "@/stores/signatures";
+import {browser} from "wxt/browser";
 
 export const useAccountStore = defineStore("account", () => {
     const toast = useToast()
@@ -56,9 +57,33 @@ export const useAccountStore = defineStore("account", () => {
                 return;
             }
 
-            browser.identity.getAuthToken(options, (accessToken) => {
-                resolve(accessToken as string)
-            });
+            const isEdge = navigator.userAgent.includes('Edg');
+
+            if (isEdge) {
+                const params = new URLSearchParams();
+                params.append('client_id', import.meta.env.WXT_OAUTH2_ALT_CLIENT_ID);
+                params.append('redirect_uri', browser.identity.getRedirectURL());
+                params.append('response_type', 'token');
+                params.append('scope', 'openid email profile');
+
+                browser.identity.launchWebAuthFlow({
+                    url: `https://accounts.google.com/o/oauth2/auth?${params.toString()}`,
+                    ...options,
+                }, (responseUrl) => {
+                    if (!responseUrl) {
+                        resolve(null)
+                        return;
+                    }
+                    const hashInUrl = new URL(responseUrl)
+                    const fragment = hashInUrl.hash.slice(1)
+                    const params = new URLSearchParams(fragment)
+                    resolve(params.get('access_token'))
+                })
+            } else {
+                browser.identity.getAuthToken(options, (accessToken) => {
+                    resolve(accessToken as string)
+                });
+            }
         })
     }
     const signIn = async () => {
