@@ -32,6 +32,8 @@ jobs:
           WXT_MANIFEST_KEY: ${{secrets.WXT_MANIFEST_KEY}}
           WXT_OAUTH2_CLIENT_ID: ${{secrets.WXT_OAUTH2_CLIENT_ID}}
 
+          WXT_OAUTH2_ALT_CLIENT_ID: ${{vars.WXT_OAUTH2_ALT_CLIENT_ID}}
+
           WXT_BACKEND: ${{vars.WXT_BACKEND}}
           WXT_REVERB_APP_KEY: ${{vars.WXT_REVERB_APP_KEY}}
           WXT_REVERB_HOST: ${{vars.WXT_REVERB_HOST}}
