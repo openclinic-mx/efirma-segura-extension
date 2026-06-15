@@ -3,6 +3,8 @@ import { ref } from "vue"
 import { onMessage, sendMessage } from "@/messaging"
 
 export const useDatabaseStore = defineStore("database", () => {
+    const passwordLength = 10;
+
     const isInitialized = ref(false)
     const isUnlocked = ref(false)
 
@@ -58,5 +60,6 @@ export const useDatabaseStore = defineStore("database", () => {
         lock,
         exportVault,
         initialize,
+        passwordLength,
     }
 })

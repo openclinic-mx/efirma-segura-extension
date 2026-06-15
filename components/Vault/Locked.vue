@@ -12,6 +12,8 @@ const error = ref<string | boolean>(false)
 
 const databaseStore = useDatabaseStore();
 
+const { passwordLength } = databaseStore
+
 const input = useTemplateRef('input')
 
 const openVault = async () => {
@@ -20,7 +22,9 @@ const openVault = async () => {
   const response = await databaseStore.unlock(state.password)
 
   if ('error' in response) {
-    error.value = response.error
+    error.value = {
+      'Error InvalidKey': 'Contraseña incorrecta',
+    }[response.error] ?? response.error;
     state.password = ''
     setTimeout(() => {
       input.value?.inputRef?.focus()
@@ -39,9 +43,9 @@ watch(() => state.password, (value) => {
   <UPageCard title="Ingresa tu contraseña maestra para desbloquear tu bóveda." variant="naked">
     <UForm @submit.prevent="openVault" class="contents" loading-auto #default="{ loading }">
       <UFormField label="Contraseña maestra" required size="xl" class="w-full" :error="error">
-        <UInput type="password" required class="block" minlength="12" v-model="state.password"
+        <UInput type="password" required class="block" :minlength="passwordLength" v-model="state.password"
                 ref="input"
-                placeholder="Mínimo 12 caracteres">
+                :placeholder="`Mínimo ${passwordLength} caracteres`">
         </UInput>
       </UFormField>
 

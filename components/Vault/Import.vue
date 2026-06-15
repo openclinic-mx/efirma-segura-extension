@@ -4,12 +4,15 @@ import {Credentials, Kdbx, ProtectedValue} from 'kdbxweb';
 import {reactive, ref} from "vue";
 import {readFileAsBase64} from "@/utils/files";
 import * as z from "zod"
+import {useDatabaseStore} from "@/stores/database";
 
-const passwordLength = 12;
+const databaseStore = useDatabaseStore();
+
+const { passwordLength } = databaseStore
 
 const schema = z.object({
   password: z.string()
-      .min(passwordLength, "La contraseña debe ser de al menos 12 caracteres"),
+      .min(passwordLength, `La contraseña debe ser de al menos ${passwordLength} caracteres`),
   database: z.file()
       .min(1)
 }).refine(async (data) => {
@@ -71,7 +74,7 @@ const importVault = async () => {
         </UFormField>
 
         <UFormField label="Contraseña" class="mt-4" name="password">
-          <UInput type="password" class="w-full"  placeholder="Mínimo 12 caracteres" v-model="state.password"/>
+          <UInput type="password" class="w-full"  :placeholder="`Mínimo ${passwordLength} caracteres`" v-model="state.password"/>
         </UFormField>
       </UForm>
     </template>

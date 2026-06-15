@@ -3,10 +3,12 @@ import * as z from "zod"
 import {reactive} from 'vue';
 import {useDatabaseStore} from "@/stores/database";
 
-const passwordLength = 12;
+const databaseStore = useDatabaseStore();
+
+const { passwordLength } = databaseStore
 
 const schema = z.object({
-  password: z.string().min(passwordLength, "La contraseña debe ser de al menos 12 caracteres"),
+  password: z.string().min(passwordLength, `La contraseña debe ser de al menos ${passwordLength} caracteres`),
   repeatPassword: z.string().min(passwordLength, "La confirmación de la contraseña es requerida")
 }).refine((data) => data.password === data.repeatPassword, {
   message: "La contraseña maestra no coincide",
@@ -20,7 +22,7 @@ const state = reactive<Schema>({
   repeatPassword: ''
 })
 
-const databaseStore = useDatabaseStore();
+
 
 
 const toast = useToast()
