@@ -7,6 +7,7 @@ import SignatureItem from "@/components/Signature/Item.vue"
 import AccountLimit from "@/components/Account/Limit.vue"
 import type {SignatureMeta} from "@/services/signature";
 import {useAccountStore} from "@/stores/account";
+import {expiresInDays} from "@/utils/expiration";
 
 const input = useTemplateRef('input')
 
@@ -67,13 +68,26 @@ const fuse = computed(() => {
   })
 })
 
+const expiredOrCloseFirst = (signatures: SignatureMeta[]): SignatureMeta[] => {
+  const normalFiltering = signatures
+      .filter(signature => !expiresInDays(signature.expiredAt))
+  const soonToExpire = signatures
+      .filter(signature => expiresInDays(signature.expiredAt))
+      .sort((a, b) => Number(a.expiredAt) - Number(b.expiredAt))
+
+  return [...soonToExpire,...normalFiltering]
+}
+
 const filteredResults = computed(() => {
   const results = query.value
       ? fuse.value.search(query.value).map(item => item.item)
       : props.signatures;
 
-  return results.sort((a, b) => a.title.localeCompare(b.title))
+  const sorted = results.sort((a, b) => a.title.localeCompare(b.title))
+
+  return expiredOrCloseFirst(sorted)
 })
+
 
 const accountStore = useAccountStore()
 </script>
