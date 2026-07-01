@@ -103,7 +103,7 @@ const accountStore = useAccountStore()
   <UPageCard title="Nueva e.firma" variant="naked" :ui="{ container: 'w-full' }">
 
     <template #title>
-      <div class="items-center flex gap-2">
+      <div class="items-center flex gap-1.5">
         <UButton icon="i-lucide-arrow-left" variant="ghost" @click="navigate('home')"></UButton>
         <span>Nueva e.firma</span>
       </div>
