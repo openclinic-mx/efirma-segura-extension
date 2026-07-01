@@ -11,7 +11,7 @@ export const expirationColor = (expiredAt: Date) => {
         return 'warning';
     }
 
-    return 'info';
+    return 'success';
 };
 
 export const expirationText = (expiredAt: Date) => `Expira ${formatDistanceToNow(expiredAt, {addSuffix: true})}`;

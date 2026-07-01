@@ -15,11 +15,11 @@ const props = defineProps<{
       <dd>{{ signature.legalName }}</dd>
       <dt>RFC</dt>
       <dd>{{ signature.rfc }}</dd>
-      <dt>Expiración: {{ formatDistanceToNow(signature.expiredAt, {addSuffix: true}) }}</dt>
+      <dt>Expira {{ formatDistanceToNow(signature.expiredAt, {addSuffix: true}) }}</dt>
       <dd>
         {{ format(signature.expiredAt, 'PPP') }}
       </dd>
-      <dt>Emisión: {{ formatDistanceToNow(signature.issuedAt, {addSuffix: true}) }}</dt>
+      <dt>Emisión {{ formatDistanceToNow(signature.issuedAt, {addSuffix: true}) }}</dt>
       <dd>
         {{ format(signature.issuedAt, 'PPP') }}
       </dd>
