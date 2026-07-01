@@ -92,11 +92,6 @@ const items = computed<DropdownMenuItem[][]>(() => {
       label: 'Exportar bóveda',
       icon: 'i-lucide-download',
       onClick: exportVault
-    },
-    {
-      label: 'Cerrar bóveda',
-      icon: 'i-lucide-lock',
-      onClick: () => databaseStore.lock()
     }
   ] : []
 

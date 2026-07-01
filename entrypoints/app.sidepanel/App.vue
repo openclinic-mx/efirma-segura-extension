@@ -7,6 +7,7 @@ import AccountLogin from "@/components/Account/Login.vue"
 import AccountMenu from "@/components/Account/Menu.vue"
 import SyncStatus from "@/components/Sync/Status.vue"
 import NavigationAddSignature from "@/components/Navigation/AddSignature.vue"
+import NavigationLockVault from "@/components/Navigation/LockVault.vue"
 import AccountPromo from "@/components/Marketing/Promo.vue"
 import AccountUpgrade from "@/components/Marketing/Upgrade.vue"
 import {usePort} from "@/composables/port";
@@ -35,11 +36,12 @@ usePort(isUnlocked)
 
       <template #header>
         <UDashboardNavbar title="Bóveda"
-                          icon="i-lucide-landmark"
                           :toggle="false"
                           :ui="{ title: 'text-base' }"
         >
           <template #title>
+            <NavigationLockVault/>
+
             <button @click="navigate('home')" >Bóveda</button>
           </template>
 
