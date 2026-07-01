@@ -13,8 +13,7 @@ const accountStore = useAccountStore()
 <template>
   <template v-if="accountStore.limitReached">
     <AccountLimit>
-      <UButton block
-               icon="i-lucide-gem"
+      <UButton icon="i-lucide-gem"
                variant="ghost"
       >
         <span class="text-nowrap">Nueva e.firma</span>
@@ -23,8 +22,7 @@ const accountStore = useAccountStore()
   </template>
 
   <template v-else>
-    <UButton block
-             @click="navigate('add')"
+    <UButton @click="navigate('add')"
              icon="i-lucide-plus"
              variant="ghost"
              :disabled="view === 'add'"
