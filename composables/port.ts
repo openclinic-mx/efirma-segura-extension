@@ -12,6 +12,31 @@ export const usePort = (isUnlocked: Ref) => {
         heartbeatAbortController = null;
     };
 
+    const startHeartbeat = (
+        port: Browser.runtime.Port,
+        signal: AbortSignal,
+    ) => {
+        const sendHeartbeat = () => {
+            if (signal.aborted) return;
+
+            port.postMessage({
+                type: 'heartbeat',
+            });
+        };
+
+        sendHeartbeat();
+
+        const interval = setInterval(sendHeartbeat, 10_000);
+
+        signal.addEventListener(
+            'abort',
+            () => {
+                clearInterval(interval);
+            },
+            { once: true },
+        );
+    };
+
     const connect = () => {
         if (port) return;
 
@@ -40,31 +65,6 @@ export const usePort = (isUnlocked: Ref) => {
             disconnect();
         }
     }, { immediate: true })
-
-    const startHeartbeat = (
-        port: Browser.runtime.Port,
-        signal: AbortSignal,
-    ) => {
-        const sendHeartbeat = () => {
-            if (signal.aborted) return;
-
-            port.postMessage({
-                type: 'heartbeat',
-            });
-        };
-
-        sendHeartbeat();
-
-        const interval = setInterval(sendHeartbeat, 10_000);
-
-        signal.addEventListener(
-            'abort',
-            () => {
-                clearInterval(interval);
-            },
-            { once: true },
-        );
-    };
 
     onScopeDispose(() => {
         disconnect();

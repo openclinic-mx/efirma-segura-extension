@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {useNavigation} from "@/composables/navigation";
 import {useSyncStore} from "@/stores/sync";
+import {useNavigationStore} from "@/stores/navigation";
 
 const syncStore = useSyncStore()
-const {navigate} = useNavigation()
+const {navigate} = useNavigationStore()
 </script>
 
 <template>

@@ -2,11 +2,11 @@
 import {useBulk} from "@/composables/bulk";
 import {getSignatureFolders} from "@/utils/dataTransfer";
 import {useToast} from "@nuxt/ui/composables";
-import {useNavigation} from "@/composables/navigation";
+import {useNavigationStore} from "@/stores/navigation";
 
 const {parse} = useBulk()
 
-const {navigate} = useNavigation()
+const {navigate} = useNavigationStore()
 
 const toast = useToast()
 

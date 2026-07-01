@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import {computed} from "vue";
 import type {DropdownMenuItem} from '@nuxt/ui'
-import {useNavigation} from "@/composables/navigation";
 import {useDatabaseStore} from "@/stores/database";
 import {useAccountStore} from "@/stores/account";
 import {useSyncStore} from "@/stores/sync";
 import { formatISO } from "date-fns";
+import {useNavigationStore} from "@/stores/navigation";
 
 const accountStore = useAccountStore()
 
 const databaseStore = useDatabaseStore()
 
-const {navigate} = useNavigation()
+const {navigate} = useNavigationStore()
 
 const syncStore = useSyncStore()
 

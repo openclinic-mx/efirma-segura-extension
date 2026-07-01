@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import {computed, ref, useTemplateRef} from 'vue'
-import {useNavigation} from "@/composables/navigation";
+import NavigationAddSignature from "@/components/Navigation/AddSignature.vue"
 import Fuse from 'fuse.js'
 import {useAutocomplete} from "@/composables/autocomplete";
 import SignatureItem from "@/components/Signature/Item.vue"
-import AccountLimit from "@/components/Account/Limit.vue"
 import type {SignatureMeta} from "@/services/signature";
-import {useAccountStore} from "@/stores/account";
 import {expiresInDays} from "@/utils/expiration";
 
 const input = useTemplateRef('input')
@@ -23,7 +21,7 @@ defineShortcuts({
 
 const autoSubmit = ref(true)
 
-const {navigate} = useNavigation()
+
 
 const query = ref('')
 
@@ -89,7 +87,7 @@ const filteredResults = computed(() => {
 })
 
 
-const accountStore = useAccountStore()
+
 </script>
 
 <template>
@@ -116,24 +114,4 @@ const accountStore = useAccountStore()
     </template>
 
   </UPageList>
-
-  <template v-if="accountStore.limitReached">
-    <AccountLimit>
-      <UButton type="submit" block
-               icon="i-lucide-gem"
-               variant="ghost"
-      >
-        Agregar e.firma
-      </UButton>
-    </AccountLimit>
-  </template>
-
-  <template v-else>
-    <UButton type="submit" block @click="navigate('add')"
-             icon="i-lucide-plus"
-             variant="ghost"
-    >
-      Agregar e.firma
-    </UButton>
-  </template>
 </template>

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import {useNavigation} from "@/composables/navigation";
 import AccountAuth from "@/components/Account/Auth.vue"
 import AccountPayment from "@/components/Account/Payment.vue"
 import AccountSync from "@/components/Account/Sync.vue"
+import {useNavigationStore} from "@/stores/navigation";
 
-const {navigate} = useNavigation()
+const {navigate} = useNavigationStore()
 </script>
 
 <template>

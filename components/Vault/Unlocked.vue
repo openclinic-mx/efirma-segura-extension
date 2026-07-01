@@ -4,11 +4,14 @@ import SignatureEmpty from "@/components/Signature/Empty.vue"
 import SignatureList from "@/components/Signature/List.vue"
 import AccountSubscribe from "@/components/Marketing/Subscribe.vue";
 import VaultAutoLock from "@/components/Vault/AutoLock.vue";
-import {useNavigation} from "@/composables/navigation";
 import {useSignaturesStore} from "@/stores/signatures";
 import {useAccountStore} from "@/stores/account";
+import {useNavigationStore} from "@/stores/navigation";
+import {storeToRefs} from "pinia";
 
-const {view, navigate} = useNavigation()
+const navigationStore = useNavigationStore()
+const {navigate} = navigationStore
+const { view } = storeToRefs(navigationStore)
 
 const signaturesStore = useSignaturesStore()
 

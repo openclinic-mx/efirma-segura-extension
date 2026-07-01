@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {useNavigation} from "@/composables/navigation";
+import {useNavigationStore} from "@/stores/navigation";
 
-const { navigate} = useNavigation()
+const { navigate} = useNavigationStore()
 
 const messages = [
     "¿Necesitas más e.firmas?",

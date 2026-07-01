@@ -1,9 +1,8 @@
 <script setup lang="ts">
+import {useNavigationStore} from "@/stores/navigation";
 
-import {useNavigation} from "@/composables/navigation";
 
-
-const {navigate} = useNavigation()
+const {navigate} = useNavigationStore()
 </script>
 
 <template>
@@ -27,7 +26,3 @@ const {navigate} = useNavigation()
     </template>
   </UModal>
 </template>
-
-<style scoped>
-
-</style>

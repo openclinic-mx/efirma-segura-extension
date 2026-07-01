@@ -6,20 +6,23 @@ import VaultUnlocked from '@/components/Vault/Unlocked.vue'
 import AccountLogin from "@/components/Account/Login.vue"
 import AccountMenu from "@/components/Account/Menu.vue"
 import SyncStatus from "@/components/Sync/Status.vue"
+import NavigationAddSignature from "@/components/Navigation/AddSignature.vue"
 import AccountPromo from "@/components/Marketing/Promo.vue"
 import AccountUpgrade from "@/components/Marketing/Upgrade.vue"
-import {useNavigation} from "@/composables/navigation";
 import {usePort} from "@/composables/port";
 import {useDatabaseStore} from "@/stores/database";
 import {useAccountStore} from "@/stores/account";
 import {storeToRefs} from "pinia";
 import config from "~/package.json"
+import {useNavigationStore} from "@/stores/navigation";
 
 const databaseStore = useDatabaseStore()
 
 const accountStore = useAccountStore()
 
-const {view} = useNavigation()
+const navigationStore = useNavigationStore()
+const {navigate} = navigationStore
+const { view } = storeToRefs(navigationStore)
 
 const {isUnlocked} = storeToRefs(databaseStore)
 
@@ -29,19 +32,26 @@ usePort(isUnlocked)
 <template>
   <UApp>
     <UDashboardPanel :ui="{ root: '' }">
+
       <template #header>
         <UDashboardNavbar title="Bóveda"
                           icon="i-lucide-landmark"
                           :toggle="false"
                           :ui="{ title: 'text-base' }"
-                          @click="view = 'home'"
         >
+          <template #title>
+            <button @click="navigate('home')" >Bóveda</button>
+          </template>
+
           <template #right>
+            <NavigationAddSignature v-if="databaseStore.isUnlocked"/>
+
             <AccountMenu/>
           </template>
         </UDashboardNavbar>
       </template>
       <template #body>
+
         <div id="header" class="empty:hidden">
         </div>
 

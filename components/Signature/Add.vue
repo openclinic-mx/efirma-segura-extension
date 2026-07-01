@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import {reactive, ref, toRefs, watch} from "vue";
 import {useSignature} from "@/composables/signature";
-import {useNavigation} from "@/composables/navigation";
 import * as z from 'zod'
 import type {FormSubmitEvent} from '@nuxt/ui'
 import BulkForm from "@/components/Bulk/Form.vue"
 import {useSignaturesStore} from "@/stores/signatures";
 import {useAccountStore} from "@/stores/account";
+import {useNavigationStore} from "@/stores/navigation";
 
 const state = reactive({
   name: '',
@@ -94,7 +94,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
 }
 
-const {navigate} = useNavigation()
+const {navigate} = useNavigationStore()
 
 const accountStore = useAccountStore()
 </script>

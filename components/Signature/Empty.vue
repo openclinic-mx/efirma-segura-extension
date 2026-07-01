@@ -1,6 +1,8 @@
 <script setup lang="ts">
 
-const {navigate} = useNavigation()
+import {useNavigationStore} from "@/stores/navigation";
+
+const {navigate} = useNavigationStore()
 
 const actions = [
   {
