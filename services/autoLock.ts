@@ -22,11 +22,11 @@ export class AutoLockService {
         })
 
         this.onStart(() => {
-            sendMessage('TIMER_START', this.getStatus())
+            sendMessage('TIMER_START', this.getStatus()).catch(() => {})
         })
 
         this.onClear(() => {
-            sendMessage('TIMER_CLEAR', this.getStatus())
+            sendMessage('TIMER_CLEAR', this.getStatus()).catch(() => {})
         })
     }
 
