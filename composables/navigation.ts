@@ -7,7 +7,6 @@ export const useNavigation = () => {
         return new Promise((resolve, reject) => {
             browser.tabs.onUpdated.addListener(
                 function listener(updatedTabId, changeInfo, updatedTab) {
-                    console.log({status, tabId})
                     if (updatedTabId !== tabId) {
                         return;
                     }

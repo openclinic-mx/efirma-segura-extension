@@ -41,13 +41,9 @@ export default defineContentScript({
                     if (navigateToSignatureLogin) {
                         navigateToSignatureLogin.click()
                     }
-
-                    console.log(navigateToSignatureLogin)
                 }
 
                 onMessage('SIGNATURE_ACTION', () => {
-                    console.log('clicking signature')
-
                     tryToClickSignature()
                     return {
                         error: null
