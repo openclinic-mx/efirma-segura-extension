@@ -160,6 +160,10 @@ interface AutocompleteProtocolMap {
     }): {
         error: string | null
     }
+
+    SIGNATURE_ACTION(): {
+        error: string | null
+    }
 }
 
 interface IntroductionProtocolMap {
