@@ -33,6 +33,27 @@ export default defineContentScript({
                     return {error};
                 })
 
+                const tryToClickSignature = () => {
+                    const navigateToSignatureLogin = findCandidate<HTMLButtonElement>([
+                        '#buttonFiel',
+                    ])
+
+                    if (navigateToSignatureLogin) {
+                        navigateToSignatureLogin.click()
+                    }
+
+                    console.log(navigateToSignatureLogin)
+                }
+
+                onMessage('SIGNATURE_ACTION', () => {
+                    console.log('clicking signature')
+
+                    tryToClickSignature()
+                    return {
+                        error: null
+                    };
+                })
+
                 const tryRenderTriggerWithNavigation = () => {
                     const trigger = tryRenderTrigger(
                         import.meta.env.WXT_SAT_FORM_ANCHOR.split("|")
@@ -43,13 +64,7 @@ export default defineContentScript({
                     }
 
                     trigger.addEventListener('click', () => {
-                        const navigateToSignatureLogin = findCandidate<HTMLButtonElement>([
-                            '#buttonFiel',
-                        ])
-
-                        if (navigateToSignatureLogin) {
-                            navigateToSignatureLogin.click()
-                        }
+                        tryToClickSignature()
                     })
                 }
 
