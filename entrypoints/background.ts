@@ -120,6 +120,7 @@ export default defineBackground(() => {
     onMessage('VAULT_INITIALIZE', message => vaultService.initialize(message.data));
     onMessage('VAULT_RESET', () => vaultService.destroy());
     onMessage('VAULT_REMOVE', message => vaultService.removeSignature(message.data));
+    onMessage('VAULT_PASSWORD', message => vaultService.password(message.data));
     onMessage('VAULT_ADD', message => vaultService.addSignature(message.data));
     onMessage('VAULT_ADD_MANY', message => vaultService.addSignatures(message.data));
     onMessage('VAULT_EXPORT', () => vaultService.$export());

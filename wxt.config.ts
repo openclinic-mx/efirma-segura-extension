@@ -40,6 +40,8 @@ export default defineConfig({
             "https://wwwmat.sat.gob.mx/consultas/operacion/42968/consulta-y-recuperacion-de-comprobantes-(nuevo)",
             // IMSS
             "https://idse.imss.gob.mx/imss/",
+            // Reset password
+            "https://www.siat.sat.gob.mx/PTSC/auth/faces/pages/restablecer/recuperarContrasenia.jsf",
         ],
         chromiumArgs: [
             '--user-data-dir=./.wxt/chrome-data',

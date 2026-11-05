@@ -75,6 +75,14 @@ interface VaultProtocolMap {
         error: string
     }
 
+    VAULT_PASSWORD(id: string): {
+        password: string,
+        error: null
+    } | {
+        password: null,
+        error: string
+    }
+
     VAULT_LIST_UPDATE(payload: VaultList): void
 
     VAULT_STATUS_UPDATE(payload: VaultStatus): void

@@ -126,6 +126,30 @@ export class VaultService {
         }
     }
 
+    async password(id: string) {
+        try {
+            const signature = await this.signatureService.getSignature(id)
+
+            if (!signature) {
+                return {
+                    password: null,
+                    error: 'No encontramos esta e.firma.'
+                }
+            }
+
+            return {
+                password: signature.password,
+                error: null
+            }
+        } catch (e) {
+            this.#broadcastStatus()
+            return {
+                password: null,
+                error: e instanceof Error ? e.message : 'Unexpected error'
+            }
+        }
+    }
+
     async status() {
         return {
             isInitialized: await this.databaseService.isInitialized(),

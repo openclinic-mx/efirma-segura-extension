@@ -6,6 +6,7 @@ import {computed, ref} from 'vue'
 import {useSignaturesStore} from "@/stores/signatures";
 import {expirationColor, expirationText, expiresInDays} from "@/utils/expiration";
 import {useNavigation} from "@/composables/navigation";
+import {usePasswordCopy} from "@/composables/passwordCopy";
 
 const props = defineProps<{
   signature: SignatureMeta
@@ -14,6 +15,8 @@ const props = defineProps<{
 const signaturesStore = useSignaturesStore()
 
 const { navigate, signatureAction, prepareLoaded } = useNavigation();
+
+const { copyPassword } = usePasswordCopy();
 
 const open = ref(false)
 
@@ -40,6 +43,12 @@ const items = computed<DropdownMenuItem[][]>(() => {
         onClick: () => {
           emits('autocomplete')
         }
+      },
+
+      {
+        label: 'Copiar contraseña',
+        icon: 'i-lucide-copy',
+        onSelect: () => copyPassword(props.signature.id)
       },
 
       {
