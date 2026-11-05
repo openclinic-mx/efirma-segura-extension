@@ -15,9 +15,10 @@ import {SyncService} from "@/services/sync";
 import {RealtimeService} from "@/services/realtime";
 import {WelcomeService} from "@/services/welcome";
 import {PortService} from "@/services/port";
+import {ExtractionService} from "@/services/extraction";
 import {onMessage} from "@/messaging";
 
-// Passkey and export handlers only answer this extension's own pages, never content scripts.
+// Passkey, export and extraction handlers only answer this extension's own pages, never content scripts.
 const isExtensionPage = (sender: Browser.runtime.MessageSender) => {
     return sender.id === browser.runtime.id
         && !!sender.url?.startsWith(browser.runtime.getURL('/'));
@@ -43,10 +44,17 @@ export default defineBackground(() => {
     const realtimeService = new RealtimeService(accountService);
     const welcomeService = new WelcomeService();
     const portService = new PortService();
+    const extractionService = new ExtractionService(signatureService, storageService);
 
     // we want to tell the autoLock service all the events that will start, stop or restart the clock.
-    autoLockService.registerListeners(autocompleteService, vaultService, passkeyService)
+    autoLockService.registerListeners(autocompleteService, vaultService, passkeyService, extractionService)
     autoLockService.onLock(() => vaultService.lock())
+
+    // extracted files live for a few minutes, and never longer than the vault stays unlocked.
+    // the vault is always locked when the background starts, so anything left behind goes too.
+    extractionService.registerListeners()
+    vaultService.onLock(() => extractionService.cleanup({all: true}))
+    extractionService.cleanup({all: true})
 
     // even though the side panels are opened, the background can be killed.
     // We will prevent it by listening for a connection from the side panel
@@ -162,6 +170,9 @@ export default defineBackground(() => {
         ? passkeyService.setAutoUnlock(message.data)
         : forbidden);
     onMessage('VAULT_IMPORT', message => vaultService.import(message.data));
+    onMessage('VAULT_EXTRACT', message => isExtensionPage(message.sender)
+        ? extractionService.extract(message.data)
+        : forbidden);
     onMessage('TOGGLE_TAB', (message) => sidePanelService.toggle(message.sender))
     onMessage('OPEN_TAB', (message) => sidePanelService.open(message.sender))
     onMessage('CLOSE_TAB', (message) => sidePanelService.close(message.sender))

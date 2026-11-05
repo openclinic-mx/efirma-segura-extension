@@ -15,7 +15,7 @@ export default defineConfig({
         // vault locks are X25519 key pairs (vault/locks.ts): WebCrypto X25519 ships in Chrome 133
         minimum_chrome_version: '133',
         permissions: ['storage', 'alarms'],
-        optional_permissions: ['identity'],
+        optional_permissions: ['identity', 'downloads'],
         optional_host_permissions: [passkeyOrigin],
         name: 'e.firma Segura',
         key: import.meta.env.WXT_MANIFEST_KEY,

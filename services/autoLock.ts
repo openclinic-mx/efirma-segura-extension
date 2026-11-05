@@ -1,6 +1,7 @@
 import {AutocompleteService} from "@/services/autocomplete";
 import {VaultService} from "@/services/vault";
 import {PasskeyService} from "@/services/passkey";
+import {ExtractionService} from "@/services/extraction";
 import {sendMessage} from "@/messaging";
 
 export class AutoLockService {
@@ -76,6 +77,7 @@ export class AutoLockService {
         autocompleteService: AutocompleteService,
         vaultService: VaultService,
         passkeyService: PasskeyService,
+        extractionService: ExtractionService,
     ) {
         autocompleteService.onRequest(() => {
             this.resetTimer()
@@ -100,6 +102,11 @@ export class AutoLockService {
 
         // adding a passkey takes a password, a permission prompt and two biometric prompts
         passkeyService.onActivity(() => {
+            this.resetTimer()
+        })
+
+        // locking deletes extracted files, so give the user the full time to use them.
+        extractionService.onExtract(() => {
             this.resetTimer()
         })
     }

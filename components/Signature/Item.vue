@@ -7,6 +7,7 @@ import {useSignaturesStore} from "@/stores/signatures";
 import {expirationColor, expirationText, expiresInDays} from "@/utils/expiration";
 import {useNavigation} from "@/composables/navigation";
 import {usePasswordCopy} from "@/composables/passwordCopy";
+import {useExtraction} from "@/composables/extraction";
 
 const props = defineProps<{
   signature: SignatureMeta
@@ -17,6 +18,8 @@ const signaturesStore = useSignaturesStore()
 const { navigate, signatureAction, prepareLoaded } = useNavigation();
 
 const { copyPassword } = usePasswordCopy();
+
+const { extract } = useExtraction();
 
 const open = ref(false)
 
@@ -49,6 +52,12 @@ const items = computed<DropdownMenuItem[][]>(() => {
         label: 'Copiar contraseña',
         icon: 'i-lucide-copy',
         onSelect: () => copyPassword(props.signature.id)
+      },
+
+      {
+        label: 'Extraer temporalmente',
+        icon: 'i-lucide-folder-down',
+        onSelect: () => extract(props.signature.id)
       },
 
       {

@@ -92,6 +92,15 @@ interface VaultProtocolMap {
         error: string
     }
 
+    // extracts the .cer and .key to the Downloads folder, until they expire
+    VAULT_EXTRACT(id: string): {
+        error: null,
+        expiresAt: number,
+        downloadIds: number[],
+    } | {
+        error: string
+    }
+
     VAULT_LIST_UPDATE(payload: VaultList): void
 
     VAULT_STATUS_UPDATE(payload: VaultStatus): void
