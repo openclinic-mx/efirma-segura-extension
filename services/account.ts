@@ -1,6 +1,7 @@
 import {StorageService} from "@/services/storage";
 import {instance} from "@/utils/axios";
 import {sendMessage} from "@/messaging";
+import {BackendError} from "@/utils/backend";
 
 export type User = {
     avatar: string,
@@ -51,17 +52,24 @@ export class AccountService {
     }
 
     async fetch() {
-        const token = await this.token();
-
-        if (!token) {
-            return;
-        }
+        await this.requireToken();
 
         const {data: {data}} = await instance.get<{ data: User }>('/api/v1/auth/user')
 
         await this.storage.write('user', data)
 
         return this.#broadcastStatus()
+    }
+
+    // for refreshes nobody waits on: if the backend fails, the cached user is kept
+    async refresh() {
+        try {
+            await this.fetch()
+        } catch (e) {
+            if (!(e instanceof BackendError)) {
+                throw e
+            }
+        }
     }
 
     async auth(google_token: string) {
@@ -96,11 +104,7 @@ export class AccountService {
     }
 
     async checkout(type: 'month' | 'year') {
-        const token = await this.token();
-
-        if (!token) {
-            return;
-        }
+        await this.requireToken();
 
         const {data} = await instance.post<{ checkout_url: string }>('/api/v1/subscription/checkout', {
             type,
@@ -110,11 +114,7 @@ export class AccountService {
     }
 
     async portal() {
-        const token = await this.token();
-
-        if (!token) {
-            return;
-        }
+        await this.requireToken();
 
         const {data} = await instance.post<{ portal_url: string }>('/api/v1/subscription/portal')
 
@@ -122,50 +122,35 @@ export class AccountService {
     }
 
     async cfdi() {
-        const token = await this.token();
-
-        if (!token) {
-            return;
-        }
+        await this.requireToken();
 
         const {data} = await instance.post<{ cfdi_url: string }>('/api/v1/subscription/cfdi')
 
         return data;
     }
 
-    async #logout() {
+    async clear() {
+        try {
+            if (await this.token()) {
+                await instance.post('/api/v1/auth/logout')
+            }
+        } finally {
+            // signs out of this browser even when the session could not be revoked in the backend
+            await this.storage.clear('token')
+            await this.storage.clear('user')
+            this.events.dispatchEvent(new Event("logout"));
+            await this.#broadcastStatus()
+        }
+    }
+
+    async requireToken(): Promise<string> {
         const token = await this.token();
 
         if (!token) {
-            return {
-                error: 'Not logged in',
-            };
+            throw new BackendError('unauthorized', {message: 'Inicia sesión para continuar.'})
         }
 
-        const response = await fetch(this.baseUrl() + '/api/v1/auth/logout', {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-
-        if (!response.ok) {
-            return {
-                error: 'Backend error',
-            }
-        }
-
-        const payload: { message: string } = await response.json()
-
-        return payload
-    }
-
-    async clear() {
-        await this.#logout()
-        await this.storage.clear('token')
-        await this.storage.clear('user')
-        this.events.dispatchEvent(new Event("logout"));
-        return this.#broadcastStatus()
+        return token
     }
 
     token() {

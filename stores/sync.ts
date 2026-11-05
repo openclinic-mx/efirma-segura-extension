@@ -3,6 +3,7 @@ import {computed, onMounted, ref} from "vue"
 import { onMessage, sendMessage } from "@/messaging"
 import {useAccountStore} from "@/stores/account";
 import {formatDistanceToNow} from "date-fns";
+import type {SyncStatus} from "@/messaging";
 
 export const useSyncStore = defineStore("sync", () => {
 
@@ -12,6 +13,10 @@ export const useSyncStore = defineStore("sync", () => {
 
     const localHash = ref<string | null>(null);
 
+    const error = ref<SyncStatus['error']>(null);
+
+    const toast = useToast();
+
     const accountStore = useAccountStore();
 
     const refreshStatus = async () => {
@@ -20,6 +25,18 @@ export const useSyncStore = defineStore("sync", () => {
         isEnabled.value = response.isEnabled;
         lastSyncAt.value = response.lastSyncAt;
         localHash.value = response.hash;
+        error.value = response.error;
+    }
+
+    // for syncs the user started: background syncs only show up in the sync status
+    const notifyFailure = (status: SyncStatus) => {
+        if (status.error) {
+            toast.add({
+                title: 'No pudimos sincronizar tu bóveda.',
+                description: status.error.message,
+                color: 'error'
+            })
+        }
     }
 
     onMounted(async () => {
@@ -31,11 +48,11 @@ export const useSyncStore = defineStore("sync", () => {
     })
 
     const syncUp = async () => {
-        await sendMessage('SYNC_UP')
+        notifyFailure(await sendMessage('SYNC_UP'))
     }
 
     const syncDown = async ( ) => {
-        await sendMessage('SYNC_DOWN')
+        notifyFailure(await sendMessage('SYNC_DOWN'))
     }
 
     const syncStop = async () => {
@@ -61,6 +78,7 @@ export const useSyncStore = defineStore("sync", () => {
         lastSyncAt,
         lastSyncAtHumanReadable,
         localHash,
+        error,
         hasRemoteVault,
         syncUp,
         syncDown,

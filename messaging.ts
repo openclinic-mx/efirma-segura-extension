@@ -7,6 +7,7 @@ import type {
     PasskeySummary,
     PasskeyUnlockRequest
 } from "@/vault/passkeyLocks";
+import type {BackendFailure} from "@/utils/backend";
 
 export type VaultStatus = {
     isInitialized: boolean,
@@ -18,6 +19,8 @@ export type SyncStatus = {
     isEnabled: boolean | null,
     lastSyncAt: string | null,
     hash: string | null,
+    // last failed sync, cleared by the next successful one
+    error: (BackendFailure & { at: string }) | null,
 }
 
 export type TimerStatus = {
@@ -171,17 +174,17 @@ interface AccountProtocolMap {
 
     ACCOUNT_CHECKOUT(type: 'year' | 'month'): {
         checkout_url: string,
-    } | undefined
+    }
 
     ACCOUNT_PORTAL(): {
         portal_url: string,
-    } | undefined
+    }
 
     ACCOUNT_CFDI(): {
         cfdi_url: string
-    } | undefined
+    }
 
-    ACCOUNT_LOGOUT(): User | null
+    ACCOUNT_LOGOUT(): void
 }
 
 interface SyncProtocolMap {
@@ -189,19 +192,15 @@ interface SyncProtocolMap {
 
     SYNC_STATUS_UPDATE(status: SyncStatus): void;
 
-    SYNC_DESTROY(): string | null;
+    SYNC_DESTROY(): SyncStatus;
 
     SYNC_STOP(): SyncStatus;
 
-    SYNC_UP(): SyncStatus | {
-        error: string
-    };
+    SYNC_UP(): SyncStatus;
 
     SYNC_REMOTE_HASH(): string | null;
 
-    SYNC_DOWN(): SyncStatus | {
-        error: string
-    };
+    SYNC_DOWN(): SyncStatus;
 }
 
 interface AutocompleteProtocolMap {

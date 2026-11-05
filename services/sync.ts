@@ -2,7 +2,17 @@ import {AccountService} from "@/services/account";
 import {StorageService} from "@/services/storage";
 import {VaultService} from "@/services/vault";
 import {instance} from "@/utils/axios";
-import {sendMessage} from "@/messaging";
+import {AxiosHeaders, AxiosResponse} from "axios";
+import {sendMessage, SyncStatus} from "@/messaging";
+import {BackendError} from "@/utils/backend";
+
+const vaultTransferTimeout = 30_000;
+
+const vaultHash = (headers: AxiosResponse['headers']): string | null => {
+    const hash = AxiosHeaders.from(headers as AxiosHeaders).get('x-vault-hash')
+
+    return typeof hash === 'string' ? hash : null
+}
 
 export class SyncService {
     private account: AccountService;
@@ -12,6 +22,7 @@ export class SyncService {
     statusKey = 'sync_status';
     lastSyncKey = 'sync_last_sync';
     hashKey = 'sync_hash';
+    errorKey = 'sync_error';
 
     private events = new EventTarget();
 
@@ -29,11 +40,12 @@ export class SyncService {
         this.events.addEventListener("sync", handler);
     }
 
-    async status() {
+    async status(): Promise<SyncStatus> {
         return {
             isEnabled: await this.storage.read<boolean>(this.statusKey),
             lastSyncAt: await this.storage.read<string>(this.lastSyncKey),
             hash: await this.storage.read<string>(this.hashKey),
+            error: await this.storage.read<SyncStatus['error']>(this.errorKey),
         }
     }
 
@@ -61,35 +73,30 @@ export class SyncService {
 
     async syncStop() {
         await this.#disable();
+        await this.storage.clear(this.errorKey);
         return this.#broadcastStatus()
     }
 
     async syncDown() {
         await this.#enable();
 
-        const data = await this.download();
+        return this.#attempt(async () => {
+            const data = await this.download();
 
-        if (!data) {
-            return {
-                error: 'Error checking for updates'
-            };
-        }
+            // if user clears database remotely
+            // we need to clear it here too
 
-        // if user clears database remotely
-        // we need to clear it here too
+            if (data.base64 === null) {
+                await this.account.fetch()
+                await this.vault.reset()
+            } else {
+                await this.vault.import(data.base64);
+            }
 
-        if (data.base64 === null) {
-            await this.account.fetch()
-            await this.vault.reset()
-        } else {
-            await this.vault.import(data.base64);
-        }
+            await this.#recordSync();
 
-        await this.#recordSync();
-
-        await this.#recordHash(data.hash ?? '')
-
-        return this.#broadcastStatus()
+            await this.#recordHash(data.hash ?? '')
+        })
     }
 
     async syncUp() {
@@ -98,48 +105,58 @@ export class SyncService {
         const base64 = await this.vault.export()
 
         if (!base64) {
-            return {
-                error: 'No local database found'
-            };
+            throw new Error('No local database found');
         }
 
-        await this.upload(base64)
+        return this.#attempt(async () => {
+            await this.upload(base64)
 
-        await this.#recordSync();
+            await this.#recordSync();
 
-        this.events.dispatchEvent(new Event("sync"));
+            this.events.dispatchEvent(new Event("sync"));
+        })
+    }
 
-        return this.#broadcastStatus()
+    async destroy() {
+        return this.#attempt(async () => {
+            await this.account.requireToken();
+
+            try {
+                await instance.delete('/api/v1/vaults', {
+                    headers: {Accept: 'text/plain'}
+                })
+            } catch (e) {
+                // already gone
+                if (!(e instanceof BackendError && e.status === 404)) {
+                    throw e
+                }
+            }
+
+            this.events.dispatchEvent(new Event("sync"));
+        })
     }
 
     async remoteHash() {
-        const token = await this.account.token();
+        await this.account.requireToken();
 
-        if (!token) {
-            return null;
-        }
+        try {
+            const response = await instance.head('/api/v1/vaults', {
+                headers: {Accept: 'text/plain'}
+            })
 
-        const response = await fetch(this.account.baseUrl() + '/api/v1/vaults', {
-            method: 'HEAD',
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: 'text/plain'
+            return vaultHash(response.headers)
+        } catch (e) {
+            // no remote vault
+            if (e instanceof BackendError && e.status === 404) {
+                return null
             }
-        })
 
-        if (!response.ok) {
-            return null;
+            throw e
         }
-
-        return response.headers.get('X-Vault-Hash')
     }
 
     async upload(database: string) {
-        const token = await this.account.token();
-
-        if (!token) {
-            return null;
-        }
+        await this.account.requireToken();
 
         const form = new FormData();
 
@@ -148,65 +165,56 @@ export class SyncService {
 
         form.append("vault", file);
 
-        const response = await instance.post('/api/v1/vaults', form)
-
-        return response.data
+        await instance.post('/api/v1/vaults', form, {
+            timeout: vaultTransferTimeout,
+        })
     }
 
-    async download(): Promise<{ base64: string | null, hash: string | null } | null> {
-        const token = await this.account.token();
+    async download(): Promise<{ base64: string | null, hash: string | null }> {
+        await this.account.requireToken();
 
-        if (!token) {
-            return null;
-        }
+        try {
+            const response = await instance.get<string>('/api/v1/vaults', {
+                headers: {Accept: 'text/plain'},
+                responseType: 'text',
+                timeout: vaultTransferTimeout,
+            })
 
-        const response = await fetch(this.account.baseUrl() + '/api/v1/vaults', {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: 'text/plain'
+            return {
+                base64: response.data,
+                hash: vaultHash(response.headers) ?? ''
             }
-        })
-
-        if (!response.ok) {
-
-            if (response.status === 404) {
+        } catch (e) {
+            // no remote vault: it was deleted from another browser
+            if (e instanceof BackendError && e.status === 404) {
                 return {
                     base64: null,
                     hash: null
                 }
             }
 
-            return null;
-        }
-
-        return {
-            base64: await response.text(),
-            hash: response.headers.get('X-Vault-Hash') ?? ''
+            throw e
         }
     }
 
-    async destroy(): Promise<string | null> {
-        const token = await this.account.token();
+    async #attempt(operation: () => Promise<void>): Promise<SyncStatus> {
+        try {
+            await operation()
 
-        if (!token) {
-            return null;
-        }
-
-        const response = await fetch(this.account.baseUrl() + '/api/v1/vaults', {
-            method: 'DELETE',
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: 'text/plain'
+            await this.storage.clear(this.errorKey)
+        } catch (e) {
+            if (!(e instanceof BackendError)) {
+                throw e
             }
-        })
 
-        if (!response.ok) {
-            return null;
+            await this.storage.write(this.errorKey, {
+                kind: e.kind,
+                message: e.message,
+                at: new Date().toISOString(),
+            })
         }
 
-        this.events.dispatchEvent(new Event("sync"));
-
-        return response.json()
+        return this.#broadcastStatus()
     }
 
     async #broadcastStatus() {

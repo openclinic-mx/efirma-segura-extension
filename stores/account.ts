@@ -131,52 +131,58 @@ export const useAccountStore = defineStore("account", () => {
     }
 
     const checkout = async (type: 'year' | 'month') => {
-        const response = await sendMessage('ACCOUNT_CHECKOUT', type)
+        try {
+            const {checkout_url} = await sendMessage('ACCOUNT_CHECKOUT', type)
 
-        if (!response) {
+            window.open(checkout_url, '_blank')
+        } catch (e) {
             toast.add({
                 title: 'No se pudo cargar el enlace de pago.',
-                description: 'Favor de intentar de nuevo.',
+                description: e instanceof Error ? e.message : undefined,
                 color: 'error'
             })
-            return;
         }
-
-        window.open(response.checkout_url, '_blank')
     }
 
     const portal = async () => {
-        const response = await sendMessage('ACCOUNT_PORTAL')
+        try {
+            const {portal_url} = await sendMessage('ACCOUNT_PORTAL')
 
-        if (!response) {
+            window.open(portal_url, '_blank')
+        } catch (e) {
             toast.add({
                 title: 'No se pudo cargar el enlace de pago.',
-                description: 'Favor de intentar de nuevo.',
+                description: e instanceof Error ? e.message : undefined,
                 color: 'error'
             })
-            return;
         }
-
-        window.open(response.portal_url, '_blank')
     }
 
     const cfdi = async () => {
-        const response = await sendMessage('ACCOUNT_CFDI')
+        try {
+            const {cfdi_url} = await sendMessage('ACCOUNT_CFDI')
 
-        if (!response) {
+            window.open(cfdi_url, '_blank')
+        } catch (e) {
             toast.add({
                 title: 'No se pudo cargar el enlace de facturación.',
-                description: 'Favor de intentar de nuevo.',
+                description: e instanceof Error ? e.message : undefined,
                 color: 'error'
             })
-            return;
         }
-
-        window.open(response.cfdi_url, '_blank')
     }
 
     const logout = async () => {
-        await sendMessage('ACCOUNT_LOGOUT')
+        try {
+            await sendMessage('ACCOUNT_LOGOUT')
+        } catch (e) {
+            // the background signs out of this browser anyway
+            toast.add({
+                title: 'Cerraste sesión en este navegador.',
+                description: `No pudimos cerrar la sesión en el servidor. ${e instanceof Error ? e.message : ''}`,
+                color: 'warning'
+            })
+        }
     }
 
     return {

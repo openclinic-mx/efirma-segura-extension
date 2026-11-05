@@ -10,6 +10,7 @@ const {
   isEnabled,
   lastSyncAtHumanReadable,
   hasRemoteVault,
+  error,
 } = storeToRefs(syncStore)
 
 const {
@@ -22,7 +23,22 @@ const {
 
 <template>
   <template v-if="isEnabled">
-    <UAlert title="Sincronización activa"
+    <UAlert v-if="error"
+            title="No pudimos sincronizar tu bóveda"
+            :description="error.message"
+            variant="outline"
+            color="warning"
+            icon="i-lucide-cloud-alert"
+            :actions="[{
+              label: 'Desactivar',
+              color: 'warning',
+              variant: 'soft',
+              onClick: () => syncStop()
+            }]"
+    >
+    </UAlert>
+    <UAlert v-else
+            title="Sincronización activa"
             :description="lastSyncAtHumanReadable"
             variant="outline"
             icon="i-lucide-cloud-check"

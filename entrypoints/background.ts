@@ -94,7 +94,7 @@ export default defineBackground(() => {
 
     realtimeService.onSubscription(async () => {
         // user subscription status has changed in the server
-        await accountService.fetch()
+        await accountService.refresh()
     })
 
     accountService.onLogin(async () => {
@@ -131,7 +131,7 @@ export default defineBackground(() => {
     syncService.onSync(async () => {
         // since we check for vault existence in the user,
         // we want to upload those values if we receive a remote sync
-        await accountService.fetch()
+        await accountService.refresh()
     })
 
     onMessage('AUTOCOMPLETE_REQUEST', message => autocompleteService.request(message.data))
