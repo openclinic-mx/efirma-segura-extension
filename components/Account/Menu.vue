@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import {computed} from "vue";
+import {computed, ref, watch} from "vue";
 import type {DropdownMenuItem} from '@nuxt/ui'
 import {useDatabaseStore} from "@/stores/database";
 import {useAccountStore} from "@/stores/account";
 import {useSyncStore} from "@/stores/sync";
-import { formatISO } from "date-fns";
 import {useNavigationStore} from "@/stores/navigation";
+import VaultExport from "@/components/Vault/Export.vue";
 
 const accountStore = useAccountStore()
 
@@ -14,6 +14,13 @@ const databaseStore = useDatabaseStore()
 const {navigate} = useNavigationStore()
 
 const syncStore = useSyncStore()
+
+const exportOpen = ref(false)
+
+// the modal lives outside the unlocked view: close it on auto-lock instead of failing on submit
+watch(() => databaseStore.isUnlocked, (unlocked) => {
+  if (!unlocked) exportOpen.value = false
+})
 
 const userMenu = computed(() => {
 
@@ -68,30 +75,22 @@ const items = computed<DropdownMenuItem[][]>(() => {
         },
       ]
 
-  const exportVault = async () => {
-    const vault = await databaseStore.exportVault();
-
-    if (!("showSaveFilePicker" in window)) {
-      return;
+  // its own group: how the vault is unlocked, apart from what you do with its contents
+  const passkeyItems: DropdownMenuItem[] = databaseStore.isUnlocked ? [
+    {
+      label: 'Llaves de acceso',
+      icon: 'i-lucide-key-round',
+      onSelect: () => navigate('passkeys')
     }
-
-    const response = await fetch(`data:${'application/x-keepass'};base64,${vault.base64}`);
-
-    const url = URL.createObjectURL(await response.blob());
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `boveda-${formatISO(new Date())}.kdbx`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  }
+  ] : []
 
   const databaseItems: DropdownMenuItem[] = databaseStore.isUnlocked ? [
     {
       label: 'Exportar bóveda',
       icon: 'i-lucide-download',
-      onClick: exportVault
+      onClick: () => {
+        exportOpen.value = true
+      }
     }
   ] : []
 
@@ -99,6 +98,10 @@ const items = computed<DropdownMenuItem[][]>(() => {
 
   if (sessionItems.length > 0) {
     items.unshift([...sessionItems])
+  }
+
+  if (passkeyItems.length > 0) {
+    items.push([...passkeyItems])
   }
 
   if (databaseItems.length > 0) {
@@ -155,4 +158,6 @@ const items = computed<DropdownMenuItem[][]>(() => {
 
     </template>
   </UModal>
+
+  <VaultExport v-model:open="exportOpen"/>
 </template>

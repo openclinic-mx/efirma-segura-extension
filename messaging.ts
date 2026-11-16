@@ -1,10 +1,17 @@
 import {defineExtensionMessaging} from '@webext-core/messaging';
 import {SignatureMeta} from "@/services/signature";
 import {User} from "@/services/account";
+import type {
+    PasskeyEnrollment,
+    PasskeyEnrollmentResult,
+    PasskeySummary,
+    PasskeyUnlockRequest
+} from "@/vault/passkeyLocks";
 
 export type VaultStatus = {
     isInitialized: boolean,
-    isUnlocked: boolean
+    isUnlocked: boolean,
+    canUnlockWithPasskey: boolean,
 };
 
 export type SyncStatus = {
@@ -44,8 +51,10 @@ interface VaultProtocolMap {
 
     VAULT_INITIALIZE(masterPassword: string): VaultStatus | {error: string};
 
-    VAULT_EXPORT(): {
-        base64: string | null
+    VAULT_EXPORT_KEEPASS(masterPassword: string): {
+        base64: string
+    } | {
+        error: string
     };
 
     VAULT_IMPORT(base64: string): VaultStatus | { error: string };
@@ -86,6 +95,40 @@ interface VaultProtocolMap {
     VAULT_LIST_UPDATE(payload: VaultList): void
 
     VAULT_STATUS_UPDATE(payload: VaultStatus): void
+}
+
+interface PasskeyProtocolMap {
+    PASSKEY_LIST(): PasskeySummary[];
+
+    PASSKEY_LIST_UPDATE(passkeys: PasskeySummary[]): void;
+
+    PASSKEY_UNLOCK_REQUEST(): PasskeyUnlockRequest | null;
+
+    VAULT_UNLOCK_PASSKEY(assertion: {
+        credentialId: string,
+        prfOutput: string,
+    }): VaultStatus | { error: string };
+
+    PASSKEY_ENROLL_BEGIN(masterPassword: string): PasskeyEnrollment | { error: string };
+
+    PASSKEY_ENROLL_FINISH(result: PasskeyEnrollmentResult): {
+        passkey: PasskeySummary
+    } | {
+        error: string
+    };
+
+    PASSKEY_REMOVE(id: string): {
+        id: string,
+        credentialId: string,
+    } | {
+        error: string
+    };
+
+    PASSKEY_RENAME(rename: { id: string, name: string }): { id: string } | { error: string };
+
+    PASSKEY_AUTO_UNLOCK(): boolean;
+
+    PASSKEY_SET_AUTO_UNLOCK(enabled: boolean): boolean | { error: string };
 }
 
 interface TimerProtocolMap {
@@ -181,5 +224,5 @@ interface IntroductionProtocolMap {
 export const {
     sendMessage,
     onMessage
-} = defineExtensionMessaging<VaultProtocolMap & TimerProtocolMap & TabProtocolMap & AccountProtocolMap & SyncProtocolMap & AutocompleteProtocolMap & IntroductionProtocolMap>();
+} = defineExtensionMessaging<VaultProtocolMap & PasskeyProtocolMap & TimerProtocolMap & TabProtocolMap & AccountProtocolMap & SyncProtocolMap & AutocompleteProtocolMap & IntroductionProtocolMap>();
 

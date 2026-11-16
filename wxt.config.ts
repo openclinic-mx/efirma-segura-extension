@@ -1,5 +1,9 @@
 import {defineConfig} from 'wxt';
 import ui from '@nuxt/ui/vite'
+import {PASSKEY_ORIGINS} from './utils/passkeys'
+
+// the passkey RP ID the extension claims, shared with the pages that call WebAuthn
+const [passkeyOrigin] = PASSKEY_ORIGINS
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
@@ -8,8 +12,11 @@ export default defineConfig({
         '@wxt-dev/auto-icons'
     ],
     manifest: () => ({
+        // vault locks are X25519 key pairs (vault/locks.ts): WebCrypto X25519 ships in Chrome 133
+        minimum_chrome_version: '133',
         permissions: ['storage', 'alarms'],
         optional_permissions: ['identity'],
+        optional_host_permissions: [passkeyOrigin],
         name: 'e.firma Segura',
         key: import.meta.env.WXT_MANIFEST_KEY,
         oauth2: {

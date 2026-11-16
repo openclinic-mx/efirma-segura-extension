@@ -4,6 +4,7 @@ import SignatureEmpty from "@/components/Signature/Empty.vue"
 import SignatureList from "@/components/Signature/List.vue"
 import AccountSubscribe from "@/components/Marketing/Subscribe.vue";
 import VaultAutoLock from "@/components/Vault/AutoLock.vue";
+import PasskeyManage from "@/components/Passkey/Manage.vue";
 import {useSignaturesStore} from "@/stores/signatures";
 import {useAccountStore} from "@/stores/account";
 import {useNavigationStore} from "@/stores/navigation";
@@ -20,6 +21,8 @@ const accountStore = useAccountStore()
 
 <template>
   <SignatureAdd v-if="view === 'add'"/>
+
+  <PasskeyManage v-else-if="view === 'passkeys'"/>
 
   <template v-else-if="view === 'home'">
     <SignatureList :signatures="signaturesStore.signatures" v-if="signaturesStore.signatures.length"/>

@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import {reactive, ref, useTemplateRef, watch} from 'vue';
+import {computed, reactive, ref, useTemplateRef, watch} from 'vue';
 import VaultReset from "@/components/Vault/Reset.vue";
 import VaultImport from "@/components/Vault/Import.vue";
+import PasskeyUnlock from "@/components/Passkey/Unlock.vue";
 import {useDatabaseStore} from "@/stores/database";
 
 const state = reactive({
@@ -16,6 +17,12 @@ const { passwordLength } = databaseStore
 
 const input = useTemplateRef('input')
 
+const focusPassword = () => {
+  setTimeout(() => {
+    input.value?.inputRef?.focus()
+  }, 50)
+}
+
 const openVault = async () => {
   error.value = '';
 
@@ -26,9 +33,7 @@ const openVault = async () => {
       'Error InvalidKey': 'Contraseña incorrecta',
     }[response.error] ?? response.error;
     state.password = ''
-    setTimeout(() => {
-      input.value?.inputRef?.focus()
-    }, 50)
+    focusPassword()
   }
 }
 
@@ -37,10 +42,17 @@ watch(() => state.password, (value) => {
     error.value = false;
   }
 })
+
+// the title follows the passkey button below the form
+const passkeyAvailable = ref(false)
+
+const title = computed(() => passkeyAvailable.value
+    ? 'Desbloquea tu bóveda.'
+    : 'Ingresa tu contraseña maestra para desbloquear tu bóveda.')
 </script>
 
 <template>
-  <UPageCard title="Ingresa tu contraseña maestra para desbloquear tu bóveda." variant="naked">
+  <UPageCard :title="title" variant="naked">
     <UForm @submit.prevent="openVault" class="contents" loading-auto #default="{ loading }">
       <UFormField label="Contraseña maestra" required size="xl" class="w-full" :error="error">
         <UInput type="password" required class="block" :minlength="passwordLength" v-model="state.password"
@@ -51,6 +63,8 @@ watch(() => state.password, (value) => {
 
       <UButton type="submit" block icon="i-lucide-lock-open" :loading="loading">Desbloquear</UButton>
     </UForm>
+
+    <PasskeyUnlock v-model:available="passkeyAvailable" @fallback="focusPassword"/>
   </UPageCard>
 
   <Teleport to="#footer" defer>

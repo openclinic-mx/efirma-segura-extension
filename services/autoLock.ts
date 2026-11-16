@@ -1,5 +1,6 @@
 import {AutocompleteService} from "@/services/autocomplete";
 import {VaultService} from "@/services/vault";
+import {PasskeyService} from "@/services/passkey";
 import {sendMessage} from "@/messaging";
 
 export class AutoLockService {
@@ -74,6 +75,7 @@ export class AutoLockService {
     registerListeners(
         autocompleteService: AutocompleteService,
         vaultService: VaultService,
+        passkeyService: PasskeyService,
     ) {
         autocompleteService.onRequest(() => {
             this.resetTimer()
@@ -88,6 +90,16 @@ export class AutoLockService {
         })
 
         vaultService.onSignature(() => {
+            this.resetTimer()
+        })
+
+        // exporting asks for the master password again
+        vaultService.onActivity(() => {
+            this.resetTimer()
+        })
+
+        // adding a passkey takes a password, a permission prompt and two biometric prompts
+        passkeyService.onActivity(() => {
             this.resetTimer()
         })
     }

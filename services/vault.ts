@@ -1,23 +1,44 @@
-import {DatabaseService} from "@/services/database";
+import {Vault} from "@/vault/vault";
+import {PasskeyLocks} from "@/vault/passkeyLocks";
 import {SignatureService} from "@/services/signature";
 import {sendMessage, SignatureForm} from "@/messaging";
 
 export class VaultService {
     private events = new EventTarget();
 
-    private databaseService: DatabaseService;
+    private vault: Vault;
     private signatureService: SignatureService;
+    private passkeyLocks: PasskeyLocks;
 
     constructor(
-        databaseService: DatabaseService,
-        signatureService: SignatureService
+        vault: Vault,
+        signatureService: SignatureService,
+        passkeyLocks: PasskeyLocks
     ) {
-        this.databaseService = databaseService
+        this.vault = vault
         this.signatureService = signatureService
+        this.passkeyLocks = passkeyLocks
+
+        // another device replaced the vault key: the session was dropped, tell the timer and the pages
+        this.vault.onInvalidate(() => {
+            this.events.dispatchEvent(new Event("lock"));
+            this.#broadcastStatus()
+        })
     }
 
     onSignature(handler: () => void) {
         this.events.addEventListener("signature", handler);
+    }
+
+    /** Export actions while unlocked: keep the vault open while the user works on them. */
+    onActivity(handler: () => void) {
+        this.events.addEventListener("activity", handler);
+    }
+
+    #activity() {
+        if (this.vault.isUnlocked()) {
+            this.events.dispatchEvent(new Event("activity"));
+        }
     }
 
     onLock(handler: () => void) {
@@ -26,6 +47,10 @@ export class VaultService {
 
     onUnlock(handler: () => void) {
         this.events.addEventListener("unlock", handler);
+    }
+
+    onImport(handler: () => void) {
+        this.events.addEventListener("import", handler);
     }
 
     async addSignatures(signatures: SignatureForm[]) {
@@ -152,8 +177,9 @@ export class VaultService {
 
     async status() {
         return {
-            isInitialized: await this.databaseService.isInitialized(),
-            isUnlocked: this.databaseService.isUnlocked(),
+            isInitialized: await this.vault.isInitialized(),
+            isUnlocked: this.vault.isUnlocked(),
+            canUnlockWithPasskey: await this.passkeyLocks.canUnlock(),
         }
     }
 
@@ -182,7 +208,7 @@ export class VaultService {
 
     async unlock(masterPassword: string) {
         try {
-            await this.databaseService.unlock(masterPassword)
+            await this.vault.unlock({password: masterPassword})
 
             this.events.dispatchEvent(new Event("unlock"));
 
@@ -200,22 +226,44 @@ export class VaultService {
         }
     }
 
+    async unlockWithPasskey(credentialId: string, prfOutput: string) {
+        try {
+            await this.passkeyLocks.unlock(credentialId, prfOutput)
+
+            this.events.dispatchEvent(new Event("unlock"));
+
+            return this.#broadcastStatus()
+        } catch (e) {
+            return {
+                error: e instanceof Error ? e.message : 'Unexpected error'
+            }
+        }
+    }
+
+    async exportKeePass(masterPassword: string) {
+        this.#activity()
+
+        try {
+            return {
+                base64: await this.vault.exportKeePass(masterPassword)
+            }
+        } catch (e) {
+            return {
+                error: e instanceof Error ? e.message : 'Unexpected error'
+            }
+        }
+    }
+
     async lock() {
-        this.databaseService.lock()
+        this.vault.lock()
 
         this.events.dispatchEvent(new Event("lock"));
 
         return this.#broadcastStatus()
     }
 
-    async $export() {
-        return {
-            base64: await this.databaseService.export()
-        }
-    }
-
     async destroy() {
-        await this.databaseService.deleteDatabase()
+        await this.vault.deleteVault()
 
         this.events.dispatchEvent(new Event("lock"));
 
@@ -224,13 +272,13 @@ export class VaultService {
 
     async initialize(masterPassword: string) {
 
-        if (await this.databaseService.isInitialized()) {
+        if (await this.vault.isInitialized()) {
             return {
                 error: 'La bóveda ya fue inicializada previamente, intenta reiniciar tu navegador.',
             }
         }
 
-        await this.databaseService.initialize(masterPassword)
+        await this.vault.initialize(masterPassword)
 
         this.events.dispatchEvent(new Event("unlock"));
 
@@ -238,16 +286,20 @@ export class VaultService {
     }
 
     async import(base64: string) {
-        await this.databaseService.import(base64)
+        await this.vault.import(base64)
+
+        this.events.dispatchEvent(new Event("import"));
+
+        // sync may bring passkeys added or removed on another device: refresh the lock screen
         return this.#broadcastStatus()
     }
 
     async export() {
-        return this.databaseService.export()
+        return this.vault.export()
     }
 
     async reset() {
-        return this.databaseService.silentlyDeleteDatabase()
+        return this.vault.silentlyDeleteVault()
     }
 
     async #broadcastStatus() {
@@ -264,5 +316,9 @@ export class VaultService {
 
     async requestBroadcast() {
         return this.#broadcastList()
+    }
+
+    async requestStatusBroadcast() {
+        return this.#broadcastStatus()
     }
 }

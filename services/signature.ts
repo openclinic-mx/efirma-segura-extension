@@ -1,4 +1,4 @@
-import {DatabaseService} from "./database";
+import {Entries} from "@/vault/entries";
 import {KdbxEntry, ProtectedValue} from 'kdbxweb';
 import {Certificate, PrivateKey} from "@nodecfdi/credentials/browser";
 import {bytesToBinaryString} from "@/utils/files";
@@ -29,19 +29,19 @@ export type Signature = {
 
 export class SignatureService {
 
-    private database: DatabaseService
+    private entries: Entries
 
-    constructor(database: DatabaseService) {
-        this.database = database;
+    constructor(entries: Entries) {
+        this.entries = entries;
     }
 
     async getSignaturesMeta(): Promise<SignatureMeta[]> {
-        const entries = await this.database.getEntries()
+        const entries = await this.entries.list()
         return entries.map(entryToSignatureMeta)
     }
 
     async getSignature(uuid: string): Promise<Signature | null> {
-        const entry = await this.database.getEntry(uuid)
+        const entry = await this.entries.get(uuid)
         if (!entry) {
             return null;
         }
@@ -68,7 +68,7 @@ export class SignatureService {
             }
         })
 
-        return this.database.addEntries(
+        return this.entries.addAll(
             validSignatures.map(({title, cer, key, password}) => {
                 return signatureToEntryInstruction(
                     title,
@@ -90,7 +90,7 @@ export class SignatureService {
             throw new Error('Private key does not belongs to certificate');
         }
 
-        return this.database.addEntry(
+        return this.entries.add(
             signatureToEntryInstruction(
                 title,
                 cer.buffer,
@@ -101,7 +101,7 @@ export class SignatureService {
     }
 
     removeSignature(uuid: string) {
-        return this.database.removeEntry(uuid);
+        return this.entries.remove(uuid);
     }
 }
 

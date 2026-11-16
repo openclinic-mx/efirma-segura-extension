@@ -1,12 +1,14 @@
 import {beforeEach, expect, test} from 'vitest'
 import {readFile} from "node:fs/promises";
-import {DatabaseService} from './database'
+import {Entries} from '@/vault/entries'
+import {Vault} from '@/vault/vault'
 import {StorageService} from './storage'
 import {SignatureService} from './signature'
 import {fakeBrowser} from 'wxt/testing/fake-browser';
 
 let storageService = new StorageService();
-let databaseService: DatabaseService;
+let vault: Vault;
+let entries: Entries;
 let signatureService: SignatureService;
 
 let cer: NonSharedBuffer
@@ -15,9 +17,10 @@ let key: NonSharedBuffer
 
 beforeEach(async () => {
     fakeBrowser.reset();
-    databaseService = new DatabaseService(storageService);
-    signatureService = new SignatureService(databaseService);
-    await databaseService.initialize('test')
+    vault = new Vault(storageService);
+    entries = new Entries(vault);
+    signatureService = new SignatureService(entries);
+    await vault.initialize('test')
 
     cer = await readFile('./tests/fixtures/signature/signature.cer')
     key = await readFile('./tests/fixtures/signature/signature.key')

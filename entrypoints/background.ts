@@ -1,12 +1,15 @@
 // import database
 
 import {StorageService} from "@/services/storage";
-import {DatabaseService} from "@/services/database";
+import {Vault} from "@/vault/vault";
+import {PasskeyLocks} from "@/vault/passkeyLocks";
+import {Entries} from "@/vault/entries";
 import {SignatureService} from "@/services/signature";
 import {SidePanelService} from "@/services/sidePanel";
 import {AutocompleteService} from "@/services/autocomplete";
 import {AutoLockService} from "@/services/autoLock";
 import {VaultService} from "@/services/vault";
+import {PasskeyService} from "@/services/passkey";
 import {AccountService} from "@/services/account";
 import {SyncService} from "@/services/sync";
 import {RealtimeService} from "@/services/realtime";
@@ -14,16 +17,27 @@ import {WelcomeService} from "@/services/welcome";
 import {PortService} from "@/services/port";
 import {onMessage} from "@/messaging";
 
+// Passkey and export handlers only answer this extension's own pages, never content scripts.
+const isExtensionPage = (sender: Browser.runtime.MessageSender) => {
+    return sender.id === browser.runtime.id
+        && !!sender.url?.startsWith(browser.runtime.getURL('/'));
+}
+
+const forbidden = {error: 'Forbidden'};
+
 
 export default defineBackground(() => {
 
     const storageService = new StorageService();
-    const databaseService = new DatabaseService(storageService);
-    const signatureService = new SignatureService(databaseService);
+    const vault = new Vault(storageService);
+    const passkeyLocks = new PasskeyLocks(vault, storageService);
+    const entries = new Entries(vault);
+    const signatureService = new SignatureService(entries);
     const sidePanelService = new SidePanelService();
     const autoLockService = new AutoLockService(5);
     const autocompleteService = new AutocompleteService(signatureService);
-    const vaultService = new VaultService(databaseService, signatureService);
+    const vaultService = new VaultService(vault, signatureService, passkeyLocks);
+    const passkeyService = new PasskeyService(vault, passkeyLocks, vaultService);
     const accountService = new AccountService(storageService);
     const syncService = new SyncService(accountService, storageService, vaultService);
     const realtimeService = new RealtimeService(accountService);
@@ -31,7 +45,7 @@ export default defineBackground(() => {
     const portService = new PortService();
 
     // we want to tell the autoLock service all the events that will start, stop or restart the clock.
-    autoLockService.registerListeners(autocompleteService, vaultService,)
+    autoLockService.registerListeners(autocompleteService, vaultService, passkeyService)
     autoLockService.onLock(() => vaultService.lock())
 
     // even though the side panels are opened, the background can be killed.
@@ -88,7 +102,7 @@ export default defineBackground(() => {
         realtimeService.stopListening()
     })
 
-    databaseService.onSave(async () => {
+    vault.onSave(async () => {
         // when the database is saved and syncing is enabled,
         // we will upload the database to the server
         const status = await syncService.status()
@@ -97,7 +111,7 @@ export default defineBackground(() => {
         }
     })
 
-    databaseService.onClear(async () => {
+    vault.onClear(async () => {
         // when the database is destroyed and syncing is enabled,
         // we will delete the database from the server
         const status = await syncService.status()
@@ -123,7 +137,30 @@ export default defineBackground(() => {
     onMessage('VAULT_PASSWORD', message => vaultService.password(message.data));
     onMessage('VAULT_ADD', message => vaultService.addSignature(message.data));
     onMessage('VAULT_ADD_MANY', message => vaultService.addSignatures(message.data));
-    onMessage('VAULT_EXPORT', () => vaultService.$export());
+    onMessage('VAULT_EXPORT_KEEPASS', message => isExtensionPage(message.sender)
+        ? vaultService.exportKeePass(message.data)
+        : forbidden);
+    onMessage('VAULT_UNLOCK_PASSKEY', message => isExtensionPage(message.sender)
+        ? vaultService.unlockWithPasskey(message.data.credentialId, message.data.prfOutput)
+        : forbidden);
+    onMessage('PASSKEY_LIST', () => passkeyService.list());
+    onMessage('PASSKEY_UNLOCK_REQUEST', () => passkeyService.unlockRequest());
+    onMessage('PASSKEY_ENROLL_BEGIN', message => isExtensionPage(message.sender)
+        ? passkeyService.beginEnrollment(message.data)
+        : forbidden);
+    onMessage('PASSKEY_ENROLL_FINISH', message => isExtensionPage(message.sender)
+        ? passkeyService.finishEnrollment(message.data)
+        : forbidden);
+    onMessage('PASSKEY_REMOVE', message => isExtensionPage(message.sender)
+        ? passkeyService.remove(message.data)
+        : forbidden);
+    onMessage('PASSKEY_RENAME', message => isExtensionPage(message.sender)
+        ? passkeyService.rename(message.data.id, message.data.name)
+        : forbidden);
+    onMessage('PASSKEY_AUTO_UNLOCK', () => passkeyService.autoUnlock());
+    onMessage('PASSKEY_SET_AUTO_UNLOCK', message => isExtensionPage(message.sender)
+        ? passkeyService.setAutoUnlock(message.data)
+        : forbidden);
     onMessage('VAULT_IMPORT', message => vaultService.import(message.data));
     onMessage('TOGGLE_TAB', (message) => sidePanelService.toggle(message.sender))
     onMessage('OPEN_TAB', (message) => sidePanelService.open(message.sender))
