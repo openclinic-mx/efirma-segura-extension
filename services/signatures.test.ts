@@ -55,7 +55,7 @@ test('can use a signature', async () => {
         await signatureService.getSignature(id)
     ).toEqual(
         expect.objectContaining({
-            serialNumber: '292233162870206001759766198462772978647764776249',
+            serialNumber: '30001000000500003359',
             password: '12345678a',
             rfc: 'MISC491214B86',
             legalName: 'CECILIA MIRANDA SANCHEZ'
