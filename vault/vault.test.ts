@@ -231,7 +231,7 @@ test('removing a passkey keeps lock types from newer versions, sealed to the new
     const session = (vault as any).session
     const db = await Kdbx.load(readBase64AsBytes(await raw()).buffer, session.credentials)
     const {kek, kdf} = await newPasswordKek('future secret', 1000)
-    const future = await createLock({type: 'future', kdf} as never, kek, session.dataKey)
+    const future = await createLock({type: 'future', kdf} as unknown as Parameters<typeof createLock>[0], kek, session.dataKey)
     const locks = locksOf(db)!
     await writeLocks(db, session.dataKey, {...locks, locks: [...locks.locks, future.lock as LockRecord]},
         {...lockKeysOf(db), [future.lock.id]: future.publicKey})

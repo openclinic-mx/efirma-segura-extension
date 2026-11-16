@@ -6,7 +6,7 @@ import {Vault} from "./vault";
 import {PasswordUpgrade} from "./lockEditor";
 import {base64ToBytes, bytesToBase64, bytesToBase64Url, randomBytes} from "@/utils/encoding";
 import {ENROLLMENT_EXPIRED_ERROR, ENROLLMENT_TTL, PASSKEY_RP_ID} from "@/utils/passkeys";
-import {isPasskeyLock, Locks, PasskeyLock, passkeyKek} from "@/vault/locks";
+import {isPasskeyLock, Locks, PasskeyLock, passkeyKek, PRF_OUTPUT_LENGTH} from "@/vault/locks";
 import {INVALID_KEY_ERROR} from "@/vault/errors";
 
 export type PasskeySummary = {
@@ -44,8 +44,6 @@ export type PasskeyEnrollmentResult = {
 }
 
 type PendingEnrollment = { prfSalt: string, expiresAt: number, upgrade: PasswordUpgrade | null };
-
-const PRF_OUTPUT_LENGTH = 32;
 
 const MAX_PASSKEY_NAME = 64;
 

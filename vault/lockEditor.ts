@@ -12,7 +12,6 @@ import {
     PasskeyFields,
     PasskeyLock,
     PasswordKek,
-    PasswordLock,
     openLock,
     sealDataKey,
 } from "@/vault/locks";
@@ -86,14 +85,14 @@ export class LockEditor {
             }
 
             dataKey = generateDataKey();
-            const password = await createLock<PasswordLock>(
+            const password = await createLock(
                 {type: 'password', kdf: upgrade.password.kdf}, upgrade.password.kek, dataKey
             );
             locks = {v: 1, userHandle: upgrade.userHandle, locks: [password.lock]};
             keys = {[password.lock.id]: password.publicKey};
         }
 
-        const passkey = await createLock<PasskeyLock>({type: 'passkey', ...fields}, kek, dataKey);
+        const passkey = await createLock({type: 'passkey', ...fields}, kek, dataKey);
 
         await this.#write(
             {...locks, locks: [...locks.locks, passkey.lock]},
@@ -148,7 +147,7 @@ export class LockEditor {
         });
 
         const dataKey = generateDataKey();
-        const lock = await createLock<PasswordLock>({type: 'password', kdf: password.kdf}, password.kek, dataKey);
+        const lock = await createLock({type: 'password', kdf: password.kdf}, password.kek, dataKey);
 
         // the KEK is at hand: never store a password lock that doesn't open
         const opened = await openLock(lock.lock, password.kek);

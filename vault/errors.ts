@@ -11,3 +11,7 @@ export const SESSION_INVALIDATED_ERROR = 'La bóveda cambió en otro dispositivo
 
 // The vault was written by a newer version (unknown lock format or key derivation): never treat it as a wrong password.
 export const UNSUPPORTED_VAULT_ERROR = 'Esta bóveda usa un formato más reciente. Actualiza e.firma Segura para abrirla.';
+
+// The password or passkey was right, but its lock still doesn't give the data key (damaged or tampered synced data):
+// never treat it as a wrong password, the user would retry it forever.
+export const DAMAGED_LOCK_ERROR = 'Los datos de desbloqueo de tu bóveda están dañados. Intenta desbloquearla de otra forma.';
